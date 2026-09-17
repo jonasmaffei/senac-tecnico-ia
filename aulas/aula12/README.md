@@ -1,8 +1,5 @@
 # 📖 Guia Passo a Passo: Como Abrir e Rodar o Notebook da Aula 12 no Google Colab
 
-> **Para quem é este guia?**  
-> Para os alunos realizarem a aula prática no Google Colab mesmo sem conhecimento prévio de programação ou ferramentas de TI.
-
 ---
 
 ## 🚀 Opção 1: Abrir Direto via GitHub (Mais Rápido e Recomendado)

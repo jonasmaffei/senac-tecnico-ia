@@ -71,7 +71,7 @@ pip install -r requirements.txt
 | **09** | Alternativas ao CUDA (OpenCL) + LLMs Locais | [`atividades.md`](aulas/aula09/atividades.md), [Tutorial Ollama](aulas/aula09/hands-on-ollama.md), [Tutorial Open WebUI](aulas/aula09/hands-on-frontend-ollama.md) |
 | **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [`rocm_pytorch_benchmark.py`](aulas/aula10/rocm_pytorch_benchmark.py), [`Atividades.md`](aulas/aula10/Atividades.md), [`verificar-gpu-container/`](aulas/aula10/verificar-gpu-container), [`stressar-gpu-container/`](aulas/aula10/stressar-gpu-container) |
 | **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (ResNet, W&B, AMP) | [`atividade_aula11.py`](aulas/aula11/atividade_aula11.py), [Guia da Aula](aulas/aula11/README.md) |
-| **12** | Prática no Colab e Projeto Final do Módulo | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md) |
+| **12** | Prática no Colab e Projeto Final do Módulo | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Final](aulas/aula12/PROJETO_FINAL.md) |
 
 ---
 
