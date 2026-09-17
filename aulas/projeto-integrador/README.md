@@ -1,67 +1,54 @@
-# 📋 Guia e Roteiro do Projeto Final — Infraestrutura e Tecnologia para IA
+# 📋 Orientação do Projeto Integrador — Tecnologia e Infraestrutura para IA
 
-> **Curso:** Técnico em Inteligência Artificial — Senac  
-> **Público-alvo:** Profissionais de diversas áreas (Negócios, Saúde, Design, Educação, Comunicação, etc.)  
-> **Objetivo:** Aplicar os conceitos de infraestrutura de hardware, redes, Linux e modelos de IA estudados no módulo para propor uma solução real na sua área de atuação.
-
----
-
-## 💡 Sobre o Projeto
-
-Você não precisa desenvolver códigos complexos do zero! O objetivo deste projeto é que você atue como **Especialista/Consultor em Infraestrutura de IA**: identificando uma oportunidade no seu setor, avaliando as necessidades técnicas de hardware/rede, executando um teste prático no Google Colab e justificando a melhor decisão de implementação.
+## 🎯 Objetivo da Unidade Curricular
+Aplicar os conhecimentos de **Arquitetura de Computadores (CPU vs GPU)**, **Modelos de Processamento e Memória (SIMD, RAM e VRAM)**, **Redes de Comunicação (TCP/IP e Subredes)** e **Sistemas Operacionais Linux** para planejar e demonstrar a infraestrutura necessária para rodar ou treinar um modelo de Inteligência Artificial voltado a um caso de uso real.
 
 ---
 
-## 🎯 Estrutura do Projeto Final
+## 💡 Sobre a Abordagem do Projeto
 
-O trabalho pode ser entregue em dupla ou individualmente e deve conter 3 partes principais:
+Este trabalho avalia a **capacidade de análise técnica de infraestrutura e tomada de decisão**. 
 
-### Parte 1: Definição do Problema do Mundo Real (Sua Área)
-Escolha um problema real do seu setor de atuação que possa ser resolvido ou otimizado com IA.
-* **Exemplo Negócios/Marketing:** Analisar centenas de avaliações de clientes para identificar insatisfação em tempo real.
-* **Exemplo Saúde:** Transcrever e resumir consultas médicas ou analisar relatórios sem enviar dados sensíveis para servidores externos.
-* **Exemplo Design/Comunicação:** Processar e aplicar filtros/classificação em lotes de milhares de imagens de catálogo.
-* **Exemplo Educação/RH:** Criar um assistente local para responder dúvidas sobre apostilas e normas internas da empresa.
-
-### Parte 2: Proposta e Justificativa de Infraestrutura (Teoria)
-Responda às seguintes perguntas sobre a solução proposta:
-1. **CPU vs GPU:** O processamento precisa de GPU? Por quê? (Paralelismo SIMD, volume de dados, etc.)
-2. **Memória (RAM e VRAM):** Qual é a estimativa de memória necessária para rodar a solução?
-3. **Nuvem vs Local (Privacidade e Custo):** A solução deve rodar na nuvem (Google Colab/AWS) ou em servidor local (Linux/Ollama)? Por quê? (Considere segurança de dados TCP/IP, largura de banda e custo).
-4. **Sistema Operacional e Automação:** Como a solução seria mantida no ar? (ex: scripts Linux, tarefas agendadas via `cron`, contêineres Docker).
-
-### Parte 3: Demonstração Prática (Google Colab)
-Execute um teste simples no Google Colab (utilizando o notebook da Aula 12 ou um notebook personalizado com Hugging Face / Ollama / PyTorch) e inclua os resultados no seu relatório:
-* Captura de tela ou dados do tempo de processamento (CPU vs GPU).
-* Monitoramento de consumo de VRAM / Memória.
-* Exemplo do resultado final gerado pela IA.
+Você atuará na **especificação técnica e validação prática da infraestrutura de IA**:
+1. Mapear as exigências de processamento e memória do problema.
+2. Definir a arquitetura ideal (hardware, redes/comunicação e sistema operacional).
+3. Validar a execução da infraestrutura em ambiente de testes no Google Colab.
 
 ---
 
-## 📦 O que Entregar?
+## 🎯 Estrutura da Entrega
 
-Você deve enviar no formulário da turma:
-1. **Relatório em PDF ou Slides de Apresentação** (máximo 5 a 8 slides) cobrindo as Partes 1 e 2.
-2. **Link do Notebook Google Colab** (com permissão de leitura/execução) referente à Parte 3.
+O projeto pode ser desenvolvido individualmente ou em dupla e é dividido em 3 pilares alinhados aos elementos da competência:
+
+### 1. Especificação de Hardware e Processamento
+* **Modelo de Processamento (CPU vs GPU):** O problema exige processamento massivo paralelo (SIMD/GPU) ou sequencial complexo (CPU)?
+* **Hierarquia de Memória:** Qual o consumo estimado de RAM e VRAM? Há risco de gargalo na transferência via barramento PCIe?
+* **Arquitetura de GPU:** O modelo utilizará CUDA (NVIDIA) ou ROCm (AMD)? Qual a estratégia para evitar estouro de memória (VRAM Out Of Memory)?
+
+### 2. Infraestrutura de Redes, Linux e Armazenamento
+* **Comunicação de Dados e Redes (TCP/IP):** Como os dados chegam à infraestrutura? Qual a relevância da latência, largura de banda e endereçamento de rede para essa aplicação?
+* **Ambiente de Operação (Linux):** Como o ambiente de execução será configurado (gerenciamento de processos, permissões, contêineres Docker ou rotinas agendadas)?
+* **Segurança e Privacidade:** A infraestrutura rodará em nuvem pública ou em servidor local privado para proteger os dados?
+
+### 3. Validação Prática em Ambiente Colab
+* Executar um teste prático no Google Colab (utilizando o notebook da Aula 12 como base ou adaptado).
+* Registrar o tempo de execução (CPU vs GPU) e a ocupação da VRAM (`nvidia-smi`).
+* Demonstrar o resultado da saída do modelo ou pipeline de processamento.
 
 ---
 
-## 📊 Rubrica de Avaliação
+## 📦 Formato da Entrega
+
+1. **Documento/Relatório Técnico (PDF ou Slides):** Contendo as análises dos pilares 1 e 2.
+2. **Link do Notebook no Google Colab:** Com a execução e os gráficos/métricas coletadas no pilar 3.
+
+---
+
+## 📊 Rubrica de Avaliação (Alinhada à Ementa)
 
 | Critério | Peso | O que será avaliado? |
 | :--- | :---: | :--- |
-| **Clareza do Problema** | 20% | Aplicação prática bem alinhada ao setor do aluno. |
-| **Justificativa de Infraestrutura** | 40% | Uso correto dos conceitos do módulo (GPU, VRAM, RAM, Linux, Redes/Privacidade). |
-| **Execução no Colab** | 30% | Teste prático executado com sucesso e evidenciado no relatório. |
-| **Apresentação e Organização** | 10% | Organização do documento/slides e clareza na explicação. |
-
----
-
-## 🚀 Ideias de Temas por Área de Atuação
-
-> Use uma destas sugestões caso precise de inspiração!
-
-* 💼 **Gestão & Negócios:** "Estudo de Custo e Viabilidade para Otimização de Atendimento com LLMs em GPU Nuvem vs Servidor Local."
-* 🏥 **Saúde & Bem-Estar:** "Infraestrutura Local com Linux para Sumarização de Prontuários com Privacidade Garantida (sem envio para nuvem)."
-* 🎨 **Design & Mídia:** "Processamento Paralelo de Imagens em Lote com PyTorch: Comparativo de Tempo CPU vs GPU em Campanhas de Marketing."
-* 📚 **Educação:** "Criando um Tutor Interativo de Estudos com Modelos Open-Source Leves em Colab."
+| **Análise de Hardware & Memória** | 35% | Uso correto dos conceitos de Von Neumann, CPU vs GPU, SIMD, RAM/VRAM e barramentos. |
+| **Arquitetura de Redes & Linux** | 35% | Justificativa adequada sobre TCP/IP, segurança, permissões e gerenciamento de processos no Linux. |
+| **Validação Prática (Colab)** | 20% | Sucesso na execução dos testes e coleta de métricas de desempenho (tempo/VRAM). |
+| **Clareza & Defesa Técnica** | 10% | Coerência na apresentação da proposta e justificativa da solução. |

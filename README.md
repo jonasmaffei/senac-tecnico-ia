@@ -129,8 +129,10 @@ senac-tecnico-ia/
 │   ├── aula11/
 │   │   ├── atividade_aula11.py
 │   │   └── README.md
-│   └── aula12/
-│       ├── aula12_pratica_colab.ipynb
+│   ├── aula12/
+│   │   ├── aula12_pratica_colab.ipynb
+│   │   └── README.md
+│   └── projeto-integrador/
 │       └── README.md
 └── docs/
     ├── 01_timeline-engenharia.md            → Blueprint causal do curso
