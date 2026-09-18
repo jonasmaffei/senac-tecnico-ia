@@ -53,4 +53,4 @@ No notebook `aula13_implementacao_modelo_paralelo.ipynb`, você encontrará:
 7. **Visualização Gráfica Interativa** (Tempos absolutos e Speedup com Matplotlib)
 8. **Tarefa Final do Bloco 2 & Seção Extra (`np.linalg.norm` vs `cp.linalg.norm`)**
 9. **Mini-Relatório Técnico e Conclusão**
-10. **Questionário de Consolidação (Aulas 8 a 12)** — 3 questões por aula, cobrindo Tiling/Memória em CUDA, OpenCL, ROCm/AMD, modelos de IA em NVIDIA vs AMD e modelos paralelos simples.
+10. **Questionário de Consolidação (Aulas 8 a 13)** — as 18 questões estão em [`questionarios/questionario-aulas-8-13.md`](../../questionarios/questionario-aulas-8-13.md). Entrega por e-mail para `03049691093@senacrs.edu.br` (assunto: `Questionario aulas 8 a 13`).

@@ -1,5 +1,5 @@
 # Guia de Estudo e Resumo Consolidado
-## Fundamentos de Tecnologia e Infraestrutura para I.A.
+## Introdução a Arquitetura de Computadores
 
 ---
 

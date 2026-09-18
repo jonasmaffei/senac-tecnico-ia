@@ -1,4 +1,4 @@
-# 🧠 Tecnologia e Infraestrutura para Inteligência Artificial
+# 🧠 Introdução a Arquitetura de Computadores
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://www.python.org/)
 [![CUDA](https://img.shields.io/badge/CUDA-12.x-green.svg)](https://developer.nvidia.com/cuda-toolkit)
@@ -71,7 +71,7 @@ pip install -r requirements.txt
 | **09** | Alternativas ao CUDA (OpenCL) + LLMs Locais | [`atividades.md`](aulas/aula09/atividades.md), [Tutorial Ollama](aulas/aula09/hands-on-ollama.md), [Tutorial Open WebUI](aulas/aula09/hands-on-frontend-ollama.md) |
 | **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [`rocm_pytorch_benchmark.py`](aulas/aula10/rocm_pytorch_benchmark.py), [`Atividades.md`](aulas/aula10/Atividades.md), [`verificar-gpu-container/`](aulas/aula10/verificar-gpu-container), [`stressar-gpu-container/`](aulas/aula10/stressar-gpu-container) |
 | **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (ResNet, W&B, AMP) | [`atividade_aula11.py`](aulas/aula11/atividade_aula11.py), [Guia da Aula](aulas/aula11/README.md) |
-| **12** | Prática no Colab e Projeto Final do Módulo | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Final](aulas/aula12/PROJETO_FINAL.md) |
+| **12** | Prática no Colab e Projeto Final do Módulo | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
 | **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [`aula13_implementacao_modelo_paralelo.ipynb`](aulas/aula13/aula13_implementacao_modelo_paralelo.ipynb), [Guia Colab](aulas/aula13/README.md) |
 
 ---
@@ -82,11 +82,20 @@ pip install -r requirements.txt
 | :---: | :--- | :--- |
 | **01** | [`01_timeline-engenharia.md`](docs/01_timeline-engenharia.md) | Blueprint causal de engenharia: por que cada aula existe e como se conectam |
 | **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 13) |
-| **03** | [`03_questionario.md`](docs/03_questionario.md) | Questionário de avaliação técnica |
-| **04** | [`04_questionario-gabarito.md`](docs/04_questionario-gabarito.md) | Gabarito sintetizado |
 | **05** | [`05_materiais-complementares.md`](docs/05_materiais-complementares.md) | Curadoria de links, playlists e cursos externos |
 | **06** | [`06_tutorial-instalacao-wsl.md`](docs/06_tutorial-instalacao-wsl.md) | Guia de instalação e configuração do WSL 2 no Windows 10 e 11 |
 | **07** | [`07_tutorial-instalacao-docker-wsl.md`](docs/07_tutorial-instalacao-docker-wsl.md) | Guia de instalação e uso do Docker Engine nativo no WSL 2 (Ubuntu) |
+
+---
+
+## 📝 Questionários
+
+Os questionários de revisão ficam na pasta [`questionarios/`](questionarios/README.md), organizados por fase:
+
+| Fase | Período | Questões | Entrega |
+| :---: | :--- | :---: | :--- |
+| **1** | Aulas 1 a 7 | 21 | Já respondido em sala |
+| **2** | Aulas 8 a 13 | 18 | Por e-mail para `03049691093@senacrs.edu.br` — assunto `Questionario aulas 8 a 13` |
 
 ---
 
@@ -138,11 +147,13 @@ senac-tecnico-ia/
 │   │   └── README.md
 │   └── projeto-integrador/
 │       └── README.md
+├── questionarios/
+│   ├── README.md                              → Índice e regras de entrega
+│   ├── questionario-aulas-1-7.md              → Fase 1 (já respondida em sala)
+│   └── questionario-aulas-8-13.md             → Fase 2 (entrega por e-mail)
 └── docs/
     ├── 01_timeline-engenharia.md            → Blueprint causal do curso
     ├── 02_resumos.md                        → Resumos teóricos consolidados
-    ├── 03_questionario.md                   → Avaliação técnica
-    ├── 04_questionario-gabarito.md          → Gabarito de respostas
     ├── 05_materiais-complementares.md       → Links e leituras recomendadas
     ├── 06_tutorial-instalacao-wsl.md        → Guia de instalação do WSL no Windows 10/11
     └── 07_tutorial-instalacao-docker-wsl.md → Guia de instalação do Docker no WSL 2 Ubuntu

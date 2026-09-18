@@ -1,7 +1,8 @@
-# Questionário de Revisão (Aulas 1 a 7)
-## Fundamentos de Tecnologia e Infraestrutura para I.A.
+# Questionário de Revisão — Aulas 1 a 7
+## Introdução a Arquitetura de Computadores
 
-> **Instruções:** Utilize o resumo consolidado das aulas como guia de consulta para responder às questões abaixo, focando na aplicação prática e na visão de negócios.
+
+> **Instruções:** Utilize o resumo consolidado das aulas como guia de consulta, focando na aplicação prática e na visão de negócios.
 
 ---
 

@@ -1,5 +1,5 @@
 # ============================================================
-# Dependências — Tecnologia e Infraestrutura para I.A. (Senac)
+# Dependências — Introdução a Arquitetura de Computadores (Senac)
 # Instale com: pip install -r requirements.txt
 # ============================================================
 
