@@ -53,3 +53,4 @@ No notebook `aula13_implementacao_modelo_paralelo.ipynb`, você encontrará:
 7. **Visualização Gráfica Interativa** (Tempos absolutos e Speedup com Matplotlib)
 8. **Tarefa Final do Bloco 2 & Seção Extra (`np.linalg.norm` vs `cp.linalg.norm`)**
 9. **Mini-Relatório Técnico e Conclusão**
+10. **Lista de 20 Exercícios Práticos e Teóricos** (Exercícios 1 a 10 conceituais e 11 a 20 mão na massa em Python/CUDA/CuPy)
