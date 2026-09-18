@@ -150,6 +150,7 @@ senac-tecnico-ia/
 ├── questionarios/
 │   ├── README.md                              → Índice e regras de entrega
 │   ├── questionario-aulas-1-7.md              → Fase 1 (já respondida em sala)
+│   ├── gabarito-questionario-aulas-1-7.md     → Gabarito da Fase 1
 │   └── questionario-aulas-8-13.md             → Fase 2 (entrega por e-mail)
 └── docs/
     ├── 01_timeline-engenharia.md            → Blueprint causal do curso

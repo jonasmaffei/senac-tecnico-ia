@@ -4,8 +4,14 @@ Esta pasta reúne os questionários de revisão da Unidade Curricular, organizad
 
 | Fase | Período | Questões | Status | Arquivo |
 | :---: | :--- | :---: | :--- | :--- |
-| **1** | Aulas 1 a 7 | 21 | ✅ Já enviado por email | [`questionario-aulas-1-7.md`](questionario-aulas-1-7.md) |
+| **1** | Aulas 1 a 7 | 21 | ✅ Já respondido em sala | [`questionario-aulas-1-7.md`](questionario-aulas-1-7.md) |
 | **2** | Aulas 8 a 13 | 18 | 📤 Para entrega por e-mail | [`questionario-aulas-8-13.md`](questionario-aulas-8-13.md) |
+
+### Gabaritos
+
+| Período | Arquivo |
+| :--- | :--- |
+| Aulas 1 a 7 | [`gabarito-questionario-aulas-1-7.md`](gabarito-questionario-aulas-1-7.md) |
 
 ---
 
