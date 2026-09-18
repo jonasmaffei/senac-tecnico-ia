@@ -12,7 +12,7 @@ venv/
 .venv/
 env/
 .env/
-
+AGENTS.md
 # === Jupyter Notebooks ===
 .ipynb_checkpoints/
 
