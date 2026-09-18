@@ -11,9 +11,9 @@
 [A1] Von Neumann/Harvard ──> [A2] SIMD/MIMD/RISC/CISC ──> [A3] Hierarquia de Memória (VRAM/PCIe)
                                                                       │
                                                                       ▼
-[A10] AMD ROCm & HIP ──> [A11] Aplicação & Métricas Comparativas CUDA vs ROCm (W&B/ResNet)
-                                                                       ▲
-                                                                       │
+[A10] AMD ROCm & HIP ──> [A11] ResNet CUDA vs ROCm ──> [A12] Lab Prático Colab ──> [A13] Modelo Paralelo (Síntese Bloco 2)
+                                                                                                 ▲
+                                                                                                 │
 [A9] OpenCL Multi-Vendor <── [A8] Tiling & Coalescing <── [A7] Kernels CUDA ──> [A6] Linux Ops ──> [A5] Redes/Rsync ──> [A4] Processos/GIL
 ```
 
@@ -86,6 +86,16 @@
 * **O que se aprende:** Métricas objetivas de IA (throughput em imgs/s, VRAM em MB, tempo por época), otimização com Mixed Precision (`torch.cuda.amp` autocast/GradScaler em FP16/BF16), telemetria unificada via W&B e análise estratégica de infraestrutura.
 * **Conexão com a Aula 10:** Consolida os conhecimentos do Bloco 2. Coloca em prática a execução do mesmo modelo PyTorch em ambas as GPUs, fundamentando a decisão executiva com dados reais empíricos de desempenho, estabilidade e custo.
 
+### Aula 12: Prática no Colab e Projeto Final do Módulo
+* **Conceito/Fundamento:** Laboratório prático interativo no Google Colab integrando CPU vs GPU, barramento PCIe, tiling de imagens e introdução ao projeto integrador.
+* **O que se aprende:** Utilização de formulários interativos, medição de latência PCIe (RAM ➔ VRAM) e prototipagem visual.
+* **Conexão com a Aula 11:** Prepara o terreno para o encerramento do Bloco 2, validando interativamente todos os conceitos de infraestrutura.
+
+### Aula 13: Implementação de um Modelo Paralelo Simples (Síntese do Bloco 2)
+* **Conceito/Fundamento:** Desenvolvimento e benchmark de 4 implementações (Python Puro, NumPy, CUDA Numba, CuPy) para soma vetorial e produto escalar com redução paralela em Shared Memory.
+* **O que se aprende:** Paralelismo SIMT vs SIMD, limiar de compensação de N ($N \ge 100K$), overhead PCIe/Kernel launch, curva de speedup com Matplotlib e mini-relatório técnico.
+* **Conexão com todo o Bloco 2:** Síntese final e prática reproduzível do Bloco 2, consolidando kernels CUDA, CuPy, vetorização em CPU e análise técnica empírica.
+
 ---
 
 ## Matriz de Domínio por Elo da Corrente
@@ -96,5 +106,5 @@
 | **A4-A6** | "Como mexer no cluster remoto sem perder o job de 12h?" | Script de sync `rsync`, túnel SSH, monitoramento `nvtop`/`tmux`. |
 | **A7-A8** | "Como espremer 100% da VRAM da placa de vídeo?" | Kernel otimizado com *tiling*, *coalescing* e medição de latência. |
 | **A9** | "E se o cliente exigir rodar em cluster AMD/Intel?" | Tradução mental de paralelismo para padrão aberto agnóstico (OpenCL). |
-| **A10** | "Como migrar um pipeline CUDA existente para GPUs AMD reduzindo custos?" | Benchmark PyTorch transparente via HIP e Docker ROCm (`rocm-smi`). |
-| **A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs ROCm) adotar?" | Treinamento ResNet com métricas de throughput/VRAM no W&B e análise de TCO. |
+| **A10-A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs ROCm) adotar?" | Treinamento ResNet com métricas de throughput/VRAM no W&B e análise de TCO. |
+| **A12-A13** | "Como quantificar empiricamente o speedup da GPU e responder onde ela compensa?" | Benchmark de 4 implementações (Python, NumPy, CUDA Numba, CuPy), curva de speedup e mini-relatório. |

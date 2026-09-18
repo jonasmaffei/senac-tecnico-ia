@@ -108,3 +108,12 @@
 * **Matriz de Trade-offs para Decisão Técnica:**
   * **NVIDIA (CUDA):** Ecossistema extremamente maduro, ecossistema cuDNN/cuBLAS consolidado, menor tempo de setup, porém maior custo por GPU.
   * **AMD (ROCm):** 100% open-source, maior densidade de VRAM por chip (ex: MI300X com 192GB), melhor relação custo/desempenho (~30% mais barato), exigindo suporte via contêineres Docker recomendados.
+
+#### Aula 12: Prática no Colab e Projeto Final do Módulo
+* **Laboratório Prático:** Exploração interativa no Google Colab de multiplicação de matrizes CPU vs GPU, latência de barramento PCIe na transferência RAM ➔ VRAM e aplicação de filtros em imagens por meio de Tiling simulado.
+* **Prototipagem Rápida:** Uso de widgets e formulários interativos do Colab para modificar dinamicamente parâmetros de execução.
+
+#### Aula 13: Implementação de um Modelo Paralelo Simples (Síntese do Bloco 2)
+* **Comparativo Quádruplo:** Implementação e medição das 4 abordagens para soma vetorial e produto escalar (Python Puro, CPU NumPy, GPU CUDA Numba e GPU CuPy).
+* **Redução Paralela em Shared Memory:** Implementação de *Tree Reduction* dentro do bloco CUDA para produto escalar em Numba com acúmulo via `cuda.atomic.add`.
+* **Análise de Speedup & Overhead:** Diagnóstico empírico demonstrando que para $N < 100K$ o overhead de transferência PCIe e lançamento de kernels torna a GPU mais lenta que a CPU ($<1\times$), enquanto para $N \ge 10M$ o speedup atinge ganhos expressivos ($>20\times$).

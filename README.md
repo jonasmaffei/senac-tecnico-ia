@@ -72,6 +72,7 @@ pip install -r requirements.txt
 | **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [`rocm_pytorch_benchmark.py`](aulas/aula10/rocm_pytorch_benchmark.py), [`Atividades.md`](aulas/aula10/Atividades.md), [`verificar-gpu-container/`](aulas/aula10/verificar-gpu-container), [`stressar-gpu-container/`](aulas/aula10/stressar-gpu-container) |
 | **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (ResNet, W&B, AMP) | [`atividade_aula11.py`](aulas/aula11/atividade_aula11.py), [Guia da Aula](aulas/aula11/README.md) |
 | **12** | Prática no Colab e Projeto Final do Módulo | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Final](aulas/aula12/PROJETO_FINAL.md) |
+| **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [`aula13_implementacao_modelo_paralelo.ipynb`](aulas/aula13/aula13_implementacao_modelo_paralelo.ipynb), [Guia Colab](aulas/aula13/README.md) |
 
 ---
 
@@ -80,7 +81,7 @@ pip install -r requirements.txt
 | Sequência | Documento | Descrição |
 | :---: | :--- | :--- |
 | **01** | [`01_timeline-engenharia.md`](docs/01_timeline-engenharia.md) | Blueprint causal de engenharia: por que cada aula existe e como se conectam |
-| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 11) |
+| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 13) |
 | **03** | [`03_questionario.md`](docs/03_questionario.md) | Questionário de avaliação técnica |
 | **04** | [`04_questionario-gabarito.md`](docs/04_questionario-gabarito.md) | Gabarito sintetizado |
 | **05** | [`05_materiais-complementares.md`](docs/05_materiais-complementares.md) | Curadoria de links, playlists e cursos externos |
@@ -131,6 +132,9 @@ senac-tecnico-ia/
 │   │   └── README.md
 │   ├── aula12/
 │   │   ├── aula12_pratica_colab.ipynb
+│   │   └── README.md
+│   ├── aula13/
+│   │   ├── aula13_implementacao_modelo_paralelo.ipynb
 │   │   └── README.md
 │   └── projeto-integrador/
 │       └── README.md
