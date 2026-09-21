@@ -12,7 +12,7 @@
 
 cd "$(dirname "$0")" || exit 1
 
-# Força o fuso horário de Brasília no Git Bash
+# Força o fuso horário de Brasília
 export TZ="America/Sao_Paulo"
 
 set -euo pipefail
@@ -26,12 +26,18 @@ if [ ! -f "$CSV" ]; then
     exit 1
 fi
 
-# Lê até 300 amostras (suficiente para os gráficos e mantém o HTML leve)
-mapfile -t LINHAS < <(tail -n +2 "$CSV" | tail -n 300)
+# Define o limite de tempo (exatamente 2 horas atrás)
+CORTE=$(date -d "2 hours ago" +"%Y-%m-%d %H:%M:%S")
+
+# Filtra o CSV mantendo apenas amostras que ocorreram DEPOIS do horário de corte.
+# Como o formato de data (YYYY-MM-DD HH:MM:SS) é ordenável alfabeticamente,
+# podemos usar o awk para comparar strings matematicamente.
+# Mantemos um tail de 3000 como válvula de segurança contra intervalos de 0.1s.
+mapfile -t LINHAS < <(awk -F',' -v corte="$CORTE" 'NR>1 { if ($1 >= corte) print $0 }' "$CSV" | tail -n 3000)
 TOTAL=${#LINHAS[@]}
 
 if [ "$TOTAL" -eq 0 ]; then
-    echo "ERRO: '$CSV' nao tem dados."
+    echo "ERRO: '$CSV' nao tem dados nas últimas 2 horas."
     exit 1
 fi
 
@@ -116,7 +122,7 @@ Y_VRAM=$(max_de "${VRAM[@]}"); [ "$Y_VRAM" -lt 100 ] && Y_VRAM=100
 Y_POT=$(max_de "${POT[@]}");  [ "$Y_POT" -lt 20 ] && Y_POT=20
 
 TITULO="GPU Monitoring Dashboard — Aula 14"
-SUBTITULO="$TOTAL amostras de $CSV · gerado em $(date '+%Y-%m-%d %H:%M:%S')"
+SUBTITULO="Últimas 2 horas ($TOTAL amostras) · gerado em $(date '+%Y-%m-%d %H:%M:%S')"
 
 {
 cat <<EOF
