@@ -74,6 +74,12 @@ pip install -r requirements.txt
 | **12** | Prática no Colab e Projeto Final do Módulo | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
 | **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [`aula13_implementacao_modelo_paralelo.ipynb`](aulas/aula13/aula13_implementacao_modelo_paralelo.ipynb), [Guia Colab](aulas/aula13/README.md) |
 
+### Bloco 3 — Automação
+
+| Aula | Tema | Scripts / Recursos |
+| :---: | :--- | :--- |
+| **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [`aula14_automacao_gpu_bash.ipynb`](aulas/aula14/aula14_automacao_gpu_bash.ipynb), [`monitor_gpu.sh`](aulas/aula14/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/aula14/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/aula14/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/aula14/enviar_para_sheets.py), [Guia Colab](aulas/aula14/README.md) |
+
 ---
 
 ## 📖 Documentação
@@ -144,6 +150,13 @@ senac-tecnico-ia/
 │   │   └── README.md
 │   ├── aula13/
 │   │   ├── aula13_implementacao_modelo_paralelo.ipynb
+│   │   └── README.md
+│   ├── aula14/
+│   │   ├── aula14_automacao_gpu_bash.ipynb
+│   │   ├── alerta_gpu.sh
+│   │   ├── enviar_para_sheets.py
+│   │   ├── gerar_graficos.sh
+│   │   ├── monitor_gpu.sh
 │   │   └── README.md
 │   └── projeto-integrador/
 │       └── README.md
