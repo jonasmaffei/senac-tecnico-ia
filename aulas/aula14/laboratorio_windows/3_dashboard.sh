@@ -12,6 +12,9 @@
 
 cd "$(dirname "$0")" || exit 1
 
+# Força o fuso horário de Brasília no Git Bash
+export TZ="America/Sao_Paulo"
+
 set -euo pipefail
 
 CSV="${1:-gpu_log.csv}"
@@ -36,8 +39,11 @@ fi
 TEMPS=(); UTILG=(); VRAM=(); POT=(); ROTULOS=()
 for linha in "${LINHAS[@]}"; do
     IFS=',' read -r ts idx nome temp ug um vram vtot pw plim <<< "$linha"
-    ts=$(printf '%s' "$ts" | tr -d ' ')
-    ROTULOS+=("${ts:11:5}")            # apenas HH:MM
+    
+    # Remove apenas espaços no início/fim, preservando o espaço entre data e hora
+    ts=$(printf '%s' "$ts" | sed 's/^ *//; s/ *$//')
+    ROTULOS+=("${ts:11:5}")            # captura exatamente HH:MM
+    
     TEMPS+=("$(printf '%s' "$temp" | tr -d ' ')")
     UTILG+=("$(printf '%s' "$ug" | tr -d ' ')")
     VRAM+=("$(printf '%s' "$vram" | tr -d ' ')")
@@ -58,8 +64,6 @@ gerar_svg() {
 
     local pontos="" i=0 ultimo=0
     for v in "${valores[@]}"; do
-        # Valores não numéricos (ex.: "N/A" da AMD no Windows) reaproveitam
-        # o último valor válido, evitando quedas artificiais no gráfico.
         if [[ "$v" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
             ultimo="$v"
         else
@@ -70,7 +74,6 @@ gerar_svg() {
         else
             x=$(( pad + i * plotw / (n - 1) ))
         fi
-        # Normaliza: valores maiores sobem (Y invertido no SVG)
         y=$(( h - pad - ( v * ploth / ymax ) ))
         pontos+="$x,$y "
         i=$(( i + 1 ))
@@ -92,7 +95,7 @@ gerar_svg() {
         <!-- Rótulo do Y máximo -->
         <text x="$pad" y="$(( pad - 8 ))" fill="#94a3b8" font-size="12">max $ymax</text>
         
-        <!-- Timeline (Tempo no Eixo X) -->
+        <!-- Timeline (Tempo no Eixo X) em Brasília -->
         <text x="$pad" y="$(( h - pad + 15 ))" fill="#94a3b8" font-size="10">$lbl_ini</text>
         <text x="$(( pad + plotw / 2 ))" y="$(( h - pad + 15 ))" fill="#94a3b8" font-size="10" text-anchor="middle">$lbl_meio</text>
         <text x="$(( w - pad ))" y="$(( h - pad + 15 ))" fill="#94a3b8" font-size="10" text-anchor="end">$lbl_fim</text>
