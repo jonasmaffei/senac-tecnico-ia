@@ -117,3 +117,11 @@
 * **Comparativo Quádruplo:** Implementação e medição das 4 abordagens para soma vetorial e produto escalar (Python Puro, CPU NumPy, GPU CUDA Numba e GPU CuPy).
 * **Redução Paralela em Shared Memory:** Implementação de *Tree Reduction* dentro do bloco CUDA para produto escalar em Numba com acúmulo via `cuda.atomic.add`.
 * **Análise de Speedup & Overhead:** Diagnóstico empírico demonstrando que para $N < 100K$ o overhead de transferência PCIe e lançamento de kernels torna a GPU mais lenta que a CPU ($<1\times$), enquanto para $N \ge 10M$ o speedup atinge ganhos expressivos ($>20\times$).
+
+#### Aula 14: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
+* **Monitoramento com `nvidia-smi`:** A opção `--query-gpu` extrai métricas estruturadas (`temperature.gpu`, `utilization.gpu`, `utilization.memory`, `memory.used`, `power.draw`, `power.limit`, clocks e `fan.speed`). A flag `--format=csv,noheader,nounits` produz saída ideal para scripts.
+* **Scripts Bash:** `monitor_gpu.sh` coleta métricas em loop, com timestamp e uma linha por GPU, salvando em CSV; `alerta_gpu.sh` compara cada GPU com limites de temperatura/utilização e notifica via webhook (Slack/Discord) ou e-mail. Ambos usam `set -euo pipefail`.
+* **Agendamento:** `cron` (sintaxe `* * * * * comando`, `crontab -e`) é o agendador clássico e simples; `systemd timer` é a alternativa moderna com logging via `journald`, dependências (`After=`) e execução após boot (`Persistent=true`).
+* **Visualização:** `gnuplot` gera dashboard de 4 painéis (temperatura, utilização, VRAM, potência) direto de um CSV, sem Python; no Colab, `pandas + matplotlib` produz o equivalente.
+* **Integração com Google Sheets:** Via Service Account (`google-auth` + `google-api-python-client`), o CSV é anexado a uma planilha (`values().append`), permitindo acompanhar as GPUs sem SSH. Credenciais ficam em variáveis de ambiente e fora do repositório.
+* **Operação em Colab:** O notebook detecta `nvidia-smi` e, sem GPU, gera métricas simuladas com o mesmo schema do CSV real; cron/systemd não existem no Colab e são simulados com loop Python.

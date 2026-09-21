@@ -44,3 +44,10 @@ models/
 checkpoints/
 .context.md
 
+# === Saídas geradas pela Aula 14 (monitoramento de GPU) ===
+gpu_log*.csv
+alertas.log
+gpu_dashboard.png
+gpu_log_dashboard.png
+dashboard.html
+

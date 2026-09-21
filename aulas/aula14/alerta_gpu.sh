@@ -9,7 +9,9 @@ set -euo pipefail
 
 LIMITE_TEMP="${1:-80}"   # °C
 LIMITE_UTIL="${2:-95}"   # %
-LOG_ALERTAS="/tmp/gpu_alertas.log"           # grava em /tmp (não exige root)
+# Log configurável; padrão em /tmp (não exige root e funciona no Colab).
+# Em servidores reais, use LOG_ALERTAS=/var/log/gpu_alertas.log
+LOG_ALERTAS="${LOG_ALERTAS:-/tmp/gpu_alertas.log}"
 SLACK_WEBHOOK="${SLACK_WEBHOOK_URL:-}"       # opcional: webhook Slack/Discord
 
 # ── Função que dispara o alerta por todos os canais disponíveis ─────────────
@@ -33,12 +35,22 @@ alerta() {
 }
 
 # ── Verifica cada GPU ───────────────────────────────────────────────────────
-# O separador é ', ' (vírgula + espaço) porque usamos --format=csv,noheader
-while IFS=", " read -r idx nome temp util; do
-    if [ "$temp" -ge "$LIMITE_TEMP" ]; then
+# A query devolve CSV no formato: "0, Tesla T4, 52, 87"
+# Separamos por vírgula (IFS=",") e removemos os espaços com tr.
+# IMPORTANTE: NÃO usar IFS=", " — o shell trataria vírgula E espaço como
+# separadores, desalinhando os campos (ex.: temp receberia "T4").
+while IFS="," read -r idx nome temp util; do
+    # Remove espaços em branco ao redor de cada campo
+    idx=$(printf '%s' "$idx" | tr -d ' ')
+    nome=$(printf '%s' "$nome" | sed 's/^ *//; s/ *$//')
+    temp=$(printf '%s' "$temp" | tr -d ' ')
+    util=$(printf '%s' "$util" | tr -d ' ')
+
+    # Campos podem vir "N/A" (ex.: fan.speed no T4); ignoramos valores não numéricos
+    if [[ "$temp" =~ ^[0-9]+$ ]] && [ "$temp" -ge "$LIMITE_TEMP" ]; then
         alerta "GPU $idx ($nome): temperatura ${temp}C >= ${LIMITE_TEMP}C"
     fi
-    if [ "$util" -ge "$LIMITE_UTIL" ]; then
+    if [[ "$util" =~ ^[0-9]+$ ]] && [ "$util" -ge "$LIMITE_UTIL" ]; then
         alerta "GPU $idx ($nome): utilizacao ${util}% >= ${LIMITE_UTIL}%"
     fi
 done < <(nvidia-smi \

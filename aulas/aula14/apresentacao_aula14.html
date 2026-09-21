@@ -190,17 +190,78 @@
     border-radius: 10px;
     padding: 14px 16px;
     overflow-x: auto;
-    margin: 0 0 12px;
+    margin: 0;
     box-shadow: inset 0 0 40px rgba(0,0,0,.35);
   }
   pre code {
     background: none; border: none; padding: 0;
-    color: #d7ddff; font-size: .82rem; line-height: 1.58; white-space: pre;
+    color: #dbe1ff; font-size: .8rem; line-height: 1.55;
+    white-space: pre; display: block;
   }
-  .c-cmt { color: #6b7bab; }
-  .c-var { color: #f8b76b; }
-  .c-str { color: #7ddba3; }
-  .c-key { color: #9db2ff; }
+  pre.scroll { max-height: 340px; overflow-y: auto; }
+
+  /* ---------- Bloco de código copiável ---------- */
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge {
+    position: absolute;
+    top: 8px; left: 10px;
+    font-size: .64rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    background: rgba(10,15,34,.85);
+    padding: 3px 8px;
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  .code-wrap pre { padding-top: 30px; }
+
+  .code-tools {
+    position: absolute;
+    top: 7px; right: 8px;
+    display: flex;
+    gap: 6px;
+    opacity: .45;
+    transition: opacity .15s;
+    z-index: 2;
+  }
+  .code-wrap:hover .code-tools,
+  .code-wrap:focus-within .code-tools { opacity: 1; }
+
+  .code-tools button {
+    background: rgba(28,39,73,.96);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 5px 11px;
+    font-size: .74rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .code-tools button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .code-tools button:active { transform: scale(.95); }
+  .code-tools button.copied { border-color: var(--accent-2); color: var(--accent-2); }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 64px; left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--accent-2);
+    color: #04231a;
+    font-weight: 600;
+    font-size: .84rem;
+    padding: 8px 16px;
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 60;
+  }
+  .copied-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
   .pipe-step {
@@ -277,6 +338,18 @@
   .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
   .meta-row .meta .v { font-size: 1rem; color: var(--text); }
 
+  .note {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 9px 14px;
+    margin-bottom: 14px;
+    align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+
   @media (max-width: 900px) {
     .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .slide { padding: 60px 6vw 72px; }
@@ -307,6 +380,7 @@
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
       <div class="meta"><div class="k">Duração</div><div class="v">120 min</div></div>
+      <div class="meta"><div class="k">Execução</div><div class="v">Google Colab</div></div>
     </div>
     <div class="grid cols-2" style="margin-top:26px">
       <div class="card" style="border-top:3px solid var(--accent-4)">
@@ -326,6 +400,12 @@
   <section class="slide">
     <div class="kicker">Visão Geral</div>
     <h2>Objetivo e pipeline de automação</h2>
+    <div class="note">
+      <span class="ico">📋</span>
+      <span>Cada bloco de código desta apresentação é uma <strong>célula completa</strong>: clique em
+        <strong>Copiar</strong> e cole direto no Colab (os blocos <code>%%bash</code> e Python já
+        detectam GPU ou usam modo simulado).</span>
+    </div>
     <p><strong>Objetivo:</strong> automatizar o monitoramento de GPUs com scripts Bash para garantir
       operação contínua e eficiente em ambientes de IA.</p>
     <div class="pipeline" style="margin-top:8px">
@@ -352,21 +432,22 @@
     <h2><span class="num">2.</span>Queries úteis e campos</h2>
     <div class="grid cols-2">
       <div>
-        <pre><code><span class="c-cmt"># Query estruturado — ideal para scripts</span>
-nvidia-smi --query-gpu=index,name,temperature.gpu,\
-utilization.gpu,utilization.memory,memory.used,\
-memory.total,power.draw,power.limit,\
-clocks.current.graphics,clocks.current.memory,fan.speed \
---format=csv,noheader,nounits
-
-<span class="c-cmt"># Saída exemplo (GPU 0 — Tesla T4):</span>
-0, Tesla T4, 52, 87, 45, 3842, 15360, 48.2, 70.0, ...
-
-<span class="c-cmt"># Campos disponíveis completos</span>
-nvidia-smi --query-gpu=help | head -60
-
-<span class="c-cmt"># Monitoramento contínuo a cada 2 s</span>
-nvidia-smi dmon -s pucvmet -d 2</code></pre>
+        <div class="code-wrap">
+          <span class="badge">%%bash</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code>%%bash
+# nvidia-smi — query estruturado (GPU real ou simulado)
+if command -v nvidia-smi &gt;/dev/null 2&gt;&amp;1; then
+  nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,\
+utilization.memory,memory.used,memory.total,power.draw,power.limit,\
+clocks.current.graphics,clocks.current.memory --format=csv,noheader,nounits
+  echo "--- processos na GPU ---"
+  nvidia-smi --query-compute-apps=pid,process_name,used_gpu_memory --format=csv,noheader
+else
+  echo "Sem GPU NVIDIA — saída simulada (Tesla T4):"
+  echo "0, Tesla T4, 52, 87, 45, 3842, 15360, 48.2, 70.0, 1590, 5001"
+fi</code></pre>
+        </div>
         <p><code>csv,noheader,nounits</code> remove cabeçalho e unidades — perfeito para juntar com
           timestamp e gravar no CSV.</p>
       </div>
@@ -397,45 +478,65 @@ nvidia-smi dmon -s pucvmet -d 2</code></pre>
     <div class="grid cols-2">
       <div>
         <h3>Coleta em CSV</h3>
-        <pre><code><span class="c-key">#!/usr/bin/env bash</span>
-<span class="c-key">set</span> -euo pipefail
+        <div class="code-wrap">
+          <span class="badge">%%bash</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code>%%bash
+# monitor_gpu.sh (núcleo da aula) — coleta N amostras em CSV
+INTERVALO=1; AMOSTRAS=5; SAIDA="gpu_log.csv"
+CABECALHO="timestamp,gpu_index,gpu_name,temp_c,util_gpu_pct,"
+CABECALHO+="util_mem_pct,mem_used_mb,mem_total_mb,power_w,power_limit_w"
+echo "$CABECALHO" &gt; "$SAIDA"
 
-<span class="c-var">INTERVALO</span>=<span class="c-str">"${1:-5}"</span>
-<span class="c-var">SAIDA</span>=<span class="c-str">"gpu_log_$(date +%Y%m%d_%H%M%S).csv"</span>
-<span class="c-var">AMOSTRAS</span>=$(( ${3:-3600} / ${1:-5} ))
-
-<span class="c-key">echo</span> <span class="c-str">"timestamp,gpu_index,temp_c,util_gpu_pct,..."</span> &gt; <span class="c-str">"$SAIDA"</span>
-<span class="c-key">while</span> [ <span class="c-str">"$AMOSTRA"</span> -lt <span class="c-str">"$AMOSTRAS"</span> ]; <span class="c-key">do</span>
-    <span class="c-var">TS</span>=$(date +<span class="c-str">"%Y-%m-%d %H:%M:%S"</span>)
-    nvidia-smi --query-gpu=index,name,temperature.gpu,\
-utilization.gpu,memory.used,power.draw \
-        --format=csv,noheader,nounits | <span class="c-key">while</span> <span class="c-key">read</span> -r l; <span class="c-key">do</span>
-        <span class="c-key">echo</span> <span class="c-str">"$TS,$l"</span> &gt;&gt; <span class="c-str">"$SAIDA"</span>
-    <span class="c-key">done</span>
-    <span class="c-var">AMOSTRA</span>=$(( AMOSTRA + 1 ))
-    <span class="c-key">sleep</span> <span class="c-str">"$INTERVALO"</span>
-<span class="c-key">done</span></code></pre>
-        <p><code>set -euo pipefail</code> aborta em erro, variável vazia ou falha de pipe.</p>
+for ((i=0; i&lt;AMOSTRAS; i++)); do
+  TS=$(date "+%Y-%m-%d %H:%M:%S")
+  if command -v nvidia-smi &gt;/dev/null 2&gt;&amp;1; then
+    nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,\
+utilization.memory,memory.used,memory.total,power.draw,power.limit \
+      --format=csv,noheader,nounits \
+      | while IFS= read -r l; do echo "$TS,$l" &gt;&gt; "$SAIDA"; done
+  else
+    TEMP=$((60 + i * 6))   # 60,66,72,78,84 -> dispara alerta no fim
+    echo "$TS,0,Tesla T4 (sim),$TEMP,80,50,8000,15360,60,70" &gt;&gt; "$SAIDA"
+  fi
+  sleep "$INTERVALO"
+done
+cat "$SAIDA"</code></pre>
+        </div>
+        <p><code>set -euo pipefail</code> no script real aborta em erro, variável vazia ou falha de pipe.</p>
       </div>
       <div>
         <h3>Alerta por limites</h3>
-        <pre><code><span class="c-key">#!/usr/bin/env bash</span>
-<span class="c-var">LIMITE_TEMP</span>=<span class="c-str">"${1:-80}"</span>
-<span class="c-var">SLACK</span>=<span class="c-str">"${SLACK_WEBHOOK_URL:-}"</span>
+        <div class="code-wrap">
+          <span class="badge">%%bash</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code>%%bash
+# alerta_gpu.sh (núcleo) — checa limites de temperatura/utilização
+LIMITE_TEMP=80; LIMITE_UTIL=95
 
-alerta() {
-    <span class="c-key">echo</span> <span class="c-str">"[$(date)] ALERTA: $1"</span> | tee -a <span class="c-str">"$LOG"</span>
-    [ -n <span class="c-str">"$SLACK"</span> ] &amp;&amp; curl -s -X POST <span class="c-str">"$SLACK"</span> \
-        -H <span class="c-str">"Content-Type: application/json"</span> \
-        -d <span class="c-str">"{\"text\": \"GPU Alert: $1\"}"</span>
-}
+if command -v nvidia-smi &gt;/dev/null 2&gt;&amp;1; then
+  dados=$(nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu --format=csv,noheader,nounits)
+elif [ -f gpu_log.csv ]; then
+  # Sem GPU: monta a linha a partir da última amostra do CSV gerado acima
+  IFS=, read -r _ idx nome temp util _ &lt; &lt;(tail -n 1 gpu_log.csv)
+  dados="$idx, $nome, $temp, $util"
+else
+  dados="0, Tesla T4 (sim), 84, 97"
+fi
 
-<span class="c-key">while</span> IFS=<span class="c-str">", "</span> <span class="c-key">read</span> -r idx nome temp util; <span class="c-key">do</span>
-    [ <span class="c-str">"$temp"</span> -ge <span class="c-str">"$LIMITE_TEMP"</span> ] &amp;&amp; alerta <span class="c-str">"GPU $idx: ${temp}C"</span>
-<span class="c-key">done</span> &lt; &lt;(nvidia-smi --query-gpu=index,name,\
-temperature.gpu,utilization.gpu --format=csv,noheader,nounits)</code></pre>
-        <p style="margin-top:10px">Notifica por <strong>Slack</strong> (webhook) ou <strong>e-mail</strong>
-          e registra em log. Thresholds configuráveis por argumento.</p>
+while IFS="," read -r idx nome temp util; do
+  idx=$(echo "$idx" | tr -d ' ')
+  nome=$(echo "$nome" | sed 's/^ *//; s/ *$//')
+  temp=$(echo "$temp" | tr -d ' ')
+  util=$(echo "$util" | tr -d ' ')
+  [[ "$temp" =~ ^[0-9]+$ ]] &amp;&amp; [ "$temp" -ge "$LIMITE_TEMP" ] \
+    &amp;&amp; echo "[$(date +%H:%M:%S)] ALERTA: GPU $idx ($nome): ${temp}C &gt;= ${LIMITE_TEMP}C" || true
+  [[ "$util" =~ ^[0-9]+$ ]] &amp;&amp; [ "$util" -ge "$LIMITE_UTIL" ] \
+    &amp;&amp; echo "[$(date +%H:%M:%S)] ALERTA: GPU $idx ($nome): ${util}% &gt;= ${LIMITE_UTIL}%" || true
+done &lt;&lt;&lt; "$dados"</code></pre>
+        </div>
+        <p>Notifica por <strong>Slack</strong> (webhook) ou <strong>e-mail</strong> e registra em log.
+          O script completo trata <code>N/A</code> e usa <code>IFS=","</code> com trim.</p>
       </div>
     </div>
   </section>
@@ -454,18 +555,31 @@ temperature.gpu,utilization.gpu --format=csv,noheader,nounits)</code></pre>
     </div>
     <div class="grid cols-2" style="margin-top:14px">
       <div>
-        <pre><code><span class="c-cmt"># 5 min no horário comercial</span>
+        <div class="code-wrap">
+          <span class="badge">%%bash · simulação</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre><code>%%bash
+# Colab NÃO tem cron — simulamos o agendamento aqui
+for i in 1 2 3; do
+  echo "[$(date +%H:%M:%S)] execução #$i: ./alerta_gpu.sh 80 95"
+  sleep 1
+done
+echo "Em produção (Linux): * * * * * /caminho/alerta_gpu.sh 80 95"</code></pre>
+        </div>
+        <div class="code-wrap">
+          <span class="badge">crontab · referência Linux</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre><code># 5 min no horário comercial (seg–sex)
 */5 8-20 * * 1-5 monitor_gpu.sh 5 /data/logs/gpu.csv 300
-
-<span class="c-cmt"># Alertas a cada minuto</span>
+# Alertas a cada minuto
 * * * * * alerta_gpu.sh 80 95
-
-<span class="c-cmt"># systemd timer (moderno)</span>
-[Timer]
-OnBootSec=1min
-OnUnitActiveSec=5min
-Persistent=true
-sudo systemctl enable --now monitor-gpu.timer</code></pre>
+# systemd timer (moderno)
+#   [Timer]
+#   OnBootSec=1min
+#   OnUnitActiveSec=5min
+#   Persistent=true
+#   sudo systemctl enable --now monitor-gpu.timer</code></pre>
+        </div>
       </div>
       <div>
         <table>
@@ -486,30 +600,62 @@ sudo systemctl enable --now monitor-gpu.timer</code></pre>
   <!-- 06 — dashboard -->
   <section class="slide">
     <div class="kicker">Atividade · Visualização</div>
-    <h2><span class="num">5.</span>Dashboard com gnuplot — 4 painéis</h2>
+    <h2><span class="num">5.</span>Dashboard — 4 painéis</h2>
     <div class="grid cols-4" style="margin-bottom:14px">
       <div class="card temp"><h3>🌡️</h3><p>Temperatura + limite de 80&nbsp;°C</p></div>
       <div class="card util"><h3>📈</h3><p>Utilização GPU e memória</p></div>
       <div class="card mem"><h3>🧠</h3><p>VRAM usada vs. total</p></div>
       <div class="card power"><h3>⚡</h3><p>Potência vs. power limit</p></div>
     </div>
-    <pre><code>gnuplot &lt;&lt;'EOF'
-set terminal png size 1400,900 enhanced
-set output "gpu_dashboard.png"
-set multiplot layout 2,2 title "GPU Monitoring Dashboard"
-set datafile separator ","
-set xdata time
-set timefmt "%Y-%m-%d %H:%M:%S"
-set format x "%H:%M"
+    <div class="code-wrap">
+      <span class="badge">Python · Colab</span>
+      <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+      <pre class="scroll"><code># Dashboard — 4 gráficos (usa gpu_log.csv; gera amostra simulada se não existir)
+import os
+from datetime import datetime, timedelta
+import pandas as pd
+import matplotlib.pyplot as plt
 
-plot "gpu_log.csv" using 1:4 with lines lw 2 title "GPU 0", \
-     80 with lines dt 2 title "Limite 80C"          <span class="c-cmt"># temperatura</span>
-plot "gpu_log.csv" using 1:5 with lines title "GPU util", \
-     "gpu_log.csv" using 1:6 with lines title "Mem util"   <span class="c-cmt"># utilização</span>
-unset multiplot
-EOF</code></pre>
-    <p>Coluna 1 = timestamp; eixo X em <code>time</code>. Alternativa em Python:
-      <code>pandas + matplotlib</code> (usada no notebook do Colab).</p>
+if not os.path.exists("gpu_log.csv"):
+    inicio = datetime.now()
+    df = pd.DataFrame({
+        "timestamp": [(inicio + timedelta(seconds=2*i)).strftime("%Y-%m-%d %H:%M:%S") for i in range(5)],
+        "temp_c": [60, 66, 72, 78, 84],
+        "util_gpu_pct": [70, 75, 80, 85, 90],
+        "util_mem_pct": [40, 45, 48, 50, 55],
+        "mem_used_mb": [8000, 8100, 8200, 8300, 8400],
+        "power_w": [55, 58, 60, 63, 66],
+        "power_limit_w": [70, 70, 70, 70, 70],
+    })
+    df.to_csv("gpu_log.csv", index=False)
+
+df = pd.read_csv("gpu_log.csv")
+df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+fig, ax = plt.subplots(2, 2, figsize=(13, 8))
+fig.suptitle("GPU Monitoring Dashboard — Aula 14", fontweight="bold")
+
+ax[0, 0].plot(df["timestamp"], df["temp_c"], color="#EF4444", lw=2, label="Temp")
+ax[0, 0].axhline(80, ls="--", color="#F97316", label="Limite 80C")
+ax[0, 0].set_title("Temperatura"); ax[0, 0].legend()
+
+ax[0, 1].plot(df["timestamp"], df["util_gpu_pct"], color="#10B981", lw=2, label="GPU util")
+ax[0, 1].plot(df["timestamp"], df["util_mem_pct"], color="#6366F1", lw=2, label="Mem util")
+ax[0, 1].set_title("Utilização"); ax[0, 1].legend()
+
+ax[1, 0].plot(df["timestamp"], df["mem_used_mb"], color="#7E22CE", lw=2, label="VRAM")
+ax[1, 0].set_title("VRAM (MB)"); ax[1, 0].legend()
+
+ax[1, 1].plot(df["timestamp"], df["power_w"], color="#F97316", lw=2, label="Power draw")
+ax[1, 1].plot(df["timestamp"], df["power_limit_w"], ls="--", color="#EF4444", label="Power limit")
+ax[1, 1].set_title("Potência (W)"); ax[1, 1].legend()
+
+for a in ax.flat:
+    a.grid(alpha=0.3); a.tick_params(axis="x", rotation=30)
+plt.tight_layout(); plt.show()</code></pre>
+    </div>
+    <p>No servidor Linux, a mesma visualização sai do <code>gnuplot</code>
+      (<code>aulas/aula14/gerar_graficos.sh</code>).</p>
   </section>
 
   <!-- 07 — Google Sheets -->
@@ -527,24 +673,36 @@ EOF</code></pre>
     </div>
     <div class="grid cols-2">
       <div>
-        <pre><code><span class="c-key">import</span> csv, os
-<span class="c-key">from</span> google.oauth2 <span class="c-key">import</span> service_account
-<span class="c-key">from</span> googleapiclient.discovery <span class="c-key">import</span> build
+        <div class="code-wrap">
+          <span class="badge">Python · Colab</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code># Google Sheets — envia gpu_log.csv (valida mesmo sem credenciais)
+import csv, os
 
-creds = service_account.Credentials.from_service_account_file(
-    os.environ[<span class="c-str">"GOOGLE_CREDS"</span>],
-    scopes=[<span class="c-str">".../auth/spreadsheets"</span>])
-service = build(<span class="c-str">"sheets"</span>, <span class="c-str">"v4"</span>, credentials=creds)
+SHEETS_ID = os.environ.get("SHEETS_ID", "")
+CRED_FILE = os.environ.get("GOOGLE_CREDS", "service_account.json")
 
-<span class="c-key">with</span> open(<span class="c-str">"gpu_log.csv"</span>) <span class="c-key">as</span> f:
-    reader = csv.reader(f); next(reader)   <span class="c-cmt"># pula cabeçalho</span>
+with open("gpu_log.csv", encoding="utf-8") as f:
+    reader = csv.reader(f)
+    cabecalho = next(reader)
     linhas = list(reader)
 
-service.spreadsheets().values().append(
-    spreadsheetId=os.environ[<span class="c-str">"SHEETS_ID"</span>],
-    range=<span class="c-str">"GPU_Logs!A:M"</span>,
-    valueInputOption=<span class="c-str">"USER_ENTERED"</span>,
-    body={<span class="c-str">"values"</span>: linhas}).execute()</code></pre>
+if not SHEETS_ID or not os.path.exists(CRED_FILE):
+    print("Sem credenciais — modo validação.")
+    print(f"{len(cabecalho)} colunas, {len(linhas)} linhas prontas para envio.")
+    print("Cabeçalho:", cabecalho)
+else:
+    from google.oauth2 import service_account
+    from googleapiclient.discovery import build
+    creds = service_account.Credentials.from_service_account_file(
+        CRED_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+    service = build("sheets", "v4", credentials=creds)
+    res = service.spreadsheets().values().append(
+        spreadsheetId=SHEETS_ID, range="GPU_Logs!A:M",
+        valueInputOption="USER_ENTERED",
+        body={"values": linhas}).execute()
+    print(f"Enviadas {res['updates']['updatedRows']} linhas.")</code></pre>
+        </div>
       </div>
       <div>
         <ul class="clean check">
@@ -599,7 +757,7 @@ service.spreadsheets().values().append(
           <li><strong>alerta_gpu.sh</strong> — limites + notificação (Slack/e-mail)</li>
           <li><strong>cron</strong> — agendador clássico e simples</li>
           <li><strong>systemd timer</strong> — journald, dependências e boot</li>
-          <li><strong>gnuplot</strong> — séries temporais sem Python</li>
+          <li><strong>gnuplot / Matplotlib</strong> — séries temporais</li>
         </ul>
         <p style="margin-top:12px">Recursos: docs do <code>nvidia-smi</code>, manual do
           <code>cron</code>, <code>gnuplot</code>, Google Sheets API — e os scripts em
@@ -617,8 +775,8 @@ service.spreadsheets().values().append(
         </div>
         <div class="card">
           <h3><span class="ico">📓</span> No Colab</h3>
-          <p>Ative a GPU T4 em Ambiente de execução. Sem GPU, o notebook entra em
-            <strong>modo simulado</strong> e toda a aula continua funcionando.</p>
+          <p>Ative a GPU T4 em Ambiente de execução. Sem GPU, todos os blocos entram em
+            <strong>modo simulado</strong> e a aula continua funcionando.</p>
         </div>
       </div>
     </div>
@@ -635,11 +793,14 @@ service.spreadsheets().values().append(
   </div>
 </div>
 
+<div class="copied-toast" id="toast">Código copiado — cole no Colab</div>
+
 <script>
   (function () {
     var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
     var progress = document.getElementById("progress");
     var counter = document.getElementById("counter");
+    var toast = document.getElementById("toast");
     var current = 0;
 
     function pad(n) { return n < 10 ? "0" + n : "" + n; }
@@ -685,6 +846,52 @@ service.spreadsheets().values().append(
     window.addEventListener("hashchange", function () {
       var n = parseInt(window.location.hash.replace("#", ""), 10);
       if (!isNaN(n)) goTo(n - 1);
+    });
+
+    // ---------- Copiar bloco de código ----------
+    var toastTimer = null;
+    function showToast() {
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1600);
+    }
+
+    function copiarTexto(texto) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(texto);
+      }
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement("textarea");
+        ta.value = texto;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); resolve(); }
+        catch (err) { reject(err); }
+        finally { document.body.removeChild(ta); }
+      });
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll(".copy-btn"), function (btn) {
+      btn.addEventListener("click", function () {
+        var wrap = btn.closest(".code-wrap");
+        var code = wrap ? wrap.querySelector("pre code") : null;
+        if (!code) return;
+        var texto = code.innerText;
+        copiarTexto(texto).then(function () {
+          btn.classList.add("copied");
+          btn.textContent = "✓ Copiado";
+          showToast();
+          setTimeout(function () {
+            btn.classList.remove("copied");
+            btn.textContent = "📋 Copiar";
+          }, 1600);
+        }).catch(function () {
+          btn.textContent = "Falha ao copiar";
+          setTimeout(function () { btn.textContent = "📋 Copiar"; }, 1600);
+        });
+      });
     });
 
     var start = parseInt(window.location.hash.replace("#", ""), 10);

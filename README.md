@@ -78,7 +78,7 @@ pip install -r requirements.txt
 
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
-| **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [`aula14_automacao_gpu_bash.ipynb`](aulas/aula14/aula14_automacao_gpu_bash.ipynb), [`monitor_gpu.sh`](aulas/aula14/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/aula14/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/aula14/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/aula14/enviar_para_sheets.py), [Guia Colab](aulas/aula14/README.md) |
+| **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [`aula14_automacao_gpu_bash.ipynb`](aulas/aula14/aula14_automacao_gpu_bash.ipynb), [`monitor_gpu.sh`](aulas/aula14/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/aula14/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/aula14/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/aula14/enviar_para_sheets.py), [Laboratório Windows (AMD)](aulas/aula14/laboratorio_windows/README.md), [Apresentação](aulas/aula14/apresentacao_aula14.html), [Guia Colab](aulas/aula14/README.md) |
 
 ---
 
@@ -87,7 +87,7 @@ pip install -r requirements.txt
 | Sequência | Documento | Descrição |
 | :---: | :--- | :--- |
 | **01** | [`01_timeline-engenharia.md`](docs/01_timeline-engenharia.md) | Blueprint causal de engenharia: por que cada aula existe e como se conectam |
-| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 13) |
+| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 14) |
 | **05** | [`05_materiais-complementares.md`](docs/05_materiais-complementares.md) | Curadoria de links, playlists e cursos externos |
 | **06** | [`06_tutorial-instalacao-wsl.md`](docs/06_tutorial-instalacao-wsl.md) | Guia de instalação e configuração do WSL 2 no Windows 10 e 11 |
 | **07** | [`07_tutorial-instalacao-docker-wsl.md`](docs/07_tutorial-instalacao-docker-wsl.md) | Guia de instalação e uso do Docker Engine nativo no WSL 2 (Ubuntu) |
@@ -153,10 +153,12 @@ senac-tecnico-ia/
 │   │   └── README.md
 │   ├── aula14/
 │   │   ├── aula14_automacao_gpu_bash.ipynb
+│   │   ├── apresentacao_aula14.html
 │   │   ├── alerta_gpu.sh
 │   │   ├── enviar_para_sheets.py
 │   │   ├── gerar_graficos.sh
 │   │   ├── monitor_gpu.sh
+│   │   ├── laboratorio_windows/            → versão Windows/Git Bash (AMD e NVIDIA)
 │   │   └── README.md
 │   └── projeto-integrador/
 │       └── README.md

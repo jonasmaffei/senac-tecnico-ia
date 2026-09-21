@@ -4,6 +4,17 @@
 
 ---
 
+## 🖥️ Apresentação da Aula
+
+O arquivo [`apresentacao_aula14.html`](apresentacao_aula14.html) contém os 9 slides teóricos da aula.
+Abra com duplo clique no navegador (funciona offline) e navegue com `←` / `→`.
+
+> 💡 **Todo bloco de código dos slides é copiável e executável no Colab.** Clique em
+> **📋 Copiar** no canto do bloco e cole direto em uma célula (os blocos trazem `%%bash` ou Python
+> completo, com detecção de GPU e modo simulado embutidos).
+
+---
+
 ## 🚀 Opção 1: Abrir Direto via GitHub (Mais Rápido e Recomendado)
 
 1. Acesse o site do [Google Colab](https://colab.research.google.com/).
@@ -78,7 +89,30 @@ Em [`aulas/aula14/`](.) também estão os scripts prontos para servidores Linux 
 - [`monitor_gpu.sh`](monitor_gpu.sh) — coleta métricas de GPU em CSV.
 - [`alerta_gpu.sh`](alerta_gpu.sh) — verifica limites e notifica (Slack/e-mail).
 - [`gerar_graficos.sh`](gerar_graficos.sh) — dashboard de 4 gráficos com gnuplot.
-- [`enviar_para_sheets.py`](enviar_para_sheets.py) — publica o CSV no Google Sheets.
+- [`enviar_para_sheets.py`](enviar_para_sheets.py) — publica o CSV no Google Sheets
+  (sem credenciais, apenas valida e avisa, sem falhar).
+- [`apresentacao_aula14.html`](apresentacao_aula14.html) — slides teóricos da aula.
+
+---
+
+## 🖥️ Laboratório Windows (Git Bash) — placas AMD
+
+A pasta [`laboratorio_windows/`](laboratorio_windows/) é uma versão **autocontida** da aula
+para rodar no **laboratório com Windows + Git Bash**, sem instalar Python nem gnuplot.
+
+- Detecta automaticamente **GPU AMD** (via contadores de desempenho do Windows) e
+  também **NVIDIA** (`nvidia-smi`) ou o modo simulado.
+- Coleta **utilização e VRAM reais** da AMD; temperatura/potência são estimadas no
+  Windows (no **Linux com ROCm**, `rocm-smi`/`amd-smi` fornecem valores reais).
+- Gera dashboard em **HTML** (abre no navegador) — sem dependências.
+
+Comece por: [`laboratorio_windows/README.md`](laboratorio_windows/README.md).
+
+```bash
+cd aulas/aula14/laboratorio_windows
+chmod +x *.sh
+./rodar_tudo.sh
+```
 
 ---
 

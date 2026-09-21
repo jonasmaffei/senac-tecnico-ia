@@ -96,6 +96,12 @@
 * **O que se aprende:** Paralelismo SIMT vs SIMD, limiar de compensação de N ($N \ge 100K$), overhead PCIe/Kernel launch, curva de speedup com Matplotlib e mini-relatório técnico.
 * **Conexão com todo o Bloco 2:** Síntese final e prática reproduzível do Bloco 2, consolidando kernels CUDA, CuPy, vetorização em CPU e análise técnica empírica.
 
+### Aula 14: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
+* **Conceito/Fundamento:** Operação contínua e supervisionada de GPUs com `nvidia-smi --query-gpu` para métricas estruturadas, scripts Bash de coleta e alerta, agendamento com `cron`/`systemd timers`, dashboard com `gnuplot`/Matplotlib e integração com o Google Sheets.
+* **O que se aprende:** Extração de métricas (`temperature.gpu`, `utilization.gpu`, `power.draw`, `memory.used`), escrita de `monitor_gpu.sh`/`alerta_gpu.sh` com `set -euo pipefail`, sintaxe do crontab vs. timer systemd, limites de alerta e publicação de séries temporais via API.
+* **Conexão com o Bloco 2:** O código paralelo otimizado (A7–A13) roda em produção 24h/7d; a automação garante que a GPU não trave silenciosamente nem desperdice orçamento de nuvem.
+* **O problema que fica em aberto:** Monitorar é o primeiro passo; como gerenciar processos e otimizar o consumo de energia em operação contínua?
+
 ---
 
 ## Matriz de Domínio por Elo da Corrente
@@ -107,4 +113,5 @@
 | **A7-A8** | "Como espremer 100% da VRAM da placa de vídeo?" | Kernel otimizado com *tiling*, *coalescing* e medição de latência. |
 | **A9** | "E se o cliente exigir rodar em cluster AMD/Intel?" | Tradução mental de paralelismo para padrão aberto agnóstico (OpenCL). |
 | **A10-A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs ROCm) adotar?" | Treinamento ResNet com métricas de throughput/VRAM no W&B e análise de TCO. |
-| **A12-A13** | "Como quantificar empiricamente o speedup da GPU e responder onde ela compensa?" | Benchmark de 4 implementações (Python, NumPy, CUDA Numba, CuPy), curva de speedup e mini-relatório. |
+| **A12-A13** | "Como quantificar empiricamente o speedup da GPU e responder onde ela compensa?" | Benchmark de 4 implementações (Python, NumPy, CUDA Numba, CuPy), curva de speedup e mini-relatório. |
+| **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` agendados por `cron`, dashboard e envio ao Google Sheets. |

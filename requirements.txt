@@ -5,6 +5,13 @@
 
 # --- Obrigatórias (funcionam em qualquer máquina) ---
 numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+
+# --- Integração com Google Sheets (Aula 14) ---
+# Só são necessárias para publicar métricas de GPU na planilha.
+google-auth>=2.0.0
+google-api-python-client>=2.0.0
 
 # --- Requerem GPU NVIDIA com drivers CUDA instalados ---
 # PyTorch: instale pela página oficial https://pytorch.org/get-started
