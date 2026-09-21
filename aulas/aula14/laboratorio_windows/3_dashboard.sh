@@ -76,14 +76,28 @@ gerar_svg() {
         i=$(( i + 1 ))
     done
 
+    # Captura as horas (início, meio e fim) do array global ROTULOS
+    local lbl_ini="${ROTULOS[0]:-}"
+    local lbl_meio="${ROTULOS[$(( n / 2 ))]:-}"
+    local lbl_fim="${ROTULOS[$(( n - 1 ))]:-}"
+
     cat <<EOF
     <div class="card">
       <h3>$titulo</h3>
       <svg viewBox="0 0 $w $h" preserveAspectRatio="xMidYMid meet">
         <rect x="0" y="0" width="$w" height="$h" fill="#0f172a"/>
+        <!-- Eixos X e Y -->
         <line x1="$pad" y1="$(( h - pad ))" x2="$(( w - pad ))" y2="$(( h - pad ))" stroke="#334155"/>
         <line x1="$pad" y1="$pad" x2="$pad" y2="$(( h - pad ))" stroke="#334155"/>
+        <!-- Rótulo do Y máximo -->
         <text x="$pad" y="$(( pad - 8 ))" fill="#94a3b8" font-size="12">max $ymax</text>
+        
+        <!-- Timeline (Tempo no Eixo X) -->
+        <text x="$pad" y="$(( h - pad + 15 ))" fill="#94a3b8" font-size="10">$lbl_ini</text>
+        <text x="$(( pad + plotw / 2 ))" y="$(( h - pad + 15 ))" fill="#94a3b8" font-size="10" text-anchor="middle">$lbl_meio</text>
+        <text x="$(( w - pad ))" y="$(( h - pad + 15 ))" fill="#94a3b8" font-size="10" text-anchor="end">$lbl_fim</text>
+        
+        <!-- Linha do Gráfico -->
         <polyline fill="none" stroke="$cor" stroke-width="2.5" points="$pontos"/>
       </svg>
     </div>
