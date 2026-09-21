@@ -1,0 +1,18 @@
+# Normalização de terminações de linha.
+# Scripts .sh DEVEM ter LF, senão o Git Bash falha com "/bin/bash^M".
+*.sh text eol=lf
+
+# Configuração de laboratório (comentários em .sh, mas garantindo LF)
+*.bash text eol=lf
+
+# No Windows, .bat/.cmd usam CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Arquivos de dados e notebooks: preservar bytes, sem conversão
+*.ipynb -text
+*.png -text
+*.csv -text
+
+# Padrão
+* text=auto
