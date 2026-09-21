@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 14 — Introdução à Automação de GPUs com Bash</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 4px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50;
+    transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed;
+    top: 4px; left: 0; right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    font-size: .74rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    z-index: 40;
+    pointer-events: none;
+  }
+
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 66px 7vw 76px;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: .7rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    border: 1px solid var(--border);
+    background: rgba(16,185,129,.08);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    line-height: 1.08;
+    margin: 0 0 16px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+  }
+
+  h2 {
+    font-size: clamp(1.45rem, 2.6vw, 2.1rem);
+    margin: 0 0 16px;
+    line-height: 1.15;
+    letter-spacing: -.01em;
+  }
+
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative;
+    padding: 7px 0 7px 28px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: "";
+    position: absolute;
+    left: 4px; top: 15px;
+    width: 9px; height: 9px;
+    border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 17px 19px;
+    box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+  .card.temp  { border-top: 3px solid var(--accent-4); }
+  .card.util  { border-top: 3px solid var(--accent-2); }
+  .card.mem   { border-top: 3px solid var(--accent-5); }
+  .card.power { border-top: 3px solid var(--accent-3); }
+
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .big {
+    font-size: 1.75rem; font-weight: 700; color: var(--text);
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .stat .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em;
+    background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32);
+    color: #c7d0ff;
+    padding: 1px 6px;
+    border-radius: 6px;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 0 0 12px;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+  }
+  pre code {
+    background: none; border: none; padding: 0;
+    color: #d7ddff; font-size: .82rem; line-height: 1.58; white-space: pre;
+  }
+  .c-cmt { color: #6b7bab; }
+  .c-var { color: #f8b76b; }
+  .c-str { color: #7ddba3; }
+  .c-key { color: #9db2ff; }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 11px;
+    text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+
+  .cron-line { display: flex; gap: 8px; justify-content: center; margin: 8px 0 4px; flex-wrap: wrap; }
+  .cron-field { text-align: center; min-width: 78px; }
+  .cron-field .val {
+    font-family: "Cascadia Code", Consolas, monospace;
+    font-size: 1.35rem; color: var(--accent-2);
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 0;
+  }
+  .cron-field .lbl { font-size: .66rem; color: var(--muted); margin-top: 5px; line-height: 1.3; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 11px 14px; border: 1px solid var(--border);
+    border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 52px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide .big-badge {
+    font-size: .78rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: 18px;
+  }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 3 · Automação</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título + situação -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 14</div>
+    <h1>Introdução à Automação de GPUs com Bash</h1>
+    <p class="lead">Monitoramento contínuo com <code>nvidia-smi</code>, agendamento via
+      <code>cron</code>/<code>systemd</code>, dashboards com <code>gnuplot</code> e integração com o
+      Google Sheets.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">120 min</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🌙</span> Situação de aprendizagem</h3>
+        <p>A GPU atingiu <strong>95&nbsp;°C</strong> de madrugada e o job falhou silenciosamente —
+          ninguém percebeu até a manhã seguinte.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎯</span> O que precisamos</h3>
+        <p>Monitorar <strong>24h/7d</strong>, coletar a cada <strong>5 s</strong>, salvar em CSV,
+          alertar por temperatura e publicar dashboard diário.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Objetivos + pipeline -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e pipeline de automação</h2>
+    <p><strong>Objetivo:</strong> automatizar o monitoramento de GPUs com scripts Bash para garantir
+      operação contínua e eficiente em ambientes de IA.</p>
+    <div class="pipeline" style="margin-top:8px">
+      <div class="pipe-step"><span class="step-ico">🔍</span><span class="step-title">nvidia-smi</span><span class="step-sub">--query-gpu coleta</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">📜</span><span class="step-title">monitor_gpu.sh</span><span class="step-sub">loop Bash</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">🗄️</span><span class="step-title">gpu_log.csv</span><span class="step-sub">armazenamento</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">⏰</span><span class="step-title">cron / systemd</span><span class="step-sub">agendamento</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">gnuplot / Sheets</span><span class="step-sub">visualização</span></div>
+    </div>
+    <div class="grid cols-3" style="margin-top:22px">
+      <div class="card"><h3><span class="ico">🐧</span> Bash</h3><p>Onipresente em servidores Linux, leve e ideal para automação de sistema.</p></div>
+      <div class="card"><h3><span class="ico">🧩</span> nvidia-smi</h3><p>CLI oficial da NVIDIA; <code>--query-gpu</code> extrai métricas estruturadas.</p></div>
+      <div class="card"><h3><span class="ico">⚙️</span> Automação</h3><p>Coleta barata e contínua; a inteligência está em agendar e alertar.</p></div>
+    </div>
+  </section>
+
+  <!-- 03 — nvidia-smi -->
+  <section class="slide">
+    <div class="kicker">Teoria · nvidia-smi</div>
+    <h2><span class="num">2.</span>Queries úteis e campos</h2>
+    <div class="grid cols-2">
+      <div>
+        <pre><code><span class="c-cmt"># Query estruturado — ideal para scripts</span>
+nvidia-smi --query-gpu=index,name,temperature.gpu,\
+utilization.gpu,utilization.memory,memory.used,\
+memory.total,power.draw,power.limit,\
+clocks.current.graphics,clocks.current.memory,fan.speed \
+--format=csv,noheader,nounits
+
+<span class="c-cmt"># Saída exemplo (GPU 0 — Tesla T4):</span>
+0, Tesla T4, 52, 87, 45, 3842, 15360, 48.2, 70.0, ...
+
+<span class="c-cmt"># Campos disponíveis completos</span>
+nvidia-smi --query-gpu=help | head -60
+
+<span class="c-cmt"># Monitoramento contínuo a cada 2 s</span>
+nvidia-smi dmon -s pucvmet -d 2</code></pre>
+        <p><code>csv,noheader,nounits</code> remove cabeçalho e unidades — perfeito para juntar com
+          timestamp e gravar no CSV.</p>
+      </div>
+      <div>
+        <div class="card temp" style="margin-bottom:12px">
+          <h3><span class="ico">🌡️</span> Temperatura e energia</h3>
+          <ul class="clean" style="margin-top:4px">
+            <li><code>temperature.gpu</code> — °C atual</li>
+            <li><code>power.draw</code> — watts consumidos</li>
+            <li><code>power.limit</code> — limite configurado</li>
+          </ul>
+        </div>
+        <div class="card util">
+          <h3><span class="ico">📈</span> Utilização e memória</h3>
+          <ul class="clean" style="margin-top:4px">
+            <li><code>utilization.gpu</code> — % uso dos SMs</li>
+            <li><code>memory.used</code> / <code>memory.total</code> — VRAM</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 — scripts -->
+  <section class="slide">
+    <div class="kicker">Demo · Coleta e alerta</div>
+    <h2><span class="num">3.</span>monitor_gpu.sh e alerta_gpu.sh</h2>
+    <div class="grid cols-2">
+      <div>
+        <h3>Coleta em CSV</h3>
+        <pre><code><span class="c-key">#!/usr/bin/env bash</span>
+<span class="c-key">set</span> -euo pipefail
+
+<span class="c-var">INTERVALO</span>=<span class="c-str">"${1:-5}"</span>
+<span class="c-var">SAIDA</span>=<span class="c-str">"gpu_log_$(date +%Y%m%d_%H%M%S).csv"</span>
+<span class="c-var">AMOSTRAS</span>=$(( ${3:-3600} / ${1:-5} ))
+
+<span class="c-key">echo</span> <span class="c-str">"timestamp,gpu_index,temp_c,util_gpu_pct,..."</span> &gt; <span class="c-str">"$SAIDA"</span>
+<span class="c-key">while</span> [ <span class="c-str">"$AMOSTRA"</span> -lt <span class="c-str">"$AMOSTRAS"</span> ]; <span class="c-key">do</span>
+    <span class="c-var">TS</span>=$(date +<span class="c-str">"%Y-%m-%d %H:%M:%S"</span>)
+    nvidia-smi --query-gpu=index,name,temperature.gpu,\
+utilization.gpu,memory.used,power.draw \
+        --format=csv,noheader,nounits | <span class="c-key">while</span> <span class="c-key">read</span> -r l; <span class="c-key">do</span>
+        <span class="c-key">echo</span> <span class="c-str">"$TS,$l"</span> &gt;&gt; <span class="c-str">"$SAIDA"</span>
+    <span class="c-key">done</span>
+    <span class="c-var">AMOSTRA</span>=$(( AMOSTRA + 1 ))
+    <span class="c-key">sleep</span> <span class="c-str">"$INTERVALO"</span>
+<span class="c-key">done</span></code></pre>
+        <p><code>set -euo pipefail</code> aborta em erro, variável vazia ou falha de pipe.</p>
+      </div>
+      <div>
+        <h3>Alerta por limites</h3>
+        <pre><code><span class="c-key">#!/usr/bin/env bash</span>
+<span class="c-var">LIMITE_TEMP</span>=<span class="c-str">"${1:-80}"</span>
+<span class="c-var">SLACK</span>=<span class="c-str">"${SLACK_WEBHOOK_URL:-}"</span>
+
+alerta() {
+    <span class="c-key">echo</span> <span class="c-str">"[$(date)] ALERTA: $1"</span> | tee -a <span class="c-str">"$LOG"</span>
+    [ -n <span class="c-str">"$SLACK"</span> ] &amp;&amp; curl -s -X POST <span class="c-str">"$SLACK"</span> \
+        -H <span class="c-str">"Content-Type: application/json"</span> \
+        -d <span class="c-str">"{\"text\": \"GPU Alert: $1\"}"</span>
+}
+
+<span class="c-key">while</span> IFS=<span class="c-str">", "</span> <span class="c-key">read</span> -r idx nome temp util; <span class="c-key">do</span>
+    [ <span class="c-str">"$temp"</span> -ge <span class="c-str">"$LIMITE_TEMP"</span> ] &amp;&amp; alerta <span class="c-str">"GPU $idx: ${temp}C"</span>
+<span class="c-key">done</span> &lt; &lt;(nvidia-smi --query-gpu=index,name,\
+temperature.gpu,utilization.gpu --format=csv,noheader,nounits)</code></pre>
+        <p style="margin-top:10px">Notifica por <strong>Slack</strong> (webhook) ou <strong>e-mail</strong>
+          e registra em log. Thresholds configuráveis por argumento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — cron / systemd -->
+  <section class="slide">
+    <div class="kicker">Teoria · Agendamento</div>
+    <h2><span class="num">4.</span>cron e systemd timers</h2>
+    <div class="cron-line">
+      <div class="cron-field"><div class="val">*</div><div class="lbl">minuto<br>0–59</div></div>
+      <div class="cron-field"><div class="val">*</div><div class="lbl">hora<br>0–23</div></div>
+      <div class="cron-field"><div class="val">*</div><div class="lbl">dia/mês<br>1–31</div></div>
+      <div class="cron-field"><div class="val">*</div><div class="lbl">mês<br>1–12</div></div>
+      <div class="cron-field"><div class="val">*</div><div class="lbl">dia/semana<br>0–7</div></div>
+      <div class="cron-field" style="min-width:auto"><div class="val" style="padding:7px 18px">comando</div><div class="lbl">o que executar</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:14px">
+      <div>
+        <pre><code><span class="c-cmt"># 5 min no horário comercial</span>
+*/5 8-20 * * 1-5 monitor_gpu.sh 5 /data/logs/gpu.csv 300
+
+<span class="c-cmt"># Alertas a cada minuto</span>
+* * * * * alerta_gpu.sh 80 95
+
+<span class="c-cmt"># systemd timer (moderno)</span>
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Persistent=true
+sudo systemctl enable --now monitor-gpu.timer</code></pre>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th>Característica</th><th>cron</th><th>systemd</th></tr></thead>
+          <tbody>
+            <tr><td>Log automático</td><td class="no">✗ manual</td><td class="yes">✓ journald</td></tr>
+            <tr><td>Dependências</td><td class="no">✗ não</td><td class="yes">✓ After=</td></tr>
+            <tr><td>Após boot</td><td class="no">✗ não</td><td class="yes">✓ Persistent</td></tr>
+            <tr><td>Setup</td><td class="yes">★ baixa</td><td class="mid">★★ média</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:12px">Simples e periódico → <code>cron</code>. Serviço crítico com
+          dependências e logging → <code>systemd</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 — dashboard -->
+  <section class="slide">
+    <div class="kicker">Atividade · Visualização</div>
+    <h2><span class="num">5.</span>Dashboard com gnuplot — 4 painéis</h2>
+    <div class="grid cols-4" style="margin-bottom:14px">
+      <div class="card temp"><h3>🌡️</h3><p>Temperatura + limite de 80&nbsp;°C</p></div>
+      <div class="card util"><h3>📈</h3><p>Utilização GPU e memória</p></div>
+      <div class="card mem"><h3>🧠</h3><p>VRAM usada vs. total</p></div>
+      <div class="card power"><h3>⚡</h3><p>Potência vs. power limit</p></div>
+    </div>
+    <pre><code>gnuplot &lt;&lt;'EOF'
+set terminal png size 1400,900 enhanced
+set output "gpu_dashboard.png"
+set multiplot layout 2,2 title "GPU Monitoring Dashboard"
+set datafile separator ","
+set xdata time
+set timefmt "%Y-%m-%d %H:%M:%S"
+set format x "%H:%M"
+
+plot "gpu_log.csv" using 1:4 with lines lw 2 title "GPU 0", \
+     80 with lines dt 2 title "Limite 80C"          <span class="c-cmt"># temperatura</span>
+plot "gpu_log.csv" using 1:5 with lines title "GPU util", \
+     "gpu_log.csv" using 1:6 with lines title "Mem util"   <span class="c-cmt"># utilização</span>
+unset multiplot
+EOF</code></pre>
+    <p>Coluna 1 = timestamp; eixo X em <code>time</code>. Alternativa em Python:
+      <code>pandas + matplotlib</code> (usada no notebook do Colab).</p>
+  </section>
+
+  <!-- 07 — Google Sheets -->
+  <section class="slide">
+    <div class="kicker">Demo · Integração</div>
+    <h2><span class="num">6.</span>Publicando no Google Sheets</h2>
+    <div class="pipeline" style="margin-bottom:16px">
+      <div class="pipe-step"><span class="step-ico">🔍</span><span class="step-title">nvidia-smi</span><span class="step-sub">coleta a cada 5 s</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">🗄️</span><span class="step-title">CSV local</span><span class="step-sub">grava métricas</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">⏰</span><span class="step-title">cron</span><span class="step-sub">envia a cada 5 min</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">Sheets</span><span class="step-sub">atualizado</span></div>
+    </div>
+    <div class="grid cols-2">
+      <div>
+        <pre><code><span class="c-key">import</span> csv, os
+<span class="c-key">from</span> google.oauth2 <span class="c-key">import</span> service_account
+<span class="c-key">from</span> googleapiclient.discovery <span class="c-key">import</span> build
+
+creds = service_account.Credentials.from_service_account_file(
+    os.environ[<span class="c-str">"GOOGLE_CREDS"</span>],
+    scopes=[<span class="c-str">".../auth/spreadsheets"</span>])
+service = build(<span class="c-str">"sheets"</span>, <span class="c-str">"v4"</span>, credentials=creds)
+
+<span class="c-key">with</span> open(<span class="c-str">"gpu_log.csv"</span>) <span class="c-key">as</span> f:
+    reader = csv.reader(f); next(reader)   <span class="c-cmt"># pula cabeçalho</span>
+    linhas = list(reader)
+
+service.spreadsheets().values().append(
+    spreadsheetId=os.environ[<span class="c-str">"SHEETS_ID"</span>],
+    range=<span class="c-str">"GPU_Logs!A:M"</span>,
+    valueInputOption=<span class="c-str">"USER_ENTERED"</span>,
+    body={<span class="c-str">"values"</span>: linhas}).execute()</code></pre>
+      </div>
+      <div>
+        <ul class="clean check">
+          <li>Criar projeto no Google Cloud</li>
+          <li>Habilitar a Sheets API</li>
+          <li>Criar Service Account e compartilhar a planilha</li>
+        </ul>
+        <div class="card" style="margin-top:12px; border-top:3px solid var(--accent-2)">
+          <h3><span class="ico">🔒</span> Segurança</h3>
+          <p>Credenciais como env var · permissão mínima · JSON fora do repositório · rotação de
+            chaves mensal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — discussão -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">7.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate">
+      <div class="q">1</div>
+      <p>O script coleta no mesmo servidor. Se o disco encher, o monitoramento para. Como tornar o
+        sistema mais robusto e independente do job de treinamento?</p>
+    </div>
+    <div class="debate">
+      <div class="q">2</div>
+      <p>cron e systemd são de servidor único. Para um cluster com 50 nós GPU, qual seria a
+        arquitetura? Pesquise <strong>Prometheus</strong>, <strong>Grafana</strong> e <strong>DCGM</strong>.</p>
+    </div>
+    <div class="debate">
+      <div class="q">3</div>
+      <p>O alerta está em 80&nbsp;°C, mas a GPU aguenta 95&nbsp;°C. Qual o limiar ideal? Que outros
+        indicadores (<code>fan.speed</code>, power throttle) deveriam acionar alertas?</p>
+    </div>
+    <div class="debate">
+      <div class="q">4</div>
+      <p>Google Sheets tem quota e latência. Em produção, o que substituiria essa integração?
+        Compare com <strong>InfluxDB + Grafana</strong>.</p>
+    </div>
+  </section>
+
+  <!-- 09 — síntese + tarefa -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa</div>
+    <h2><span class="num">8.</span>Pontos-chave e tarefa de casa</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean">
+          <li><strong>nvidia-smi --query-gpu</strong> — métricas estruturadas em CSV</li>
+          <li><strong>monitor_gpu.sh</strong> — loop com timestamp e múltiplas GPUs</li>
+          <li><strong>alerta_gpu.sh</strong> — limites + notificação (Slack/e-mail)</li>
+          <li><strong>cron</strong> — agendador clássico e simples</li>
+          <li><strong>systemd timer</strong> — journald, dependências e boot</li>
+          <li><strong>gnuplot</strong> — séries temporais sem Python</li>
+        </ul>
+        <p style="margin-top:12px">Recursos: docs do <code>nvidia-smi</code>, manual do
+          <code>cron</code>, <code>gnuplot</code>, Google Sheets API — e os scripts em
+          <code>aulas/aula14/</code>.</p>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa</h3>
+          <ul class="clean" style="margin-top:6px">
+            <li>Adapte <code>monitor_gpu.sh</code> para 10 min com intervalo de 3 s</li>
+            <li>Crie o dashboard com os 4 gráficos da aula</li>
+            <li>Configure cron para monitorar todo dia às 08h</li>
+            <li><strong>Bônus:</strong> alerta de temperatura via webhook Slack/Discord</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📓</span> No Colab</h3>
+          <p>Ative a GPU T4 em Ambiente de execução. Sem GPU, o notebook entra em
+            <strong>modo simulado</strong> e toda a aula continua funcionando.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 09</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>
