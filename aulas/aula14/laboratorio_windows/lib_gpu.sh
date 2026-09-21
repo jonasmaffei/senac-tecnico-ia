@@ -14,6 +14,9 @@
 # PowerShell via -EncodedCommand, que NÃO é afetado por ExecutionPolicy.
 # ============================================================================
 
+# Força o fuso horário de Brasília para todos os scripts que importarem esta lib
+export TZ="America/Sao_Paulo"
+
 # ---------------------------------------------------------------------------
 # DETECÇÃO DE BACKEND
 #   Prioridade: NVIDIA > AMD Linux (rocm-smi/amd-smi) > AMD Windows (PowerShell)
