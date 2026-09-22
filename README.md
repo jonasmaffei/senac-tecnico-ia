@@ -55,7 +55,7 @@ pip install -r requirements.txt
 
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
-| **01** | Arquitetura de Computadores (Von Neumann, CPU vs GPU) | [`arquitetura_cpu_gpu.py`](aulas/aula01/arquitetura_cpu_gpu.py) |
+| **01** | Introdução às Arquiteturas de Computadores e GPUs (Von Neumann/Harvard, CPU vs GPU) | [`aula01_arquiteturas_cpu_gpu.ipynb`](aulas/aula01/aula01_arquiteturas_cpu_gpu.ipynb), [Apresentação](aulas/aula01/apresentacao_aula01.html), [Atividade](aulas/aula01/atividade.md), [`scripts/arquitetura_cpu_gpu.py`](aulas/aula01/scripts/arquitetura_cpu_gpu.py), [Guia da Aula](aulas/aula01/README.md) |
 | **02** | Modelos de Processamento (SIMD, RISC vs CISC) | [`simd_numpy.py`](aulas/aula02/simd_numpy.py) |
 | **03** | Hierarquia de Memória (RAM vs VRAM, PCIe) | [`benchmark_ram_vram.py`](aulas/aula03/benchmark_ram_vram.py) |
 | **04** | Processos e Threads (GIL, Multiprocessing) | [`processos_threads.py`](aulas/aula04/processos_threads.py) |
@@ -115,7 +115,11 @@ senac-tecnico-ia/
 ├── .gitignore
 ├── aulas/
 │   ├── aula01/
-│   │   └── arquitetura_cpu_gpu.py
+│   │   ├── aula01_arquiteturas_cpu_gpu.ipynb
+│   │   ├── apresentacao_aula01.html
+│   │   ├── atividade.md
+│   │   ├── scripts/arquitetura_cpu_gpu.py
+│   │   └── README.md
 │   ├── aula02/
 │   │   └── simd_numpy.py
 │   ├── aula03/

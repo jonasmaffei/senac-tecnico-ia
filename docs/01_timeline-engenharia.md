@@ -23,7 +23,9 @@
 
 ### Aula 1: Introdução às Arquiteturas de Computadores e GPUs
 * **Conceito/Fundamento:** Von Neumann compartilha memória para dados e instruções (gargalo no barramento); Harvard separa as memórias para acesso simultâneo. CPU focada em tarefas sequenciais complexas (poucos núcleos); GPU focada em paralelismo massivo (milhares de núcleos para matrizes e IA).
-* **O que se aprende:** O gargalo estrutural de Von Neumann vs. Harvard, e a divisão de papéis entre a CPU (general sequencial) e a GPU (exército massivo matricial).
+* **O que se aprende:** O gargalo estrutural de Von Neumann vs. Harvard, e a divisão de papéis entre a CPU (general sequencial) e a GPU (exército massivo matricial); no Colab, consulta a GPU real via `nvidia-smi` e mede o speedup de operações matriciais (sequencial vs. vetorizado).
+* **Indicador:** Reconhece modelos aplicados em arquitetura de computadores e GPU.
+* **Situação de aprendizagem:** Startup de reconhecimento facial em tempo real precisa decidir entre CPU e GPU para rodar o modelo.
 * **O problema que fica em aberto:** Sabemos *que* a GPU processa matrizes em massa, mas *como* os dados e instruções se movem e se organizam dentro do chip?
 * **Impacto de negócio:** Impede a contratação cega de instâncias caras de nuvem sem saber se o workload é matricial ou sequencial.
 

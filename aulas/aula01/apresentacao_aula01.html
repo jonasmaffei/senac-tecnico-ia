@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 01 — Introdução às Arquiteturas de Computadores e GPUs</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .big { font-size: 1.75rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+  }
+  pre code {
+    background: none; border: none; padding: 0; color: #dbe1ff;
+    font-size: .8rem; line-height: 1.55; white-space: pre; display: block;
+  }
+  pre.scroll { max-height: 340px; overflow-y: auto; }
+
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge {
+    position: absolute; top: 8px; left: 10px; font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
+    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .code-wrap pre { padding-top: 30px; }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  .terminal {
+    background: #05070f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto;
+  }
+  .terminal .bad { color: #ff8080; }
+  .terminal .warn { color: #ffd27a; }
+  .terminal .dim { color: #5c6a97; }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide .big-badge { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 18px; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 1 · Fundamentos</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título + situação -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 01</div>
+    <h1>Introdução às Arquiteturas de Computadores e GPUs</h1>
+    <p class="lead">Como os computadores funcionam por dentro — <strong>Von Neumann</strong>,
+      <strong>Harvard</strong> e a diferença que faz uma <strong>GPU</strong> na Inteligência
+      Artificial.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">1 — Fundamentos</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">120 min</div></div>
+      <div class="meta"><div class="k">Execução</div><div class="v">Google Colab</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
+        <p>Você é estagiário(a) numa startup que faz <strong>reconhecimento facial em tempo
+          real</strong>. A equipe precisa decidir: <strong>CPU ou GPU</strong> para rodar o
+          modelo de IA?</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧭</span> O que precisamos</h3>
+        <p>Entender <strong>como o computador processa</strong> para escolher o hardware certo —
+          sem contratar instância caríssima à toa.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Objetivo + cronograma -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> compreender as arquiteturas clássicas (Von Neumann e Harvard)
+      e o papel diferenciado das GPUs, para <strong>embasar decisões técnicas</strong> em ambientes
+      reais de desenvolvimento.</p>
+    <div class="note">
+      <span class="ico">📌</span>
+      <span>Conecta com o <strong>Indicador 1</strong>: reconhecer modelos aplicados em
+        arquitetura de computadores e GPU.</span>
+    </div>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (120 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura e contextualização</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Teoria: arquiteturas clássicas</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Teoria: CPU vs. GPU</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Demonstração prática (Colab)</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Atividade guiada</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão em grupo</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Síntese e objetivo da aula</span></div>
+          <div class="tl-item"><span class="tl-time">5 min</span><span class="tl-txt">Tarefa de casa (opcional)</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Von Neumann · Harvard · Gargalo de Von Neumann · CPU (sequencial) · GPU
+            (paralela) · Largura de banda de memória</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Material da aula</h3>
+          <p>Notebook <code>aula01_arquiteturas_cpu_gpu.ipynb</code> (Colab),
+            <code>atividade.md</code> e o benchmark em <code>scripts/</code>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Arquiteturas clássicas -->
+  <section class="slide">
+    <div class="kicker">Teoria · Arquiteturas Clássicas</div>
+    <h2><span class="num">1.</span>Von Neumann vs. Harvard</h2>
+    <p>A forma como um computador organiza <strong>memória</strong> e <strong>instruções</strong>
+      define o quanto ele consegue processar por ciclo.</p>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🧮</span> Von Neumann</h3>
+        <ul class="clean" style="margin-top:6px">
+          <li><strong>Memória única</strong> para dados <em>e</em> instruções</li>
+          <li>Simples e flexível — usada na <strong>maioria dos PCs</strong></li>
+          <li>Limite: instrução e dado disputam o mesmo <strong>barramento</strong></li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧩</span> Harvard</h3>
+        <ul class="clean" style="margin-top:6px">
+          <li><strong>Memórias separadas</strong> para dados e instruções</li>
+          <li><strong>Acesso simultâneo</strong> — mais desempenho por ciclo</li>
+          <li>Comum em <strong>embarcados</strong>: microcontroladores e DSPs</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">❓</span>
+      <span><strong>Pergunta provocadora:</strong> se Harvard é mais rápido, <em>por que não
+        usamos Harvard em todos os computadores?</em></span>
+    </div>
+  </section>
+
+  <!-- 04 — Gargalo de Von Neumann -->
+  <section class="slide">
+    <div class="kicker">Teoria · O Gargalo</div>
+    <h2><span class="num">2.</span>O gargalo de Von Neumann</h2>
+    <p>Como instruções e dados passam pelo <strong>mesmo barramento</strong>, a memória não
+      consegue entregar os dois ao mesmo tempo. O processador acaba <strong>esperando</strong> —
+      e quanto mais rápido o processador, maior a espera.</p>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">A ideia em 1 linha</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code># mesma "estrada" para instrução e dado:
+CPU ⟷ [ barramento único ] ⟷ Memória
+# Harvard separa em duas estradas ⟶ menos espera</code></pre>
+        </div>
+        <p>É por isso que os computadores modernos usam <strong>adaptações</strong>: caches e
+          hierarquia de memória para amenizar o gargalo. (Isso aparece em detalhe na Aula 3.)</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Trade-off</h3>
+        <table>
+          <thead><tr><th></th><th>Von Neumann</th><th>Harvard</th></tr></thead>
+          <tbody>
+            <tr><td>Custo/complexidade</td><td class="yes">menor</td><td class="mid">maior</td></tr>
+            <tr><td>Velocidade de acesso</td><td class="mid">limitada pelo barramento</td><td class="yes">simultâneo</td></tr>
+            <tr><td>Onde aparece</td><td>PCs, servidores</td><td>embarcados, DSPs</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — CPU vs GPU -->
+  <section class="slide">
+    <div class="kicker">Teoria · CPU vs. GPU</div>
+    <h2><span class="num">3.</span>A grande diferença</h2>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🧠</span> CPU — o especialista</h3>
+        <ul class="clean" style="margin-top:6px">
+          <li><strong>Poucos núcleos</strong> (4–64)</li>
+          <li>Alta frequência de clock</li>
+          <li>Ótima em tarefas <strong>sequenciais</strong> e lógica de controle</li>
+          <li>Propósito geral (SO, decisões, I/O)</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">⚙️</span> GPU — o exército</h3>
+        <ul class="clean" style="margin-top:6px">
+          <li><strong>Milhares de núcleos</strong> (ex.: A100 ≈ 6912 CUDA)</li>
+          <li>Altíssima <strong>largura de banda</strong> de memória</li>
+          <li>Feita para <strong>paralelismo massivo</strong></li>
+          <li>Ideal para <strong>matrizes</strong>, deep learning e renderização</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">👨‍🍳</span>
+      <span><strong>Analogia:</strong> a CPU é um <em>chef experiente</em> que faz um prato
+        complexo sozinho. A GPU são <em>mil cozinheiros</em> fazendo o mesmo prato simples ao
+        mesmo tempo.</span>
+    </div>
+  </section>
+
+  <!-- 06 — Demonstração Colab -->
+  <section class="slide">
+    <div class="kicker">Demonstração · Colab</div>
+    <h2><span class="num">4.</span>Ver uma GPU de verdade</h2>
+    <p>No <strong>Google Colab</strong> podemos ligar uma GPU real gratuita e inspecioná-la.
+      Roteiro: <strong>Runtime ➔ Change runtime type ➔ T4 GPU</strong>; depois consultar a placa.</p>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">A ideia em 1 linha</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>!nvidia-smi   # mostra modelo, VRAM, temperatura e processos da GPU</code></pre>
+        </div>
+        <p>O notebook da aula detecta se existe <code>nvidia-smi</code>: com GPU, mostra a placa
+          real; <strong>sem GPU, entra em modo simulado</strong> e a aula continua.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">O que a saída revela</h3>
+        <ul class="clean">
+          <li><strong>Modelo</strong> da GPU (ex.: Tesla T4)</li>
+          <li><strong>Memória</strong> total e em uso (VRAM)</li>
+          <li><strong>Temperatura</strong> atual</li>
+          <li><strong>Processos</strong> rodando na placa</li>
+        </ul>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Passo a passo e código comentado no notebook
+            <code>aula01_arquiteturas_cpu_gpu.ipynb</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 — Atividade guiada -->
+  <section class="slide">
+    <div class="kicker">Atividade Guiada</div>
+    <h2><span class="num">5.</span>Somar 1000 números: CPU vs. GPU</h2>
+    <p>Se <strong>cada instrução leva 1 ciclo</strong>, quanto tempo leva para somar 1000 números?</p>
+    <div class="grid cols-2">
+      <div>
+        <div class="card" style="border-top:3px solid var(--accent-4)">
+          <h3><span class="ico">🐢</span> CPU — 1 núcleo</h3>
+          <p>Processa <strong>um por vez</strong>:</p>
+          <div class="code-wrap" style="margin-top:8px">
+            <span class="badge">conceito</span>
+            <pre><code>1000 números × 1 ciclo = 1000 ciclos</code></pre>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px; border-top:3px solid var(--accent-2)">
+          <h3><span class="ico">🚀</span> GPU — 1000 núcleos</h3>
+          <p>Processa <strong>todos juntos</strong>:</p>
+          <div class="code-wrap" style="margin-top:8px">
+            <span class="badge">conceito</span>
+            <pre><code>1000 números ÷ 1000 núcleos = 1 ciclo
+≈ 1000× mais rápido</code></pre>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Como a atividade demonstra isso</h3>
+        <ul class="clean">
+          <li><strong>Versão sequencial</strong> — multiplicação de matrizes com 3 <em>loops</em> aninhados (um cálculo por vez).</li>
+          <li><strong>Versão vetorizada</strong> — NumPy/BLAS usa paralelismo de hardware.</li>
+          <li>O <strong>speedup</strong> medido mostra, na prática, a vantagem do paralelismo.</li>
+        </ul>
+        <div class="card" style="margin-top:12px; border-top:3px solid var(--accent)">
+          <h3><span class="ico">💡</span> Por que isso importa</h3>
+          <p>Em redes neurais as matrizes têm <strong>milhões</strong> de linhas: sem
+            paralelismo, é inviável.</p>
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Rode no notebook e em <code>scripts/arquitetura_cpu_gpu.py</code>
+            (comentado linha a linha).</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — Discussão -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">6.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>Em que aplicações a <strong>CPU</strong> ainda é melhor que a GPU?</p></div>
+    <div class="debate"><div class="q">2</div><p>Por que um <strong>smartphone</strong> usa GPU integrada?</p></div>
+    <div class="debate"><div class="q">3</div><p>Vale a pena usar GPU para um <strong>site simples</strong>? Por quê?</p></div>
+    <div class="debate"><div class="q">4</div><p>Como <strong>escolher entre CPU e GPU</strong> para um projeto de IA?</p></div>
+    <p style="margin-top:12px">⏱️ 10 minutos para discutir + 5 minutos para socializar as respostas.</p>
+  </section>
+
+  <!-- 09 — Síntese + tarefa -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Von Neumann</strong> — memória compartilhada; usada na maioria dos PCs</li>
+          <li><strong>Harvard</strong> — memórias separadas; sistemas embarcados</li>
+          <li><strong>Gargalo de Von Neumann</strong> — barramento único limita o ritmo</li>
+          <li><strong>GPU</strong> — paralelismo massivo; IA, renderização e simulações</li>
+        </ul>
+        <div class="card" style="margin-top:14px; border-top:3px solid var(--accent-2)">
+          <h3><span class="ico">🎯</span> Objetivo alcançado</h3>
+          <p>Distinguir as arquiteturas fundamentais e entender <strong>por que a GPU é
+            essencial na IA</strong> — base para escolher hardware com inteligência.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa (opcional)</h3>
+          <p>Encontre um <strong>caso real</strong> (notícia, artigo, vídeo) em que a GPU
+            acelerou significativamente uma aplicação de IA. Sugestões de tema:</p>
+          <ul class="clean" style="margin-top:6px">
+            <li>Tesla Autopilot e GPUs NVIDIA</li>
+            <li>Diagnóstico médico com deep learning</li>
+            <li>Processamento de linguagem natural (ChatGPT)</li>
+            <li>Renderização de filmes em tempo real</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔧</span> Recursos de apoio</h3>
+          <p><strong>Google Colab</strong> (GPU + <code>nvidia-smi</code>) é o ambiente da aula.
+            Para praticar mais: <strong>CPU Sim</strong> (simulador Von Neumann),
+            <strong>VS Code Online</strong> e <strong>Replit</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 09</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

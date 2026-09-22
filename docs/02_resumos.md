@@ -6,8 +6,11 @@
 ### Bloco 1: Fundamentos
 
 #### Aula 1: Introdução às Arquiteturas de Computadores e GPUs
-* **Von Neumann vs. Harvard:** Von Neumann compartilha memória para dados e instruções (gargalo no barramento); Harvard separa as memórias para acesso simultâneo.
-* **CPU vs. GPU:** CPU focada em tarefas sequenciais complexas (poucos núcleos); GPU focada em paralelismo massivo (milhares de núcleos para matrizes e IA).
+* **Von Neumann vs. Harvard:** Von Neumann compartilha memória para dados e instruções (gargalo no barramento); Harvard separa as memórias para acesso simultâneo. Harvard é mais rápido por ciclo, mas Von Neumann é mais simples/barata — daí dominar os PCs.
+* **Gargalo de Von Neumann:** Instruções e dados disputam o mesmo barramento; quanto mais rápido o processador, maior a espera. Caches e hierarquia de memória (Aula 3) amenizam o problema.
+* **CPU vs. GPU:** CPU focada em tarefas sequenciais complexas (poucos núcleos, alta frequência); GPU focada em paralelismo massivo (milhares de núcleos, alta largura de banda, ideal para matrizes e IA).
+* **Prática (Colab):** `nvidia-smi` mostra modelo, VRAM, temperatura e processos da GPU; o benchmark mede a multiplicação de matrizes com 3 `for` aninhados (sequencial) vs. NumPy/BLAS (vetorizado), evidenciando o speedup do paralelismo.
+* **Analogia:** CPU = chef experiente fazendo um prato complexo sozinho; GPU = mil cozinheiros fazendo o mesmo prato simples ao mesmo tempo.
 
 #### Aula 2: Modelos de Processamento (SIMD, MIMD, RISC, CISC)
 * **SIMD:** Uma instrução aplicada a múltiplos dados simultaneamente (GPUs, NumPy).
