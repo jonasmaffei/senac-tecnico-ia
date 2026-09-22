@@ -31,7 +31,9 @@
 
 ### Aula 2: Modelos de Processamento (SIMD, MIMD, RISC, CISC)
 * **Conceito/Fundamento:** SIMD aplica uma instrução a múltiplos dados simultaneamente (GPUs, NumPy); MIMD executa múltiplas instruções em múltiplos dados (CPUs multi-core). RISC foca em instruções simples e fixas (baixo consumo, ARM); CISC foca em instruções complexas e variáveis (x86).
-* **O que se aprende:** Taxonomia de Flynn (SIMD vetorizado vs. MIMD multi-core) e o balanço energético de instruções (RISC fixo/baixo consumo em ARM vs. CISC complexo em x86).
+* **O que se aprende:** Taxonomia de Flynn (SIMD vetorizado vs. MIMD multi-core) e o balanço energético de instruções (RISC fixo/baixo consumo em ARM vs. CISC complexo em x86); medição do ganho do SIMD (sequencial vs. NumPy) e de um estudo de caso de imagem (SIMD dentro do *warp* + MIMD entre blocos da GPU).
+* **Indicador:** Reconhece modelos aplicados em arquitetura de computadores e GPU.
+* **Situação de aprendizagem:** Escolha entre Raspberry Pi (ARM/RISC) e NVIDIA Jetson (ARM + GPU) para visão computacional embarcada em tempo real.
 * **Conexão com a Aula 1:** Explica o *mecanismo de execução* da GPU (SIMD expandido em massa) e justifica por que dispositivos de borda (câmeras, edge) escolhem RISC.
 * **O problema que fica em aberto:** O dado chega vetorizado, mas quanto tempo ele gasta para ser buscado na hierarquia de armazenamento?
 

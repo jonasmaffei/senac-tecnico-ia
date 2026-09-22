@@ -56,7 +56,7 @@ pip install -r requirements.txt
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
 | **01** | Introdução às Arquiteturas de Computadores e GPUs (Von Neumann/Harvard, CPU vs GPU) | [`aula01_arquiteturas_cpu_gpu.ipynb`](aulas/aula01/aula01_arquiteturas_cpu_gpu.ipynb), [Apresentação](aulas/aula01/apresentacao_aula01.html), [Atividade](aulas/aula01/atividade.md), [`scripts/arquitetura_cpu_gpu.py`](aulas/aula01/scripts/arquitetura_cpu_gpu.py), [Guia da Aula](aulas/aula01/README.md) |
-| **02** | Modelos de Processamento (SIMD, RISC vs CISC) | [`simd_numpy.py`](aulas/aula02/simd_numpy.py) |
+| **02** | Modelos de Processamento (SIMD/MIMD, RISC/CISC) | [`aula02_modelos_processamento.ipynb`](aulas/aula02/aula02_modelos_processamento.ipynb), [Apresentação](aulas/aula02/apresentacao_aula02.html), [Atividade](aulas/aula02/atividade.md), [`scripts/`](aulas/aula02/scripts) ([`benchmark_simd.py`](aulas/aula02/scripts/benchmark_simd.py), [`estudo_imagem.py`](aulas/aula02/scripts/estudo_imagem.py), [`lib_backend.py`](aulas/aula02/scripts/lib_backend.py)), [Guia da Aula](aulas/aula02/README.md) |
 | **03** | Hierarquia de Memória (RAM vs VRAM, PCIe) | [`benchmark_ram_vram.py`](aulas/aula03/benchmark_ram_vram.py) |
 | **04** | Processos e Threads (GIL, Multiprocessing) | [`processos_threads.py`](aulas/aula04/processos_threads.py) |
 | **05** | Redes e Transferência de Dados (TCP/UDP, SSH, rsync) | [`demo_tcp_udp.py`](aulas/aula05/demo_tcp_udp.py), [`comandos_transferencia.sh`](aulas/aula05/comandos_transferencia.sh) |
@@ -121,7 +121,11 @@ senac-tecnico-ia/
 │   │   ├── scripts/arquitetura_cpu_gpu.py
 │   │   └── README.md
 │   ├── aula02/
-│   │   └── simd_numpy.py
+│   │   ├── aula02_modelos_processamento.ipynb
+│   │   ├── apresentacao_aula02.html
+│   │   ├── atividade.md
+│   │   ├── scripts/                         → lib_backend.py, benchmark_simd.py, estudo_imagem.py
+│   │   └── README.md
 │   ├── aula03/
 │   │   └── benchmark_ram_vram.py
 │   ├── aula04/

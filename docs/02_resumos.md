@@ -13,9 +13,12 @@
 * **Analogia:** CPU = chef experiente fazendo um prato complexo sozinho; GPU = mil cozinheiros fazendo o mesmo prato simples ao mesmo tempo.
 
 #### Aula 2: Modelos de Processamento (SIMD, MIMD, RISC, CISC)
-* **SIMD:** Uma instrução aplicada a múltiplos dados simultaneamente (GPUs, NumPy).
-* **MIMD:** Múltiplas instruções em múltiplos dados (CPUs multi-core).
-* **RISC vs. CISC:** RISC foca em instruções simples e fixas (baixo consumo, ARM); CISC foca em instruções complexas e variáveis (x86).
+* **Taxonomia de Flynn:** classifica por instruções × dados — **SISD** (1×1, CPU sequencial), **SIMD** (1×muitos, GPU/AVX/NumPy), **MISD** (raro) e **MIMD** (muitos×muitos, multi-core/clusters).
+* **SIMD:** Uma instrução aplicada a múltiplos dados simultaneamente (GPUs, NumPy). É o que dá o grande speedup em vetores, imagens e matrizes.
+* **MIMD:** Múltiplas instruções em múltiplos dados (CPUs multi-core); cada núcleo faz uma tarefa diferente.
+* **RISC vs. CISC:** RISC foca em instruções simples e de tamanho **fixo** (pipeline previsível, baixo consumo, ARM); CISC foca em instruções complexas de tamanho **variável** (x86). Trade-off: RISC gasta menos energia, mas o CISC tem o ecossistema de software maduro — daí x86 dominar desktops/servidores.
+* **Prática (Colab/Windows):** o ganho do SIMD é medido com sequencial (Python puro) vs. NumPy; o estudo de caso converte uma imagem 1080p em tons de cinza (loop por pixel vs. vetorizado). O código detecta o backend (CuPy → PyTorch CUDA → DirectML → NumPy) e roda igual no Colab e no Windows com GPU AMD.
+* **GPU = SIMD + MIMD:** dentro de um *warp* (32 threads) a instrução é a mesma (SIMD); vários blocos/SMs processam pedaços diferentes ao mesmo tempo (MIMD).
 
 #### Aula 3: Estrutura de Memória em GPUs
 * **Hierarquia:** Registradores (mais rápidos, por thread) -> Memória Compartilhada / SRAM (cache manual por bloco) -> Cache L1/L2 -> Memória Global / VRAM (alta capacidade, latência alta).
