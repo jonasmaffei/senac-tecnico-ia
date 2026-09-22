@@ -1,0 +1,3 @@
+# Dependências da Aula 01 — Introdução às Arquiteturas de Computadores e GPUs.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+numpy>=1.24.0

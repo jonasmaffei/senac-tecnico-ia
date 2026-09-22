@@ -44,6 +44,23 @@ o computador funciona por dentro e por que as GPUs são tão eficazes em IA.
 
 ---
 
+## 🖥️ Como rodar no laboratório (Windows)
+
+Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual
+(`.venv`), instala as dependências de [`requirements.txt`](requirements.txt) e abre um
+**menu** para rodar os scripts — sem precisar configurar nada na mão.
+
+Quem preferir o terminal:
+
+```bat
+cd aulas\aula01
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe scripts\arquitetura_cpu_gpu.py
+```
+
+---
+
 ## 🔑 Conceitos-chave
 
 - **Von Neumann** — memória compartilhada para dados e instruções; usada na maioria dos PCs.

@@ -49,15 +49,29 @@ precisa identificar objetos **em tempo real** numa câmera industrial. Antes de 
 
 ### No Windows do laboratório (GPU AMD)
 
+Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual
+(`.venv`), instala as dependências de [`requirements.txt`](requirements.txt) e abre um
+**menu** com os scripts disponíveis:
+
+```
+[1] benchmark_simd.py          - sequencial vs. SIMD (NumPy/GPU)
+[2] estudo_imagem.py           - imagem 1080p: loop vs. vetorizado
+[3] arquitetura_instrucoes.py  - RISC/CISC + recursos SIMD da CPU
+[4] lib_backend.py             - detectar o backend de processamento
+[0] Sair
+```
+
+Quem preferir o terminal:
+
 ```bat
-cd aulas\aula02\scripts
-python benchmark_simd.py
-python estudo_imagem.py
-python arquitetura_instrucoes.py
+cd aulas\aula02
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe scripts\benchmark_simd.py
 ```
 
 > O mesmo código roda nos dois ambientes: ele detecta o backend em tempo de execução.
-> Requer apenas **NumPy** (`pip install numpy`); CuPy/PyTorch são opcionais.
+> Requer apenas **NumPy**; CuPy/PyTorch são opcionais.
 
 ---
 
