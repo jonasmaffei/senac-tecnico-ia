@@ -134,29 +134,6 @@
   }
   .code-wrap pre { padding-top: 30px; }
 
-  .code-tools {
-    position: absolute; top: 7px; right: 8px; display: flex; gap: 6px;
-    opacity: .45; transition: opacity .15s; z-index: 2;
-  }
-  .code-wrap:hover .code-tools, .code-wrap:focus-within .code-tools { opacity: 1; }
-  .code-tools button {
-    background: rgba(28,39,73,.96); border: 1px solid var(--border); color: var(--text);
-    border-radius: 8px; padding: 5px 11px; font-size: .74rem; cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    transition: background .15s, border-color .15s, transform .1s;
-  }
-  .code-tools button:hover { background: var(--panel-2); border-color: var(--accent); }
-  .code-tools button:active { transform: scale(.95); }
-  .code-tools button.copied { border-color: var(--accent-2); color: var(--accent-2); }
-
-  .copied-toast {
-    position: fixed; bottom: 64px; left: 50%; transform: translateX(-50%) translateY(10px);
-    background: var(--accent-2); color: #04231a; font-weight: 600; font-size: .84rem;
-    padding: 8px 16px; border-radius: 999px; box-shadow: var(--shadow);
-    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 60;
-  }
-  .copied-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
   .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
   .pipe-step {
     flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
@@ -376,185 +353,140 @@
   <section class="slide">
     <div class="kicker">Teoria · Exclusão Mútua</div>
     <h2><span class="num">2.</span>O lock — 1 job por vez</h2>
-    <p>Um <strong>lock</strong> é uma marca compartilhada que só um processo pode ter por
-      vez. Enquanto um job o mantém, os outros <strong>esperam</strong>. É isso que evita
+    <p>Um <strong>lock</strong> é uma marca que só um processo consegue ter por vez.
+      Enquanto um job o mantém, os outros <strong>esperam</strong> — é isso que evita
       dois jobs na GPU ao mesmo tempo.</p>
     <div class="grid cols-2">
       <div>
-        <h3 style="margin-bottom:10px">Como o laboratório faz</h3>
+        <h3 style="margin-bottom:10px">A ideia em 3 linhas</h3>
         <div class="code-wrap">
-          <span class="badge">lib_gpu15.sh</span>
-          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
-          <pre class="scroll"><code># Tenta pegar o lock. Devolve 0 se conseguiu, 1 se ocupado.
-# O "lock" é uma PASTA: criar pasta é atômico — se dois
-# processos tentam juntos, só um consegue (como o flock -x).
-lock_tentar() {
-    local dir="$DIR_LOCKS/gpu.lock"
-    if mkdir "$dir" 2>/dev/null; then   # deu certo? lock é nosso
-        echo "$$" > "$dir/pid"          # gravamos nosso PID
-        return 0
-    fi
-    return 1                            # já existe: alguém está com a GPU
-}
-
-# Limpa lock "órfão": se o dono morreu, libera para o próximo.
-lock_limpar_obsoleto() {
-    local dono=$(cat "$DIR_LOCKS/gpu.lock/pid" 2>/dev/null)
-    if kill -0 "$dono" 2>/dev/null; then return 1; fi  # dono vivo: mantém
-    rm -rf "$DIR_LOCKS/gpu.lock"                       # dono morto: remove
-}</code></pre>
+          <span class="badge">conceito</span>
+          <pre class="scroll"><code># Criar uma PASTA é uma operação atômica:
+# se dois processos tentam juntos, só um consegue.
+mkdir reports/locks/gpu.lock     # ganhou o lock
+echo $$ &gt; .../pid               # anota quem é o dono</code></pre>
         </div>
+        <p>Se a pasta já existe, o processo <strong>não cria</strong> e entende que a GPU
+          está ocupada — então espera. Para não travar para sempre, guarda-se o PID do
+          dono e, se ele já morreu, o lock é considerado <strong>órfão</strong> e removido.</p>
       </div>
       <div>
-        <h3 style="margin-bottom:10px">O que o código acima garante</h3>
+        <h3 style="margin-bottom:10px">O que o lock garante</h3>
         <ul class="clean">
-          <li><strong>Exclusividade:</strong> o <code>mkdir</code> atômico garante que só um job cria a pasta — o resto recebe erro e espera.</li>
-          <li><strong>Sem travamento eterno:</strong> se um job morre sem liberar, o PID guardado deixa de existir e o lock é removido (<code>kill -0</code>).</li>
-          <li><strong>Portável:</strong> no Windows/Git Bash usa a pasta; em Linux/WSL o <code>flock</code> real é preferido (mesmo resultado).</li>
+          <li><strong>Exclusividade</strong> — só um job por vez na GPU.</li>
+          <li><strong>Sem travamento eterno</strong> — lock de um job morto é liberado.</li>
+          <li><strong>Portabilidade</strong> — funciona no Windows/Git Bash e no Linux.</li>
         </ul>
         <table style="margin-top:10px">
           <thead><tr><th>No Linux</th><th>Equivalente aqui</th></tr></thead>
           <tbody>
-            <tr><td><code>flock -x</code></td><td><code>mkdir</code> atômico</td></tr>
-            <tr><td><code>flock -n</code></td><td><code>lock_tentar</code> (não espera)</td></tr>
-            <tr><td><code>-w N</code></td><td>parâmetro <code>timeout</code> de <code>lock_adquirir</code></td></tr>
-            <tr><td><code>-u</code> / trap</td><td><code>trap finalizar EXIT</code></td></tr>
+            <tr><td><code>flock -x</code></td><td>criação atômica da pasta</td></tr>
+            <tr><td><code>flock -n</code></td><td>tentar sem esperar</td></tr>
+            <tr><td><code>-w N</code></td><td><em>timeout</em> ao esperar</td></tr>
+            <tr><td><code>flock -u</code></td><td>remover a pasta ao terminar</td></tr>
           </tbody>
         </table>
       </div>
     </div>
     <div class="note" style="margin-top:14px">
-      <span class="ico">💻</span>
-      <span>No laboratório, quem usa isso é o <code>flock_gpu.sh</code> (um comando por
-        vez) e o <code>fila_gpu.sh</code> (fila + lock). Ambos carregam o
-        <code>lib_gpu15.sh</code>.</span>
+      <span class="ico">📄</span>
+      <span>Implementado em <code>laboratorio_windows/lib_gpu15.sh</code>
+        (funções <code>lock_adquirir</code> / <code>lock_liberar</code>), usado por
+        <code>flock_gpu.sh</code> e <code>fila_gpu.sh</code>.
+        <strong>Explicação linha a linha nos comentários dos próprios scripts.</strong></span>
     </div>
   </section>
 
   <!-- 05 — Demo: fila com prioridade -->
   <section class="slide">
     <div class="kicker">Demo · Fila com Prioridade</div>
-    <h2><span class="num">3.</span>Fila com prioridade (<code>fila_gpu.sh</code>)</h2>
-    <p>A fila é uma <strong>pasta de tickets</strong>. O nome do ticket começa pela
-      prioridade, então o <code>sort</code> já entrega a ordem certa: <code>1_…</code>
-      antes de <code>2_…</code> antes de <code>3_…</code>.</p>
+    <h2><span class="num">3.</span>Fila com prioridade — a ideia</h2>
+    <p>A fila é uma <strong>pasta de tickets</strong>. Cada job cria um arquivo cujo nome
+      começa pela prioridade; a ordenação alfabética já entrega a ordem de execução.</p>
     <div class="grid cols-2">
       <div>
+        <h3 style="margin-bottom:10px">A ideia em 1 linha</h3>
         <div class="code-wrap">
-          <span class="badge">bash · fila_gpu.sh</span>
-          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
-          <pre class="scroll"><code># Uso: ./fila_gpu.sh &lt;prioridade&gt; &lt;nome_job&gt; &lt;comando...&gt;
-PRIORIDADE="${1:-2}"     # 1=alta  2=média  3=baixa
-NOME_JOB="${2:-job_$$}"
-shift 2 2>/dev/null || true
-COMANDO="$*"
-preparar_dirs
-
-# 1) Ticket = prioridade + timestamp + nome.
-#    O sort ordena alfabeticamente -> menor prioridade primeiro.
-TICKET="${PRIORIDADE}_$(date +%Y%m%d_%H%M%S_%N)_${NOME_JOB}"
-echo "$COMANDO" &gt; "$DIR_FILA/$TICKET"          # entra na fila
-log "Job '$NOME_JOB' (prio=$PRIORIDADE) enfileirado: $TICKET"
-
-# 2) Espera até o MEU ticket ser o primeiro da lista.
-while true; do
-    PROXIMO=$(ls "$DIR_FILA" 2>/dev/null | sort | head -1)
-    [ "$PROXIMO" = "$TICKET" ] &amp;&amp; break          # é a minha vez!
-    log "Aguardando: '$PROXIMO' está à frente de '$NOME_JOB'"
-    sleep 2
-done
-
-# 3) Chegou a vez: pega o lock da GPU e roda o comando.
-lock_adquirir "gpu"
-bash -c "$COMANDO"
-
-# 4) Sai da fila e libera a GPU.
-rm -f "$DIR_FILA/$TICKET"
-lock_liberar "gpu"</code></pre>
+          <span class="badge">conceito</span>
+          <pre><code># ticket = prioridade + timestamp + nome
+1_20260922_003041_715_Job-Alta-A</code></pre>
         </div>
-      </div>
-      <div>
-        <h3 style="margin-bottom:10px">A ordem sai “de graça”</h3>
-        <div class="terminal">
-<span class="dim"># tickets na pasta reports/fila/</span>
-1_20260922_003041_715_Job-Alta-A
-1_20260922_003042_055_Job-Alta-D
-2_20260922_003041_903_Job-Media-C
-3_20260922_003041_807_Job-Baixa-B
-        </div>
-        <p style="margin-top:12px"><code>sort</code> lê o nome de cima para baixo e a
-          ordem é exatamente a de execução:
-          <strong>Alta-A → Alta-D → Media-C → Baixa-B</strong>.</p>
+        <p>Como o nome começa pela prioridade, listar a pasta em ordem alfabética coloca
+          <code>1_…</code> antes de <code>2_…</code> antes de <code>3_…</code>. O
+          <em>timestamp</em> desempata jobs da mesma prioridade (<strong>FIFO</strong>).</p>
         <ul class="clean">
-          <li><strong>Prioridade</strong> = primeiro campo do nome.</li>
-          <li><strong>Timestamp</strong> (<code>%N</code> em nanossegundos) desempata e garante unicidade → FIFO dentro da mesma prioridade.</li>
-          <li><strong>Um job por vez</strong> garantido pelo <code>lock_adquirir</code>.</li>
+          <li><strong>1</strong> = alta · <strong>2</strong> = média · <strong>3</strong> = baixa</li>
+          <li>O job espera até o <strong>seu</strong> ticket ser o primeiro da lista.</li>
+          <li>Só então pega o <strong>lock</strong> e executa.</li>
         </ul>
       </div>
+      <div>
+        <h3 style="margin-bottom:10px">Ordem de execução resultante</h3>
+        <div class="terminal">
+<span class="dim"># reports/fila/ listada em ordem</span>
+1_..._Job-Alta-A     <span class="dim">← 1º (prio 1)</span>
+1_..._Job-Alta-D     <span class="dim">← 2º (prio 1)</span>
+2_..._Job-Media-C    <span class="dim">← 3º (prio 2)</span>
+3_..._Job-Baixa-B    <span class="dim">← 4º (prio 3)</span>
+        </div>
+        <p style="margin-top:12px">Repare que a ordem <strong>não</strong> é a de lançamento:
+          os de prioridade 1 "furam" os de prioridade 2 e 3.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">📄</span>
+      <span>Implementado em <code>laboratorio_windows/fila_gpu.sh</code>.
+        <strong>Passo a passo comentado dentro do script.</strong></span>
     </div>
   </section>
 
   <!-- 06 — Job Python + teste -->
   <section class="slide">
     <div class="kicker">Prática · Jobs Python</div>
-    <h2><span class="num">4.</span>Lançar 4 jobs e ver a fila ordenar</h2>
+    <h2><span class="num">4.</span>O experimento: 4 jobs, 1 GPU</h2>
+    <p>A tarefa é lançar <strong>4 jobs de uma vez</strong> (com prioridades diferentes) e
+      observar que eles <strong>não</strong> rodam juntos: a fila os coloca em ordem e o
+      lock garante um por vez.</p>
     <div class="grid cols-2">
       <div>
-        <h3 style="margin-bottom:8px">O job que vai rodar</h3>
-        <div class="code-wrap">
-          <span class="badge">python · train_job.py</span>
-          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
-          <pre class="scroll"><code># train_job.py — job de "treino" simulado (não precisa de GPU)
-import argparse, time, random, os
-try:
-    import torch                 # usado só se estiver instalado
-except Exception:
-    torch = None
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--nome", default="Job")
-parser.add_argument("--epocas", type=int, default=3)
-args = parser.parse_args()
-
-print(f"[{args.nome}] PID={os.getpid()} | Épocas={args.epocas}")
-
-for epoca in range(1, args.epocas + 1):
-    if torch:                    # se houver torch, gera carga real
-        a = torch.randn(1024, 1024); b = torch.randn(1024, 1024)
-        _ = a @ b
-    loss = 1.0 / (epoca * random.uniform(0.8, 1.2))
-    print(f"[{args.nome}] Época {epoca}/{args.epocas} | loss={loss:.4f}")
-    time.sleep(random.uniform(0.5, 1.5))
-
-print(f"[{args.nome}] Treinamento concluído!")</code></pre>
+        <h3 style="margin-bottom:8px">Os dois scripts envolvidos</h3>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🐍</span> <code>train_job.py</code></h3>
+          <p>Simula um job de treino: imprime o progresso por época e consome tempo.
+            Se o <code>torch</code> estiver instalado, faz uma multiplicação de matrizes
+            para gerar carga real; senão, roda só com Python. <strong>Não precisa de
+            GPU</strong> para a aula funcionar.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🧪</span> <code>teste_fila.sh</code></h3>
+          <p>Lance os 4 jobs com <code>&amp;</code> (em paralelo) e mostre a fila evoluindo
+            enquanto houver tickets.</p>
         </div>
       </div>
       <div>
-        <h3 style="margin-bottom:8px">O teste em lote</h3>
-        <div class="code-wrap">
-          <span class="badge">bash · teste_fila.sh</span>
-          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
-          <pre class="scroll"><code># Lança 4 jobs EM PARALELO (o &amp; não espera terminar).
-# O lock garante que só 1 usa a GPU por vez.
-./fila_gpu.sh 1 "Job-Alta-A"  "python train_job.py --nome Job-Alta-A  --epocas 2" &amp;
-./fila_gpu.sh 3 "Job-Baixa-B" "python train_job.py --nome Job-Baixa-B --epocas 1" &amp;
-./fila_gpu.sh 2 "Job-Media-C" "python train_job.py --nome Job-Media-C --epocas 2" &amp;
-./fila_gpu.sh 1 "Job-Alta-D"  "python train_job.py --nome Job-Alta-D  --epocas 1" &amp;
-
-# Enquanto houver tickets, mostra a fila a cada 2 s
-while [ "$(ls "$DIR_FILA" 2>/dev/null | wc -l)" -gt 0 ]; do
-    echo "Fila: $(ls "$DIR_FILA" | sort | tr '\n' ' ')"
-    sleep 2
-done
-wait
-echo "Todos os jobs concluídos!"</code></pre>
-        </div>
-        <div class="card" style="margin-top:2px">
-          <h3><span class="ico">🧪</span> Saída esperada</h3>
-          <p>Ordem real de execução: <strong>Alta-A → Alta-D → Media-C → Baixa-B</strong>.
-            Confirme em <code>reports/fila.log</code>.</p>
+        <h3 style="margin-bottom:8px">O que se observa</h3>
+        <table>
+          <thead><tr><th>Job</th><th>Prioridade</th><th>Ordem real</th></tr></thead>
+          <tbody>
+            <tr><td>Job-Alta-A</td><td class="yes">1 (alta)</td><td>1º</td></tr>
+            <tr><td>Job-Alta-D</td><td class="yes">1 (alta)</td><td>2º</td></tr>
+            <tr><td>Job-Media-C</td><td class="mid">2 (média)</td><td>3º</td></tr>
+            <tr><td>Job-Baixa-B</td><td class="no">3 (baixa)</td><td>4º</td></tr>
+          </tbody>
+        </table>
+        <div class="card" style="margin-top:12px; border-top:3px solid var(--accent-2)">
+          <h3><span class="ico">🧪</span> Como conferir</h3>
+          <p>Rode <code>./teste_fila.sh</code> e abra <code>reports/fila.log</code>:
+            cada linha mostra enfileiramento, início e fim — comprovando a serialização
+            por prioridade.</p>
         </div>
       </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">📄</span>
+      <span>Código em <code>laboratorio_windows/train_job.py</code> e
+        <code>laboratorio_windows/teste_fila.sh</code> —
+        <strong>comentados linha a linha</strong>.</span>
     </div>
   </section>
 
@@ -562,40 +494,15 @@ echo "Todos os jobs concluídos!"</code></pre>
   <section class="slide">
     <div class="kicker">Demo · Monitoramento</div>
     <h2><span class="num">5.</span>Monitorar quem está na GPU</h2>
-    <p>Enquanto a fila roda, o monitor mostra <strong>quem</strong> usa a GPU, o resumo da
-      placa, <strong>quem espera</strong> na fila e o dono do lock.</p>
+    <p>Enquanto a fila roda, o monitor mostra <strong>quatro</strong> informações a cada
+      ciclo: <strong>quem</strong> usa a GPU, o resumo da placa, <strong>quem espera</strong>
+      na fila e o <strong>dono do lock</strong>.</p>
     <div class="grid cols-2">
       <div>
-        <div class="code-wrap">
-          <span class="badge">bash · monitor_gpu_proc.sh</span>
-          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
-          <pre class="scroll"><code># Uma "volta" do monitor:
-uma_volta() {
-    echo "── Processos usando a GPU ──"
-    # listar_processos_gpu devolve: pid|user|nome|vram|util
-    while IFS='|' read -r pid user nome vram util; do
-        printf '  PID=%-8s USER=%-10s CMD=%-22s VRAM=%s MB  UTIL=%s%%\n' \
-               "$pid" "$user" "$nome" "$vram" "$util"
-    done &lt; &lt;(listar_processos_gpu)
-
-    echo "── Resumo da GPU ──"
-    while IFS='|' read -r idx util mem tot; do
-        echo "  GPU$idx: util=${util}% | VRAM=${mem}/${tot} MB"
-    done &lt; &lt;(resumo_gpu)
-
-    echo "── Fila (ordem de execução) ──"
-    ls "$DIR_FILA" | sort | nl -w3 -s'. '
-
-    echo "── Lock da GPU ──"
-    cat "$DIR_LOCKS/gpu.lock/pid" 2>/dev/null || echo "  Livre"
-}</code></pre>
-        </div>
-      </div>
-      <div>
-        <h3 style="margin-bottom:8px">Saída de exemplo (GPU AMD real)</h3>
+        <h3 style="margin-bottom:8px">Saída real (GPU AMD)</h3>
         <div class="terminal">
 ── Processos usando a GPU ──
-  PID=19656    USER=Jonas      CMD=python      VRAM=N/A MB  UTIL=2%
+  PID=19656  USER=Jonas  CMD=python  VRAM=N/A  UTIL=2%
 ── Resumo da GPU ──
   GPU0: util=2% | VRAM=2409/12272 MB (19%)
 ── Fila (ordem de execução) ──
@@ -605,19 +512,29 @@ uma_volta() {
 ── Lock da GPU ──
   1960
         </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">O que cada bloco responde</h3>
+        <ul class="clean">
+          <li><strong>Processos na GPU</strong> — qual processo está segurando a placa (PID, usuário, VRAM, utilização).</li>
+          <li><strong>Resumo da GPU</strong> — utilização e VRAM total, para ver o quanto a placa está ocupada.</li>
+          <li><strong>Fila</strong> — quem é o próximo e quem está na frente de quem.</li>
+          <li><strong>Lock</strong> — o PID dono da GPU (ou “Livre”), para saber se algum job travou.</li>
+        </ul>
         <div class="card" style="margin-top:12px; border-top:3px solid var(--accent-3)">
           <h3><span class="ico">🪟</span> Windows vs. Linux</h3>
-          <p>No <strong>Windows</strong>, <code>listar_processos_gpu</code> usa os
-            <strong>contadores de desempenho</strong> (AMD) via PowerShell inline; em
-            <strong>Linux</strong> usa <code>nvidia-smi</code>. O resto do monitor é idêntico.</p>
+          <p>No <strong>Windows</strong>, os processos da GPU vêm dos <strong>contadores de
+            desempenho</strong> (AMD) via PowerShell inline; no <strong>Linux</strong>, do
+            <code>nvidia-smi</code>. O restante do monitor é idêntico.</p>
         </div>
       </div>
     </div>
     <div class="note" style="margin-top:14px">
-      <span class="ico">🔎</span>
-      <span>Diagnóstico no Linux: <code>nvidia-smi pmon</code> (processos ao vivo),
-        <code>htop</code>, <code>ps aux | grep python</code>, <code>lsof reports/locks/*</code>
-        (quem tem o lock) e <code>strace -p PID</code>.</span>
+      <span class="ico">📄</span>
+      <span>Implementado em <code>laboratorio_windows/monitor_gpu_proc.sh</code>.
+        Diagnóstico extra no Linux: <code>nvidia-smi pmon</code>, <code>htop</code>,
+        <code>ps aux | grep python</code>, <code>lsof reports/locks/*</code> e
+        <code>strace -p PID</code>.</span>
     </div>
   </section>
 
@@ -625,78 +542,44 @@ uma_volta() {
   <section class="slide">
     <div class="kicker">Teoria · Produção</div>
     <h2><span class="num">6.</span>Isolamento com systemd units</h2>
-    <p>Em produção, o <strong>systemd</strong> oferece logging via <code>journald</code>,
-      <strong>restart automático</strong> e <strong>controle de recursos</strong> por job.</p>
+    <p>Em produção, o <strong>systemd</strong> transforma cada job em um <strong>serviço</strong>
+      com logging central (<code>journald</code>), <em>restart</em> automático e limites de
+      recursos — coisas que o lock sozinho não oferece.</p>
     <div class="grid cols-2">
       <div>
+        <h3 style="margin-bottom:10px">O que uma <em>unit</em> descreve</h3>
         <div class="code-wrap">
-          <span class="badge">systemd unit</span>
-          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
-          <pre class="scroll"><code># /etc/systemd/system/gpu-job@.service
-[Unit]
-Description=GPU Training Job %i
-After=network.target
-
-[Service]
-Type=simple
-User=ml-user
-WorkingDirectory=/data/jobs/%i
-ExecStart=/usr/bin/python3 train.py
-
-# Controle de recursos
-CPUWeight=50
-MemoryMax=16G
-IOWeight=50
-
-# Restart automático em falha
-Restart=on-failure
-RestartSec=10
-
-# Logging centralizado
-StandardOutput=journal
-StandardError=journal
-SyslogIdentifier=gpu-job-%i
-
-[Install]
-WantedBy=multi-user.target</code></pre>
+          <span class="badge">esqueleto de uma unit</span>
+          <pre class="scroll"><code># gpu-job@.service  (o "%i" = nome do job)
+[Unit]      Description, After=       # dependências
+[Service]   ExecStart, User           # o que rodar
+            CPUWeight, MemoryMax      # limites
+            Restart=on-failure        # se falhar, reinicia
+[Install]   WantedBy=multi-user…      # habilita no boot</code></pre>
         </div>
+        <p>Cada job é um <strong>serviço isolado</strong>. O <code>@</code> no nome permite
+          instanciar o mesmo modelo com parâmetros diferentes
+          (<code>gpu-job@experimento-01</code>, <code>gpu-job@experimento-02</code>…).</p>
       </div>
       <div>
-        <div class="code-wrap">
-          <span class="badge">bash · operar o serviço</span>
-          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
-          <pre><code># O "%i" do unit vira o nome depois do @.
-# Iniciar o job:
-sudo systemctl start gpu-job@experimento-01
-
-# Acompanhar o log em tempo real (journald):
-journalctl -u gpu-job@experimento-01 -f
-
-# Ver todos os jobs que existem:
-systemctl list-units "gpu-job@*"</code></pre>
-        </div>
-        <div class="code-wrap" style="margin-top:12px">
-          <span class="badge">bash · prioridade de processo</span>
-          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
-          <pre><code># nice: prioridade de CPU (19 = mais baixa)
-nice -n 19 python3 train.py
-
-# ionice: prioridade de disco (classe 3 = "idle")
-ionice -c 3 python3 train.py
-
-# renice: muda a prioridade de um job JÁ rodando
-renice -n -5 -p 12345</code></pre>
-        </div>
-        <table style="margin-top:12px">
-          <thead><tr><th></th><th>flock</th><th>systemd</th></tr></thead>
+        <h3 style="margin-bottom:10px">Conceitos que importam</h3>
+        <table>
+          <thead><tr><th></th><th>lock/flock</th><th>systemd</th></tr></thead>
           <tbody>
             <tr><td>Uso</td><td class="yes">Laboratório</td><td class="mid">Produção</td></tr>
-            <tr><td>Root</td><td class="yes">Não</td><td class="no">Sim</td></tr>
+            <tr><td>Precisa root</td><td class="yes">Não</td><td class="no">Sim</td></tr>
             <tr><td>Setup</td><td class="yes">5 min</td><td class="mid">Mais complexo</td></tr>
             <tr><td>Restart</td><td class="no">Manual</td><td class="yes">Automático</td></tr>
-            <tr><td>Isolamento</td><td class="no">Básico</td><td class="yes">cgroups</td></tr>
+            <tr><td>Limites</td><td class="no">Não</td><td class="yes">CPU/RAM/IO</td></tr>
+            <tr><td>Log</td><td class="no">Arquivo</td><td class="yes">journald</td></tr>
           </tbody>
         </table>
+        <div class="card" style="margin-top:12px; border-top:3px solid var(--accent-3)">
+          <h3><span class="ico">⚡</span> Prioridade de processo</h3>
+          <p><code>nice</code>/<code>renice</code> ajustam prioridade de <strong>CPU</strong>;
+            <code>ionice</code>, a de <strong>disco</strong>. São complementares à fila —
+            regulam jobs que <em>já</em> estão rodando.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -768,14 +651,11 @@ renice -n -5 -p 12345</code></pre>
   </div>
 </div>
 
-<div class="copied-toast" id="toast">Código copiado</div>
-
 <script>
   (function () {
     var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
     var progress = document.getElementById("progress");
     var counter = document.getElementById("counter");
-    var toast = document.getElementById("toast");
     var current = 0;
 
     function pad(n) { return n < 10 ? "0" + n : "" + n; }
@@ -821,47 +701,6 @@ renice -n -5 -p 12345</code></pre>
     window.addEventListener("hashchange", function () {
       var n = parseInt(window.location.hash.replace("#", ""), 10);
       if (!isNaN(n)) goTo(n - 1);
-    });
-
-    var toastTimer = null;
-    function showToast() {
-      toast.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1600);
-    }
-
-    function copiarTexto(texto) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        return navigator.clipboard.writeText(texto);
-      }
-      return new Promise(function (resolve, reject) {
-        var ta = document.createElement("textarea");
-        ta.value = texto; ta.style.position = "fixed"; ta.style.opacity = "0";
-        document.body.appendChild(ta); ta.select();
-        try { document.execCommand("copy"); resolve(); }
-        catch (err) { reject(err); }
-        finally { document.body.removeChild(ta); }
-      });
-    }
-
-    Array.prototype.forEach.call(document.querySelectorAll(".copy-btn"), function (btn) {
-      btn.addEventListener("click", function () {
-        var wrap = btn.closest(".code-wrap");
-        var code = wrap ? wrap.querySelector("pre code") : null;
-        if (!code) return;
-        copiarTexto(code.innerText).then(function () {
-          btn.classList.add("copied");
-          btn.textContent = "✓ Copiado";
-          showToast();
-          setTimeout(function () {
-            btn.classList.remove("copied");
-            btn.textContent = "📋 Copiar";
-          }, 1600);
-        }).catch(function () {
-          btn.textContent = "Falha ao copiar";
-          setTimeout(function () { btn.textContent = "📋 Copiar"; }, 1600);
-        });
-      });
     });
 
     var start = parseInt(window.location.hash.replace("#", ""), 10);
