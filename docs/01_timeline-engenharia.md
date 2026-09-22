@@ -100,7 +100,13 @@
 * **Conceito/Fundamento:** Operação contínua e supervisionada de GPUs com `nvidia-smi --query-gpu` para métricas estruturadas, scripts Bash de coleta e alerta, agendamento com `cron`/`systemd timers`, dashboard com `gnuplot`/Matplotlib e integração com o Google Sheets.
 * **O que se aprende:** Extração de métricas (`temperature.gpu`, `utilization.gpu`, `power.draw`, `memory.used`), escrita de `monitor_gpu.sh`/`alerta_gpu.sh` com `set -euo pipefail`, sintaxe do crontab vs. timer systemd, limites de alerta e publicação de séries temporais via API.
 * **Conexão com o Bloco 2:** O código paralelo otimizado (A7–A13) roda em produção 24h/7d; a automação garante que a GPU não trave silenciosamente nem desperdice orçamento de nuvem.
-* **O problema que fica em aberto:** Monitorar é o primeiro passo; como gerenciar processos e otimizar o consumo de energia em operação contínua?
+* **O problema que fica em aberto:** Monitorar é o primeiro passo; e quando **vários jobs** disputam a mesma GPU ao mesmo tempo, como evitar contenção de recursos?
+
+### Aula 15: Gestão de Processos e Carga de Trabalho (Bloco 3 — Automação)
+* **Conceito/Fundamento:** Controle de concorrência em GPU em ambiente multiusuário: exclusão mútua com `flock` (ou lock por diretório no Windows), filas de jobs com prioridade, monitoramento de processos em tempo real (`nvidia-smi pmon` / contadores do Windows) e isolamento com `systemd`.
+* **O que se aprende:** Race conditions e OOM por disputa de VRAM, semântica das flags do `flock` (`-x`, `-s`, `-n`, `-w`, `-u`), fila por *ticket* (`prioridade + timestamp` → ordenação lexicográfica), `nice`/`ionice`, units `systemd` com controle de recursos e o conceito de *starvation* (e *aging* como remédio).
+* **Conexão com o Bloco 2:** O código paralelo (A7–A13) e o monitoramento contínuo (A14) agora rodam de forma **justa e segura** quando vários usuários compartilham a mesma placa; a solução é feita só com Bash, sem Slurm/Kubernetes.
+* **O problema que fica em aberto:** Garantir uso justo da GPU resolve a concorrência; como reduzir o **consumo de energia** da operação contínua?
 
 ---
 
@@ -114,4 +120,5 @@
 | **A9** | "E se o cliente exigir rodar em cluster AMD/Intel?" | Tradução mental de paralelismo para padrão aberto agnóstico (OpenCL). |
 | **A10-A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs ROCm) adotar?" | Treinamento ResNet com métricas de throughput/VRAM no W&B e análise de TCO. |
 | **A12-A13** | "Como quantificar empiricamente o speedup da GPU e responder onde ela compensa?" | Benchmark de 4 implementações (Python, NumPy, CUDA Numba, CuPy), curva de speedup e mini-relatório. |
-| **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` agendados por `cron`, dashboard e envio ao Google Sheets. |
+| **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` agendados por `cron`, dashboard e envio ao Google Sheets. |
+| **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |

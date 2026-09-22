@@ -79,6 +79,7 @@ pip install -r requirements.txt
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
 | **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [`aula14_automacao_gpu_bash.ipynb`](aulas/aula14/aula14_automacao_gpu_bash.ipynb), [`monitor_gpu.sh`](aulas/aula14/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/aula14/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/aula14/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/aula14/enviar_para_sheets.py), [Laboratório Windows (AMD)](aulas/aula14/laboratorio_windows/README.md), [Realtime Docker](aulas/aula14/laboratorio_realtime-docker/README.md), [Realtime Windows](aulas/aula14/laboratorio_realtime-windows/README.md), [Apresentação](aulas/aula14/apresentacao_aula14.html), [Guia Colab](aulas/aula14/README.md) |
+| **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Apresentação](aulas/aula15/apresentacao_aula15.html), [Laboratório Windows](aulas/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/aula15/README.md) |
 
 ---
 
@@ -161,6 +162,10 @@ senac-tecnico-ia/
 │   │   ├── laboratorio_windows/            → versão Windows/Git Bash (AMD e NVIDIA)
 │   │   ├── laboratorio_realtime-docker/    → webservice Python (Flask + SSE) em Docker
 │   │   ├── laboratorio_realtime-windows/   → webservice Python nativo no Windows
+│   │   └── README.md
+│   ├── aula15/
+│   │   ├── apresentacao_aula15.html
+│   │   ├── laboratorio_windows/            → fila de GPU com lock/prioridade (Git Bash + AMD)
 │   │   └── README.md
 │   └── projeto-integrador/
 │       └── README.md

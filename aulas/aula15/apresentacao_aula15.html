@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 15 — Gestão de Processos e Carga de Trabalho</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .big { font-size: 1.75rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+  }
+  pre code {
+    background: none; border: none; padding: 0; color: #dbe1ff;
+    font-size: .8rem; line-height: 1.55; white-space: pre; display: block;
+  }
+  pre.scroll { max-height: 340px; overflow-y: auto; }
+
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge {
+    position: absolute; top: 8px; left: 10px; font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
+    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .code-wrap pre { padding-top: 30px; }
+
+  .code-tools {
+    position: absolute; top: 7px; right: 8px; display: flex; gap: 6px;
+    opacity: .45; transition: opacity .15s; z-index: 2;
+  }
+  .code-wrap:hover .code-tools, .code-wrap:focus-within .code-tools { opacity: 1; }
+  .code-tools button {
+    background: rgba(28,39,73,.96); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 5px 11px; font-size: .74rem; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .code-tools button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .code-tools button:active { transform: scale(.95); }
+  .code-tools button.copied { border-color: var(--accent-2); color: var(--accent-2); }
+
+  .copied-toast {
+    position: fixed; bottom: 64px; left: 50%; transform: translateX(-50%) translateY(10px);
+    background: var(--accent-2); color: #04231a; font-weight: 600; font-size: .84rem;
+    padding: 8px 16px; border-radius: 999px; box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 60;
+  }
+  .copied-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  .terminal {
+    background: #05070f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto;
+  }
+  .terminal .bad { color: #ff8080; }
+  .terminal .warn { color: #ffd27a; }
+  .terminal .dim { color: #5c6a97; }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide .big-badge { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 18px; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 3 · Automação</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título + situação -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 15</div>
+    <h1>Gestão de Processos e Carga de Trabalho</h1>
+    <p class="lead">Exclusão mútua com <code>flock</code>, filas de jobs com prioridade,
+      monitoramento de processos em tempo real e agendamento — garantindo uso
+      <strong>justo</strong> e <strong>eficiente</strong> de 1 GPU em ambiente multiusuário.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">120 min</div></div>
+      <div class="meta"><div class="k">Laboratório</div><div class="v">Windows + Git Bash (GPU AMD)</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🔥</span> Situação de aprendizagem</h3>
+        <p><strong>1 GPU, 4 alunos</strong> treinando ao mesmo tempo. Sem controle, os jobs
+          competem pela VRAM, corrompem resultados e causam <strong>OOM</strong>.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎯</span> O que precisamos</h3>
+        <p>Uma <strong>fila com prioridade</strong> e um <strong>lock</strong> de exclusão
+          mútua — só com Bash, sem Slurm nem Kubernetes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Objetivo + pipeline + cronograma -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e o elo da corrente</h2>
+    <p><strong>Objetivo:</strong> gerenciar execuções concorrentes em GPU com Bash,
+      implementar filas com prioridade e monitorar processos em tempo real.</p>
+    <div class="pipeline" style="margin-top:8px">
+      <div class="pipe-step"><span class="step-ico">🧾</span><span class="step-title">fila_gpu.sh</span><span class="step-sub">ticket + prioridade</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">🔒</span><span class="step-title">lock (flock)</span><span class="step-sub">1 job por vez</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">🐍</span><span class="step-title">train_job.py</span><span class="step-sub">job de treino</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">📡</span><span class="step-title">monitor</span><span class="step-sub">processos na GPU</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">⏰</span><span class="step-title">agendar</span><span class="step-sub">cron / systemd</span></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:22px; align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (120 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: o problema da contenção de recursos GPU</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: processos, jobs e concorrência em Linux</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Demo: exclusão mútua com <code>flock</code></span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: filas de jobs e prioridade</span></div>
+          <div class="tl-item"><span class="tl-time">35 min</span><span class="tl-txt">Atividade: sistema de fila com múltiplos jobs Python</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: monitoramento de processos em tempo real</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Discussão em grupo</span></div>
+          <div class="tl-item"><span class="tl-time">5 min</span><span class="tl-txt">Síntese e tarefa de casa</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🖥️</span> Onde roda esta aula</h3>
+          <p>No <strong>laboratório Windows</strong> usamos o <strong>Git Bash</strong> e a
+            <strong>GPU AMD</strong> (contadores do Windows). Em <strong>Linux/WSL</strong>,
+            o mesmo script usa <code>flock</code> real. Conceitos idênticos.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Race condition · Mutex/Lock · FIFO Queue · Prioridade de job · <code>nice</code>/<code>ionice</code> · systemd unit</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — O problema: race condition -->
+  <section class="slide">
+    <div class="kicker">O Problema</div>
+    <h2><span class="num">1.</span>Race condition em GPUs</h2>
+    <p>Quando vários jobs usam a mesma GPU ao mesmo tempo, competem por memória e
+      capacidade de processamento — com resultados imprevisíveis:</p>
+    <div class="grid cols-2">
+      <div>
+        <div class="terminal">
+<span class="dim"># Sem controle — 4 jobs simultâneos</span>
+[08:00:00] Job-A inicia — aloca 6 GB VRAM
+[08:00:01] Job-B inicia — aloca 6 GB VRAM
+<span class="bad">[08:00:02] Job-A: CUDA OOM — apenas 2 GB livres!</span>
+<span class="bad">[08:00:02] Job-B: CUDA OOM — crash silencioso</span>
+<span class="warn">[08:00:03] Job-C: resultados corrompidos (VRAM fragmentada)</span>
+<span class="dim"># Com o lock:</span>
+[08:00:10] Jobs executam 1 por vez, sem conflito ✅
+        </div>
+      </div>
+      <div>
+        <div class="grid" style="grid-template-columns:1fr; gap:12px">
+          <div class="card" style="border-top:3px solid var(--accent-4)">
+            <h3><span class="ico">❌</span> Sem controle</h3>
+            <p>Jobs competem por VRAM → OOM crash, resultados corrompidos.</p>
+          </div>
+          <div class="card" style="border-top:3px solid var(--accent-2)">
+            <h3><span class="ico">✅</span> Com lock</h3>
+            <p>Exclusão mútua → 1 job por vez, fila automática.</p>
+          </div>
+          <div class="card" style="border-top:3px solid var(--accent-3)">
+            <h3><span class="ico">🚀</span> Com prioridade</h3>
+            <p>Jobs urgentes passam à frente → máxima eficiência da equipe.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 — Teoria: flock -->
+  <section class="slide">
+    <div class="kicker">Teoria · Exclusão Mútua</div>
+    <h2><span class="num">2.</span><code>flock</code> — 1 job por vez</h2>
+    <p><code>flock</code> cria um <strong>lock de arquivo</strong>. Enquanto um processo o
+      mantém, os demais <strong>bloqueiam</strong> até o primeiro terminar.</p>
+    <div class="grid cols-2">
+      <div>
+        <table>
+          <thead><tr><th>Flag</th><th>Significado</th><th>Uso típico</th></tr></thead>
+          <tbody>
+            <tr><td><code>-x</code></td><td>Lock exclusivo (padrão)</td><td>Acesso exclusivo à GPU</td></tr>
+            <tr><td><code>-s</code></td><td>Lock compartilhado</td><td>Leitura simultânea de métricas</td></tr>
+            <tr><td><code>-n</code></td><td>Non-blocking (falha rápido)</td><td>Verificar se a GPU está livre</td></tr>
+            <tr><td><code>-w N</code></td><td>Timeout em N segundos</td><td>Desistir se demorar muito</td></tr>
+            <tr><td><code>-u</code></td><td>Liberar lock manualmente</td><td>Cleanup em <code>trap</code> de sinal</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="code-wrap">
+          <span class="badge">bash</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code>#!/usr/bin/env bash
+# flock_gpu.sh — exclusão mútua para acesso à GPU
+set -euo pipefail
+
+LOCK_FILE="/var/lock/gpu_exclusive.lock"
+PYTHON_SCRIPT="${1:-train.py}"
+shift || true
+
+echo "[$(date '+%H:%M:%S')] PID $$ aguardando lock..."
+
+# -x: lock exclusivo  |  -w 0: espera indefinidamente
+(
+  flock -x 200
+  echo "PID $$ adquiriu GPU — iniciando $PYTHON_SCRIPT"
+  python3 "$PYTHON_SCRIPT" "$@"
+  EXIT_CODE=$?
+  echo "PID $$ liberou GPU (exit=$EXIT_CODE)"
+  exit $EXIT_CODE
+) 200&gt;"$LOCK_FILE"</code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">💡</span>
+      <span>No <strong>Git Bash do Windows</strong> não existe <code>flock</code>: usamos um
+        <strong>lock por diretório</strong> (criar pasta é uma operação atômica — mesmo
+        princípio). Em Linux/WSL, o <code>flock</code> real é usado automaticamente.</span>
+    </div>
+  </section>
+
+  <!-- 05 — Demo: fila com prioridade -->
+  <section class="slide">
+    <div class="kicker">Demo · Fila com Prioridade</div>
+    <h2><span class="num">3.</span>Sistema de fila com prioridade</h2>
+    <p>Combinando lock + <strong>ordenação de arquivos</strong>, criamos uma fila com 3
+      níveis. Prioridade <strong>1</strong> executa antes de <strong>3</strong>; empate
+      desempata por tempo (FIFO).</p>
+    <div class="code-wrap">
+      <span class="badge">bash</span>
+      <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+      <pre class="scroll"><code>#!/usr/bin/env bash
+# gpu_queue.sh — fila de jobs com prioridade e logging
+# Uso: ./gpu_queue.sh &lt;prioridade&gt; &lt;nome_job&gt; &lt;script.py&gt; [args...]
+# Prioridades: 1=alta, 2=media, 3=baixa (FIFO dentro da mesma prioridade)
+set -euo pipefail
+
+PRIORIDADE="${1:-2}"; NOME_JOB="${2:-job_$$}"
+SCRIPT="${3:-train.py}"; shift 3 2>/dev/null || true
+
+QUEUE_DIR="/var/spool/gpu_queue"
+LOCK_FILE="/var/lock/gpu_queue.lock"
+LOG_FILE="/var/log/gpu_queue.log"
+mkdir -p "$QUEUE_DIR"
+
+# Ticket: prioridade + timestamp + nome => o sort ordena por prioridade
+TICKET="${PRIORIDADE}_$(date +%Y%m%d_%H%M%S_%N)_${NOME_JOB}"
+echo "$SCRIPT $*" &gt; "$QUEUE_DIR/$TICKET"
+echo "Job '$NOME_JOB' (prio=$PRIORIDADE) enfileirado: $TICKET" | tee -a "$LOG_FILE"
+
+# Aguarda a vez (é o primeiro da fila?)
+while true; do
+    PROXIMO=$(ls "$QUEUE_DIR" 2>/dev/null | sort | head -1)
+    [ "$PROXIMO" = "$TICKET" ] &amp;&amp; break
+    echo "Aguardando: $PROXIMO está à frente..."
+    sleep 5
+done
+
+# Executa com lock exclusivo e sai da fila no fim
+(
+  flock -x 200
+  START=$(date +%s)
+  python3 "$SCRIPT" "$@"; EXIT_CODE=$?
+  END=$(date +%s)
+  echo "'$NOME_JOB' concluido em $((END-START))s (exit=$EXIT_CODE)" | tee -a "$LOG_FILE"
+  rm -f "$QUEUE_DIR/$TICKET"
+  exit $EXIT_CODE
+) 200&gt;"$LOCK_FILE"</code></pre>
+    </div>
+    <p><strong>Por que funciona?</strong> O nome do ticket começa pela prioridade; a
+      ordenação lexicográfica coloca <code>1_…</code> antes de <code>2_…</code> antes de
+      <code>3_…</code>. O timestamp garante FIFO e unicidade.</p>
+  </section>
+
+  <!-- 06 — Job Python + teste -->
+  <section class="slide">
+    <div class="kicker">Prática · Jobs Python</div>
+    <h2><span class="num">4.</span>Job de teste e lançamento em lote</h2>
+    <div class="grid cols-2">
+      <div>
+        <div class="code-wrap">
+          <span class="badge">python</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code># train_job.py — job de treino simulado
+import argparse, time, random, os
+try:
+    import torch
+except Exception:
+    torch = None
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--nome", default="Job")
+parser.add_argument("--epocas", type=int, default=3)
+args = parser.parse_args()
+
+print(f"[{args.nome}] PID={os.getpid()} | Épocas={args.epocas}")
+device = "cuda" if (torch and torch.cuda.is_available()) else "cpu"
+for epoca in range(1, args.epocas + 1):
+    if torch:                       # carga real de GPU/CPU (se instalado)
+        a = torch.randn(2048, 2048); b = torch.randn(2048, 2048)
+        _ = a @ b
+    loss = 1.0 / (epoca * random.uniform(0.8, 1.2))
+    print(f"[{args.nome}] Época {epoca}/{args.epocas} | loss={loss:.4f}")
+    time.sleep(random.uniform(0.5, 1.5))
+print(f"[{args.nome}] Treinamento concluído!")</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="code-wrap">
+          <span class="badge">bash</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code>#!/usr/bin/env bash
+# teste_fila.sh — 4 jobs simultâneos, 1 GPU
+# Ordem esperada: Alta-A, Alta-D, Media-C, Baixa-B
+./gpu_queue.sh 1 "Job-Alta-A"  train_job.py --nome Job-Alta-A  --epocas 3 &amp;
+./gpu_queue.sh 3 "Job-Baixa-B" train_job.py --nome Job-Baixa-B --epocas 2 &amp;
+./gpu_queue.sh 2 "Job-Media-C" train_job.py --nome Job-Media-C --epocas 4 &amp;
+./gpu_queue.sh 1 "Job-Alta-D"  train_job.py --nome Job-Alta-D  --epocas 2 &amp;
+
+# Acompanha a fila enquanto há jobs
+while [ "$(ls /var/spool/gpu_queue 2>/dev/null | wc -l)" -gt 0 ]; do
+    echo "Fila: $(ls /var/spool/gpu_queue | sort | tr '\n' ' ')"
+    sleep 2
+done
+wait
+echo "Todos os jobs concluídos!"</code></pre>
+        </div>
+        <div class="card" style="margin-top:2px">
+          <h3><span class="ico">🧪</span> No laboratório</h3>
+          <p>Rode <code>./teste_fila.sh</code> e abra
+            <code>reports/fila.log</code> para ver a ordem real de execução.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 — Monitoramento em tempo real -->
+  <section class="slide">
+    <div class="kicker">Demo · Monitoramento</div>
+    <h2><span class="num">5.</span>Monitorar processos na GPU</h2>
+    <p>Enquanto a fila executa, veja <strong>quem</strong> usa a GPU, quanto de VRAM e
+      <strong>qual job espera</strong> na fila.</p>
+    <div class="grid cols-2">
+      <div>
+        <div class="code-wrap">
+          <span class="badge">bash</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code>#!/usr/bin/env bash
+# monitor_processos_gpu.sh — monitor em tempo real
+# Processos na GPU (NVIDIA)
+nvidia-smi --query-compute-apps=pid,process_name,\
+used_gpu_memory --format=csv,noheader | \
+while IFS=", " read -r pid nome mem; do
+    user=$(ps -p "$pid" -o user= 2>/dev/null || echo "N/A")
+    echo "  PID=$pid | USER=$user | CMD=$nome | VRAM=${mem}MB"
+done
+
+# Utilização por GPU
+nvidia-smi --query-gpu=index,name,utilization.gpu,\
+memory.used,memory.total --format=csv,noheader,nounits | \
+while IFS=", " read -r idx nome util mu mt; do
+    echo "  GPU$idx ($nome): util=${util}% | VRAM=${mu}/${mt}MB"
+done
+
+# Fila atual
+ls /var/spool/gpu_queue 2>/dev/null | sort | nl -w3 -s'. '</code></pre>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Ferramentas de diagnóstico</h3>
+        <table>
+          <tbody>
+            <tr><td><code>nvidia-smi pmon</code></td><td>processos ao vivo</td></tr>
+            <tr><td><code>htop</code></td><td>CPU + memória por processo</td></tr>
+            <tr><td><code>ps aux | grep python</code></td><td>jobs ativos</td></tr>
+            <tr><td><code>lsof /var/lock/gpu*</code></td><td>quem tem o lock</td></tr>
+            <tr><td><code>strace -p PID</code></td><td>debug de syscalls</td></tr>
+          </tbody>
+        </table>
+        <div class="card" style="margin-top:12px; border-top:3px solid var(--accent-3)">
+          <h3><span class="ico">⚡</span> Prioridade de processo (Linux)</h3>
+          <p><code>nice -n 19 python3 train.py</code> · <code>ionice -c 3 …</code> ·
+            <code>renice -n -5 -p PID</code></p>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">🪟</span>
+      <span>No <strong>Windows</strong> usamos os <strong>contadores de desempenho</strong>
+        (GPU AMD) via PowerShell inline — o <code>monitor_gpu_proc.sh</code> do laboratório
+        faz isso e ainda mostra o dono do lock.</span>
+    </div>
+  </section>
+
+  <!-- 08 — systemd -->
+  <section class="slide">
+    <div class="kicker">Teoria · Produção</div>
+    <h2><span class="num">6.</span>Isolamento com systemd units</h2>
+    <p>Em produção, o <strong>systemd</strong> oferece logging via <code>journald</code>,
+      <strong>restart automático</strong> e <strong>controle de recursos</strong> por job.</p>
+    <div class="grid cols-2">
+      <div>
+        <div class="code-wrap">
+          <span class="badge">systemd unit</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre class="scroll"><code># /etc/systemd/system/gpu-job@.service
+[Unit]
+Description=GPU Training Job %i
+After=network.target
+
+[Service]
+Type=simple
+User=ml-user
+WorkingDirectory=/data/jobs/%i
+ExecStart=/usr/bin/python3 train.py
+
+# Controle de recursos
+CPUWeight=50
+MemoryMax=16G
+IOWeight=50
+
+# Restart automático em falha
+Restart=on-failure
+RestartSec=10
+
+# Logging centralizado
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gpu-job-%i
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="code-wrap">
+          <span class="badge">bash</span>
+          <div class="code-tools"><button class="copy-btn" type="button">📋 Copiar</button></div>
+          <pre><code># Iniciar job "experimento-01"
+sudo systemctl start gpu-job@experimento-01
+
+# Ver log em tempo real
+journalctl -u gpu-job@experimento-01 -f
+
+# Status de todos os jobs
+systemctl list-units "gpu-job@*"
+
+# Prioridade com nice/ionice
+nice -n 10 python3 train_low_priority.py
+ionice -c 3 python3 train_background.py</code></pre>
+        </div>
+        <table style="margin-top:12px">
+          <thead><tr><th></th><th>flock</th><th>systemd</th></tr></thead>
+          <tbody>
+            <tr><td>Uso</td><td class="yes">Laboratório</td><td class="mid">Produção</td></tr>
+            <tr><td>Root</td><td class="yes">Não</td><td class="no">Sim</td></tr>
+            <tr><td>Setup</td><td class="yes">5 min</td><td class="mid">Mais complexo</td></tr>
+            <tr><td>Restart</td><td class="no">Manual</td><td class="yes">Automático</td></tr>
+            <tr><td>Isolamento</td><td class="no">Básico</td><td class="yes">cgroups</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 — Discussão em grupo -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2>Debate: 1 GPU, muitos usuários</h2>
+    <p>Em grupos de 3–4, debatam com base no cenário do laboratório (1 GPU):</p>
+    <div class="debate"><span class="q">1</span><p>A fila é FIFO dentro de cada prioridade.
+      Se um job de <strong>alta prioridade demorar 8 h</strong>, os de média nunca executam
+      (<strong>starvation</strong>). Como resolver?</p></div>
+    <div class="debate"><span class="q">2</span><p><code>flock</code> só funciona no
+      <strong>mesmo servidor</strong>. Para um cluster com 10 nós GPU, como escalar?
+      Compare com <strong>SLURM, Kubernetes e Ray</strong>.</p></div>
+    <div class="debate"><span class="q">3</span><p>Um job malicioso pode deletar o arquivo
+      de lock e "roubar" a GPU. Como tornar o sistema mais seguro? (dica: <code>flock</code>
+      + grupos de usuário Linux).</p></div>
+    <div class="debate"><span class="q">4</span><p><code>systemd</code> com
+      <code>Type=simple</code> não detecta um processo em <strong>deadlock</strong> sem uso
+      de CPU. Como monitorar e agir automaticamente?</p></div>
+  </section>
+
+  <!-- 10 — Síntese e tarefa -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong><code>flock -x</code></strong>: exclusão mútua — base do controle de concorrência em Bash</li>
+          <li><strong>Fila por arquivo</strong>: <code>ticket = prioridade + timestamp</code> → ordenação automática</li>
+          <li><strong><code>nvidia-smi pmon</code></strong>: processos e VRAM por PID em tempo real</li>
+          <li><strong><code>nice</code> / <code>ionice</code></strong>: prioridade de CPU e I/O</li>
+          <li><strong>systemd unit</strong>: isolamento com logging, restart e controle de recursos</li>
+          <li><strong>starvation</strong>: jobs de baixa prioridade que nunca executam — exige <strong>aging</strong></li>
+        </ul>
+        <p style="margin-top:12px">Recursos: man pages de <code>flock</code>, <code>systemd.service</code>,
+          <code>nice</code>/<code>renice</code> e <code>nvidia-smi pmon</code> — e os scripts em
+          <code>aulas/aula15/laboratorio_windows/</code>.</p>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa</h3>
+          <ul class="clean" style="margin-top:6px">
+            <li>Execute <code>teste_fila.sh</code> e observe a ordem por prioridade</li>
+            <li>Adicione um 5º job de <strong>prioridade 1 após 30 s</strong> — ele "fura" a fila?</li>
+            <li>Integre o monitor ao sistema de fila da <strong>Aula 14</strong></li>
+            <li><strong>Bônus:</strong> implemente <strong>aging</strong> (espera &gt; 10 min sobe de prioridade)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🖥️</span> Laboratório</h3>
+          <p><code>cd aulas/aula15/laboratorio_windows &amp;&amp; ./teste_fila.sh</code><br>
+            Funciona em Windows+Git Bash (GPU AMD) ou Linux/WSL (<code>flock</code> real).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 10</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<div class="copied-toast" id="toast">Código copiado</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var toast = document.getElementById("toast");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var toastTimer = null;
+    function showToast() {
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1600);
+    }
+
+    function copiarTexto(texto) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(texto);
+      }
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement("textarea");
+        ta.value = texto; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); resolve(); }
+        catch (err) { reject(err); }
+        finally { document.body.removeChild(ta); }
+      });
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll(".copy-btn"), function (btn) {
+      btn.addEventListener("click", function () {
+        var wrap = btn.closest(".code-wrap");
+        var code = wrap ? wrap.querySelector("pre code") : null;
+        if (!code) return;
+        copiarTexto(code.innerText).then(function () {
+          btn.classList.add("copied");
+          btn.textContent = "✓ Copiado";
+          showToast();
+          setTimeout(function () {
+            btn.classList.remove("copied");
+            btn.textContent = "📋 Copiar";
+          }, 1600);
+        }).catch(function () {
+          btn.textContent = "Falha ao copiar";
+          setTimeout(function () { btn.textContent = "📋 Copiar"; }, 1600);
+        });
+      });
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>
