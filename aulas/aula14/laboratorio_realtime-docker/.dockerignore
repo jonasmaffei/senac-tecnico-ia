@@ -1,0 +1,10 @@
+# Arquivos que NÃO entram na imagem Docker (deixam o build mais leve).
+__pycache__/
+*.pyc
+.venv/
+venv/
+reports/
+*.csv
+.git/
+.gitignore
+README.md

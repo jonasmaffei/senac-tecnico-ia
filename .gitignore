@@ -50,4 +50,13 @@ alertas.log
 gpu_dashboard.png
 gpu_log_dashboard.png
 dashboard.html
+aulas/aula14/laboratorio_windows/reports/
+
+# === Laboratórios realtime (Docker e Windows) — Aula 14 ===
+aulas/aula14/laboratorio_realtime-docker/reports/*
+!aulas/aula14/laboratorio_realtime-docker/reports/.gitkeep
+aulas/aula14/laboratorio_realtime-docker/**/__pycache__/
+aulas/aula14/laboratorio_realtime-windows/reports/*
+!aulas/aula14/laboratorio_realtime-windows/reports/.gitkeep
+aulas/aula14/laboratorio_realtime-windows/**/__pycache__/
 

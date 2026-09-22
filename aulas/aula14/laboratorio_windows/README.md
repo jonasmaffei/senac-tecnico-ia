@@ -1,7 +1,11 @@
-# 🖥️ Laboratório Windows — Monitoramento de GPU com Bash (Aula 14)
+# 🖥️ Laboratório Windows — Monitoramento de GPU e do Sistema com Bash (Aula 14)
 
 Pasta autocontida para rodar a **Aula 14** no laboratório com **Windows + Git Bash**,
 sem precisar instalar Python, gnuplot nem qualquer dependência.
+
+Além da GPU, o laboratório coleta o **estado da máquina**: uso da **CPU** (%),
+**memória RAM** (usada/total), **temperatura da CPU** (quando o sensor existe) e um
+resumo de **especificações** (modelo da CPU, núcleos/threads, SO e placa de vídeo).
 
 **As placas do laboratório são AMD** — e este laboratório foi feito para elas:
 
@@ -10,6 +14,7 @@ sem precisar instalar Python, gnuplot nem qualquer dependência.
   (veja a observação abaixo).
 - **GPU AMD no Linux (ROCm)**: usa `rocm-smi`/`amd-smi` com temperatura e energia reais.
 - **GPU NVIDIA**: também funciona, via `nvidia-smi`.
+- **CPU e RAM**: lidas de verdade em qualquer backend (Windows via CIM, Linux via `/proc`).
 - **Sem GPU**: entra em modo simulado, com o mesmo formato de CSV.
 
 > ⚠️ **Temperatura e potência na AMD/Windows são estimadas.** O driver AMD no Windows
@@ -64,7 +69,12 @@ chmod +x *.sh
 
 Esse comando executa os 3 passos: **coleta → alertas → dashboard**.
 
-Ao final, abra o arquivo **`dashboard.html`** (duplo clique) para ver os 4 gráficos.
+Todos os arquivos gerados vão para a pasta **`reports/`** (criada automaticamente).
+
+Ao final, abra o arquivo **`reports/dashboard.html`** (duplo clique). Ele traz um
+resumo de **especificações da máquina** e gráficos de **GPU** (temperatura, utilização,
+VRAM, potência) e de **sistema** (utilização da CPU, RAM usada e, se disponível,
+temperatura da CPU).
 
 > Na primeira execução, o script imprime o backend detectado, por exemplo:
 > `>> Backend de GPU: AMD no Windows (contadores de desempenho)`
@@ -78,9 +88,9 @@ Ao final, abra o arquivo **`dashboard.html`** (duplo clique) para ver os 4 gráf
 | `rodar_tudo.sh` | Executa o fluxo completo (coleta + alerta + dashboard) | `./rodar_tudo.sh` |
 | `1_monitorar.sh` | Coleta métricas e salva em CSV | `./1_monitorar.sh 5 gpu_log.csv 3600` |
 | `2_alertar.sh` | Verifica limites de temperatura/utilização | `./2_alertar.sh 80 95` |
-| `3_dashboard.sh` | Gera `dashboard.html` com 4 gráficos (sem dependências) | `./3_dashboard.sh gpu_log.csv` |
+| `3_dashboard.sh` | Gera `reports/dashboard.html` com os gráficos de GPU e sistema (sem dependências) | `./3_dashboard.sh gpu_log.csv` |
 | `4_agendar.sh` | Simula o cron e mostra como agendar no Windows/Linux | `./4_agendar.sh` |
-| `lib_gpu.sh` | Funções internas de detecção de GPU (não rodar sozinho) | — |
+| `lib_gpu.sh` | Funções internas de detecção de GPU e coleta do sistema (não rodar sozinho) | — |
 
 > ✅ **Só arquivos `.sh`.** Não há nenhum `.ps1` nem outro tipo de arquivo executável,
 > então as **políticas de segurança do laboratório não bloqueiam** nada. A leitura da GPU
@@ -94,7 +104,7 @@ Ao final, abra o arquivo **`dashboard.html`** (duplo clique) para ver os 4 gráf
 ```
 
 - `intervalo_segundos` — tempo entre coletas (padrão: `5`)
-- `arquivo_saida` — nome do CSV (padrão: `gpu_log.csv`)
+- `arquivo_saida` — nome do CSV, salvo dentro de `reports/` (padrão: `reports/gpu_log.csv`)
 - `duracao_segundos` — quanto tempo coletar (padrão: `3600`)
 
 **Exemplo — coletar por 1 minuto, a cada 3 segundos** (tarefa de casa):
@@ -103,17 +113,68 @@ Ao final, abra o arquivo **`dashboard.html`** (duplo clique) para ver os 4 gráf
 ./1_monitorar.sh 3 gpu_log.csv 60
 ```
 
+### Coleta incremental (o CSV só cresce)
+
+O `reports/gpu_log.csv` é **incremental**: se já existir, as novas amostras são
+**acrescentadas** ao final, preservando o histórico. O cabeçalho só é criado quando
+o arquivo ainda não existe. Para começar do zero, apague o arquivo:
+
+```bash
+rm reports/gpu_log.csv
+```
+
+O dashboard lê **todo o histórico** do CSV. Se houver muitas amostras (milhares), ele
+faz uma redução automática de pontos (1 a cada N) para o navegador não travar — o
+período de tempo e o formato das curvas são mantidos. Ajuste com a variável
+`MAX_PONTOS` (padrão: `1500`):
+
+```bash
+MAX_PONTOS=3000 ./3_dashboard.sh gpu_log.csv
+```
+
 ---
 
 ## 📂 Arquivos gerados
 
+Todos ficam dentro da pasta **`reports/`** (criada automaticamente na primeira execução):
+
 | Arquivo | Descrição |
 | :--- | :--- |
-| `gpu_log.csv` | Métricas coletadas (timestamp + uma linha por GPU) |
-| `alertas.log` | Registro dos alertas disparados (só é criado se houver alerta) |
-| `dashboard.html` | Painel com os 4 gráficos — abra no navegador |
+| `reports/gpu_log.csv` | Métricas coletadas, **incremental** (timestamp + uma linha por GPU + colunas de CPU/RAM) |
+| `reports/alertas.log` | Registro dos alertas disparados (só é criado se houver alerta) |
+| `reports/dashboard.html` | Painel com specs da máquina + gráficos de GPU e sistema |
 
 > Esses arquivos são gerados localmente e **não precisam ser enviados ao Git**.
+
+### Colunas do CSV
+
+Cada linha é prefixada com o `timestamp` e, em seguida, traz os **10 campos da GPU**
+e os **4 campos do sistema**:
+
+```
+timestamp,gpu_index,gpu_name,temp_c,util_gpu_pct,util_mem_pct,mem_used_mb,
+mem_total_mb,power_w,power_limit_w,cpu_pct,ram_used_mb,ram_total_mb,cpu_temp_c
+```
+
+Quando a máquina tem mais de uma GPU, cada uma gera uma linha por amostra (os campos
+de sistema repetem). Campos sem sensor aparecem como `N/A` (ex.: potência na
+AMD/Windows).
+
+O `reports/dashboard.html` mostra:
+
+- um bloco de **especificações** (CPU, núcleos/threads, RAM total, placa de vídeo, SO);
+- gráficos de **GPU** (temperatura, utilização, VRAM, potência);
+- gráficos de **sistema** (utilização da CPU, RAM usada em GB e temperatura da CPU
+  quando o sensor existe).
+
+Em cada gráfico: eixo Y com escala e unidades, linhas de grade, os horários **no fuso
+de Brasília (BRT, UTC-3)** e uma legenda com os valores **mínimo, máximo e atual**.
+Quando uma métrica não existe no backend (ex.: potência na AMD/Windows), o card aparece
+como **"Métrica não disponível"** em vez de desenhar uma reta enganosa em zero.
+
+> ⏰ O fuso de Brasília é forçado via `TZ=BRT3`. Usamos `BRT3` (e não
+> `America/Sao_Paulo`) porque o Git Bash no Windows não traz a base `tzdata`
+> completa: com o nome da cidade, o horário caía silenciosamente para GMT.
 
 ---
 

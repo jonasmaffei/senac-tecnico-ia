@@ -1,0 +1,2 @@
+# Pasta onde o servidor grava reports/metricas.csv (ignorado pelo .gitignore).
+# Mantida no Git apenas para existir no clone.

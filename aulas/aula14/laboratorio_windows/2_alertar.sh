@@ -16,15 +16,21 @@ set -euo pipefail
 
 LIMITE_TEMP="${1:-80}"     # °C
 LIMITE_UTIL="${2:-95}"     # %
-LOG_ALERTAS="${LOG_ALERTAS:-./alertas.log}"
+LOG_ALERTAS="${LOG_ALERTAS:-$DIR_RELATORIOS/alertas.log}"
+
+# Cria a pasta de relatórios, caso ainda não exista
+preparar_relatorios
+
+# Nome do CSV gerado pelo 1_monitorar.sh (dentro de reports/)
+CSV_ENTRADA="$DIR_RELATORIOS/gpu_log.csv"
 
 # ── Obtém uma linha no formato "index, name, temp, util" ────────────────────
 obter_linha() {
-    if [ -f gpu_log.csv ]; then
+    if [ -f "$CSV_ENTRADA" ]; then
         # Pega a última linha do CSV: timestamp,idx,nome,temp,util,...
         # Constrói "idx, nome, temp, util" para reaproveitar o mesmo parser.
         local ultima
-        ultima=$(tail -n 1 gpu_log.csv)
+        ultima=$(tail -n 1 "$CSV_ENTRADA")
         local idx nome temp util
         IFS=',' read -r _ idx nome temp util _ _ _ _ _ <<< "$ultima"
         # Remove espaços ao redor de cada campo

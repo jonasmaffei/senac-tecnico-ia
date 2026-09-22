@@ -1,0 +1,2 @@
+# Esta pasta é o volume Docker onde o servidor grava reports/metricas.csv.
+# Mantida no Git apenas para existir no clone (o CSV é ignorado pelo .gitignore).

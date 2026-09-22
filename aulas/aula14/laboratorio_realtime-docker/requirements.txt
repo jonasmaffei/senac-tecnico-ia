@@ -1,0 +1,4 @@
+# Dependências do laboratório de monitoramento em tempo real (Aula 14).
+# Instaladas automaticamente durante o build da imagem Docker.
+flask>=3.0.0
+psutil>=5.9.0

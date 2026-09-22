@@ -14,8 +14,24 @@
 # PowerShell via -EncodedCommand, que NÃO é afetado por ExecutionPolicy.
 # ============================================================================
 
-# Força o fuso horário de Brasília para todos os scripts que importarem esta lib
-export TZ="America/Sao_Paulo"
+# Força o fuso horário de Brasília (BRT, UTC-3) para todos os scripts que
+# importarem esta lib. Usamos "BRT3" em vez de "America/Sao_Paulo" porque o
+# Git Bash no Windows não traz a base tzdata completa — com o nome errado o
+# horário caía silenciosamente para GMT. O Brasil não tem mais horário de
+# verão, então UTC-3 fixo é sempre correto.
+export TZ="BRT3"
+
+# ---------------------------------------------------------------------------
+# PASTA DE RELATÓRIOS
+#   Todos os arquivos gerados (CSV de métricas, log de alertas e dashboard)
+#   ficam dentro de ./reports, para não sujar a raiz do laboratório.
+# ---------------------------------------------------------------------------
+export DIR_RELATORIOS="${DIR_RELATORIOS:-./reports}"
+
+# Garante que a pasta de relatórios exista (cria se necessário)
+preparar_relatorios() {
+    mkdir -p "$DIR_RELATORIOS"
+}
 
 # ---------------------------------------------------------------------------
 # DETECÇÃO DE BACKEND
@@ -180,6 +196,63 @@ linha_simulada() {
 }
 
 # ---------------------------------------------------------------------------
+# COLETA COMBINADA — Windows (GPU + CPU + RAM em UMA única chamada)
+#   Chamar o PowerShell é caro (~1 s por processo). Como o 1_monitorar.sh
+#   coleta GPU e sistema na mesma amostra, juntamos tudo em uma só chamada.
+#   Saída: "linha_gpu|linha_sistema"
+# ---------------------------------------------------------------------------
+consultar_windows_completo() {
+    local ps="powershell.exe"
+    command -v powershell.exe >/dev/null 2>&1 || ps="powershell"
+
+    local script_ps
+    script_ps='
+$ErrorActionPreference = "SilentlyContinue"
+# ── GPU: nome e VRAM total pelo registro ──
+$nome = "AMD GPU"; $tot = 0
+$base = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
+Get-ChildItem $base | ForEach-Object {
+    $p = Get-ItemProperty $_.PSPath
+    if ($p."HardwareInformation.qwMemorySize") {
+        if ($nome -eq "AMD GPU") { $nome = $p.DriverDesc }
+        $tot = [math]::Round([uint64]$p."HardwareInformation.qwMemorySize" / 1MB, 0)
+    }
+}
+if ($nome -eq "AMD GPU") { $nome = (Get-CimInstance Win32_VideoController | Select-Object -First 1).Name }
+# ── GPU: utilização (engtype 3D) e VRAM usada ──
+$util = 0
+$e = Get-CimInstance Win32_PerfFormattedData_GPUPerformanceCounters_GPUEngine
+if ($e) {
+    $s = ($e | Where-Object { $_.Name -like "*engtype_3D*" } | Measure-Object UtilizationPercentage -Sum).Sum
+    if ($s) { $util = [math]::Round($s, 0) }
+}
+if ($util -gt 100) { $util = 100 }
+$mem = 0
+$m = Get-CimInstance Win32_PerfFormattedData_GPUPerformanceCounters_GPUAdapterMemory
+if ($m) {
+    $b = ($m | Measure-Object DedicatedUsage -Sum).Sum
+    if ($b) { $mem = [math]::Round($b / 1MB, 0) }
+}
+$temp = [math]::Round(42 + ($util * 0.48), 0)
+$nome = $nome -replace ",", " "
+# ── Sistema: CPU% e RAM ──
+$cpu = (Get-CimInstance Win32_PerfFormattedData_PerfOS_Processor | Where-Object { $_.Name -eq "_Total" }).PercentProcessorTime
+if ($null -eq $cpu) { $cpu = 0 }
+$o = Get-CimInstance Win32_OperatingSystem
+$ramtot = [math]::Round($o.TotalVisibleMemorySize / 1024, 0)
+$ramused = [math]::Round($o.TotalVisibleMemorySize / 1024, 0) - [math]::Round($o.FreePhysicalMemory / 1024, 0)
+# ── Temperatura da CPU (quando exposta) ──
+$cput = (Get-CimInstance Win32_PerfFormattedData_Counters_ThermalZoneInformation | Measure-Object HighPrecisionTemperature -Maximum).Maximum
+if ($cput) { $cput = [math]::Round(($cput / 10) - 273.15, 0) } else { $cput = "N/A" }
+Write-Output "0,$nome,$temp,$util,N/A,$mem,$tot,N/A,N/A|$cpu,$ramused,$ramtot,$cput"
+'
+    local enc
+    enc=$(printf '%s' "$script_ps" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 | tr -d '\n')
+    if [ -z "$enc" ]; then return; fi
+    "$ps" -NoProfile -EncodedCommand "$enc" 2>/dev/null | tr -d '\r'
+}
+
+# ---------------------------------------------------------------------------
 # INTERFACE PÚBLICA
 # ---------------------------------------------------------------------------
 # Devolve os dados atuais: reais se houver GPU, simulados caso contrário.
@@ -188,6 +261,12 @@ obter_dados_gpu() {
     local i="${1:-0}"
     if [ "$BACKEND" = "simulado" ]; then
         linha_simulada "$i"
+        return
+    fi
+
+    # No Windows AMD, a coleta combinada já foi feita (veja dados_windows_pt)
+    if [ "$BACKEND" = "amd_windows" ] && [ -n "${COLETA_WINDOWS:-}" ]; then
+        printf '%s\n' "${COLETA_WINDOWS%%|*}"
         return
     fi
 
@@ -206,9 +285,128 @@ obter_dados_gpu() {
     fi
 }
 
-# Cabeçalho padrão do CSV (10 colunas, igual ao usado na aula)
+# Cabeçalho padrão do CSV (14 colunas: GPU + sistema)
 cabecalho_csv() {
-    echo "timestamp,gpu_index,gpu_name,temp_c,util_gpu_pct,util_mem_pct,mem_used_mb,mem_total_mb,power_w,power_limit_w"
+    echo "timestamp,gpu_index,gpu_name,temp_c,util_gpu_pct,util_mem_pct,mem_used_mb,mem_total_mb,power_w,power_limit_w,cpu_pct,ram_used_mb,ram_total_mb,cpu_temp_c"
+}
+
+# ---------------------------------------------------------------------------
+# COLETA DO SISTEMA — CPU e memória RAM
+#   Windows: classes de performance do CIM (independem do idioma do Windows).
+#   Linux: /proc/stat e /proc/meminfo (sem instalar nada).
+#   Fallback: valores simulados, no mesmo formato.
+# ---------------------------------------------------------------------------
+consultar_sistema_windows() {
+    local ps="powershell.exe"
+    command -v powershell.exe >/dev/null 2>&1 || ps="powershell"
+
+    # Script PowerShell INLINE (mesma técnica sem .ps1 usada na GPU)
+    local script_ps
+    script_ps='
+$ErrorActionPreference = "SilentlyContinue"
+$cpu = (Get-CimInstance Win32_PerfFormattedData_PerfOS_Processor | Where-Object { $_.Name -eq "_Total" }).PercentProcessorTime
+if ($null -eq $cpu) { $cpu = 0 }
+$o = Get-CimInstance Win32_OperatingSystem
+$tot = [math]::Round($o.TotalVisibleMemorySize / 1024, 0)
+$used = [math]::Round(($o.TotalVisibleMemorySize - $o.FreePhysicalMemory) / 1024, 0)
+$temp = (Get-CimInstance Win32_PerfFormattedData_Counters_ThermalZoneInformation | Measure-Object HighPrecisionTemperature -Maximum).Maximum
+if ($temp) { $temp = [math]::Round(($temp / 10) - 273.15, 0) } else { $temp = "N/A" }
+Write-Output "$cpu,$used,$tot,$temp"
+'
+    local enc
+    enc=$(printf '%s' "$script_ps" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 | tr -d '\n')
+    if [ -z "$enc" ]; then
+        "$ps" -NoProfile -Command '\$c=(Get-CimInstance Win32_PerfFormattedData_PerfOS_Processor | Where-Object { \$_.Name -eq "_Total" }).PercentProcessorTime; \$o=Get-CimInstance Win32_OperatingSystem; "\$c," + [math]::Round((\$o.TotalVisibleMemorySize-\$o.FreePhysicalMemory)/1024,0) + "," + [math]::Round(\$o.TotalVisibleMemorySize/1024,0) + ",N/A"' 2>/dev/null | tr -d '\r'
+        return
+    fi
+
+    "$ps" -NoProfile -EncodedCommand "$enc" 2>/dev/null | tr -d '\r'
+}
+
+consultar_sistema_linux() {
+    # CPU: diferença entre duas leituras de /proc/stat (0,2 s de intervalo)
+    local c1 c2
+    c1=$(grep '^cpu ' /proc/stat)
+    sleep 0.2
+    c2=$(grep '^cpu ' /proc/stat)
+    local vals1=($c1) vals2=($c2)
+    local i soma1=0 soma2=0
+    for (( i = 1; i <= 7; i++ )); do
+        soma1=$(( soma1 + ${vals1[i]:-0} ))
+        soma2=$(( soma2 + ${vals2[i]:-0} ))
+    done
+    local ocioso1=${vals1[4]:-0} ocioso2=${vals2[4]:-0}
+    local dtotal=$(( soma2 - soma1 )) docioso=$(( ocioso2 - ocioso1 ))
+    local cpu=0
+    [ "$dtotal" -gt 0 ] && cpu=$(( (dtotal - docioso) * 100 / dtotal ))
+
+    # RAM: MemTotal e MemAvailable do /proc/meminfo (em kB -> MB)
+    local total disp
+    total=$(awk '/^MemTotal:/{print int($2/1024)}' /proc/meminfo)
+    disp=$(awk '/^MemAvailable:/{print int($2/1024)}' /proc/meminfo)
+    echo "$cpu,$(( total - disp )),$total,N/A"
+}
+
+# Devolve "cpu_pct,ram_used_mb,ram_total_mb,cpu_temp_c" (real ou simulado)
+# $1 = índice da amostra (usado apenas no modo simulado)
+obter_dados_sistema() {
+    local i="${1:-0}"
+    local dados=""
+    if [ -n "${COLETA_WINDOWS:-}" ]; then
+        # Já veio junto com a coleta da GPU (evita um 2º PowerShell por amostra)
+        dados="${COLETA_WINDOWS#*|}"
+    elif [ "$BACKEND" = "amd_linux" ] || [ "$(uname -s 2>/dev/null)" = "Linux" ]; then
+        dados="$(consultar_sistema_linux)"
+    elif command -v powershell.exe >/dev/null 2>&1 || command -v powershell >/dev/null 2>&1; then
+        dados="$(consultar_sistema_windows)"
+    fi
+
+    if [ -z "$dados" ]; then
+        # Modo simulado: valores plausíveis para a atividade continuar
+        local cpu=$(( 12 + (i * 5 + RANDOM % 9) % 60 ))
+        local ram=$(( 8192 + (i * 300) % 4096 ))
+        echo "$cpu,$ram,16384,N/A"
+    else
+        printf '%s\n' "$dados"
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# ESPECIFICAÇÕES DA MÁQUINA (para os cards fixos do dashboard)
+# ---------------------------------------------------------------------------
+# Devolve "cpu_nome|nucleos|threads|os|host"
+specs_sistema() {
+    local out=""
+    if command -v powershell.exe >/dev/null 2>&1 || command -v powershell >/dev/null 2>&1; then
+        local ps="powershell.exe"
+        command -v powershell.exe >/dev/null 2>&1 || ps="powershell"
+        local script_ps
+        script_ps='
+$ErrorActionPreference = "SilentlyContinue"
+$proc = Get-CimInstance Win32_Processor | Select-Object -First 1
+$o = Get-CimInstance Win32_OperatingSystem
+$nome = $proc.Name.Trim()
+if (-not $nome) { $nome = "CPU" }
+Write-Output "$nome|$($proc.NumberOfCores)|$($proc.NumberOfLogicalProcessors)|$($o.Caption)|$env:COMPUTERNAME"
+'
+        local enc
+        enc=$(printf '%s' "$script_ps" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 | tr -d '\n')
+        if [ -n "$enc" ]; then
+            out=$("$ps" -NoProfile -EncodedCommand "$enc" 2>/dev/null | tr -d '\r')
+        fi
+    fi
+
+    if [ -z "$out" ] && [ -r /proc/cpuinfo ]; then
+        local nome nucleos
+        nome=$(awk -F': ' '/model name/{print $2; exit}' /proc/cpuinfo)
+        nucleos=$(nproc 2>/dev/null || grep -c '^processor' /proc/cpuinfo)
+        out="${nome:-CPU}|$nucleos|$nucleos|$(uname -sr)|$(hostname 2>/dev/null)"
+    fi
+
+    if [ -z "$out" ]; then
+        out="CPU|?|?|SO desconhecido|$(hostname 2>/dev/null)"
+    fi
+    printf '%s\n' "$out"
 }
 
 # Mensagem amigável sobre o modo de execução

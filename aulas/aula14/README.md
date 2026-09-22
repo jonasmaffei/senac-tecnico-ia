@@ -116,6 +116,33 @@ chmod +x *.sh
 
 ---
 
+## ⚡ Desafio extra: Monitoramento em Tempo Real (Docker)
+
+Duas versões do **webservice em Python** que coleta métricas continuamente e as exibe
+**ao vivo no navegador** (sem recarregar a página), em `http://localhost:5000`:
+
+**[`laboratorio_realtime-docker/`](laboratorio_realtime-docker/)** — roda em container
+Docker (ideal para servidores Linux e para a GPU NVIDIA real com `--gpus all`):
+
+```bash
+cd aulas/aula14/laboratorio_realtime-docker
+docker compose up --build
+```
+
+**[`laboratorio_realtime-windows/`](laboratorio_realtime-windows/)** — roda como
+processo Python **nativo no Windows** (sem Docker), lendo a GPU AMD pelos contadores
+do Windows enquanto o processo estiver ativo:
+
+```bash
+cd aulas/aula14/laboratorio_realtime-windows
+python servidor.py
+```
+
+Ambos usam **Flask + Server-Sent Events (SSE)**, **CPU e RAM reais** com `psutil` e
+gravam o histórico em `reports/metricas.csv`.
+
+---
+
 ## 📌 Tarefa de Casa
 
 1. Adapte `monitor_gpu.sh` para coletar **10 minutos** com intervalo de **3 s**.

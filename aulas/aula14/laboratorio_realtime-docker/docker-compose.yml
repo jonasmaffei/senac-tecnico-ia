@@ -1,0 +1,44 @@
+# ============================================================================
+# docker-compose.yml — sobe o monitoramento em tempo real com um comando
+# ----------------------------------------------------------------------------
+# Uso:
+#   docker compose up --build      (primeira vez / após mudar o código)
+#   docker compose up -d           (em segundo plano)
+#   docker compose logs -f         (acompanhar os logs)
+#   docker compose down            (parar e remover)
+#
+# Depois abra no navegador do Windows:  http://localhost:5000
+# ============================================================================
+
+services:
+  monitor:
+    build: .
+    image: monitor-realtime
+    container_name: monitor-realtime
+    ports:
+      - "5000:5000"                 # porta do Windows : porta do container
+
+    environment:
+      INTERVALO: "2"                # segundos entre coletas
+      MAX_AMOSTRAS: "900"           # pontos mantidos em memória (30 min a 2s)
+      CSV_ARQUIVO: "reports/metricas.csv"
+      # GPU_BACKEND: "simulado"     # descomente para forçar o modo simulado
+
+    volumes:
+      # Grava o CSV de histórico na pasta ./reports do host.
+      - ./reports:/app/reports
+
+    restart: unless-stopped
+
+    # Para usar uma GPU NVIDIA real (host Linux com driver + nvidia-container-toolkit):
+    #   1. Descomente o bloco abaixo.
+    #   2. Remova GPU_BACKEND do environment.
+    #   3. Sobe com:  docker compose up --build
+    #
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]

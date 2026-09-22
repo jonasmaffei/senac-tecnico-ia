@@ -4,9 +4,9 @@
 # ----------------------------------------------------------------------------
 # Uso:  ./rodar_tudo.sh
 #
-# 1. Coleta 20 segundos de métricas (intervalo de 2 s) em gpu_log.csv
+# 1. Coleta 20 segundos de métricas (intervalo de 2 s) em reports/gpu_log.csv
 # 2. Verifica os alertas de temperatura/utilização
-# 3. Gera o dashboard.html
+# 3. Gera o reports/dashboard.html
 # 4. Mostra um resumo final
 # ============================================================================
 
@@ -30,7 +30,7 @@ echo ""
 echo "==================================================================="
 echo " CONCLUÍDO"
 echo "-------------------------------------------------------------------"
-echo " Arquivos gerados nesta pasta:"
+echo " Arquivos gerados na pasta reports/:"
 echo "   - gpu_log.csv      (métricas coletadas)"
 echo "   - alertas.log      (registro de alertas, se houver)"
 echo "   - dashboard.html   (abra no navegador com duplo clique)"
