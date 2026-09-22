@@ -14,38 +14,52 @@ Silício → Modelos de Execução → Memória → Processos → Redes → Linu
 
 ---
 
-## 📋 Pré-requisitos
+## 📋 O que é usado ao longo do curso
 
-| Requisito | Detalhes |
+Tudo abaixo é **opcional** (o Colab já traz a maior parte):
+
+| Recurso | Quando aparece |
 | :--- | :--- |
-| **Python** | 3.10 ou superior |
-| **NumPy** | Obrigatório (todas as aulas) |
-| **PyTorch** | Aulas 3, 10 e 11 (benchmarks, portabilidade e treinamento de ResNet) |
+| **NumPy** | Todas as aulas (vetorização/SIMD) |
+| **PyTorch** | Aulas 3, 10 e 11 (benchmarks, portabilidade e treino de ResNet) |
 | **CuPy** | Aulas 7 e 8 (FFT e estresse de GPU) |
 | **Numba** | Aula 8 (kernels CUDA com Tiling) |
-| **Weights & Biases** | Aula 11 (registro e monitoramento de experimentos em ML) |
-| **GPU NVIDIA / AMD** | Recomendada para Aulas 3, 7, 8, 10 e 11 (scripts têm fallback para CPU) |
+| **Weights & Biases** | Aula 11 (registro de experimentos de ML) |
+| **GPU NVIDIA / AMD** | Recomendada para Aulas 3, 7, 8, 10 e 11 (há fallback para CPU) |
 | **Docker / WSL 2** | Aulas 9 e 10 (Open WebUI e AMD ROCm / PyTorch) |
 
 ---
 
-## 🚀 Instalação
+## 🚀 Como executar
+
+**O ambiente principal do curso é o Google Colab** — não é preciso instalar nada para
+acompanhar as aulas. Abra o notebook da aula e ative a GPU em
+*Runtime ➔ Change runtime type ➔ T4 GPU*.
+
+> 💡 **Sem GPU?** Os notebooks e scripts detectam a ausência dela e entram em **modo
+> simulado** (ou usam o SIMD da própria CPU), então a aula continua funcionando.
+
+Para rodar **localmente** (ex.: laboratório Windows com GPU AMD), instale apenas o que a
+aula pede — em geral só o NumPy:
 
 ```bash
-# Clone o repositório
-git clone https://github.com/jonasmaffei/senac-tecnico-ia.git
-cd senac-tecnico-ia
+pip install numpy
+```
 
-# Crie e ative um ambiente virtual
+O arquivo [`requirements.txt`](requirements.txt) é opcional e reúne tudo o que o curso
+usa ao longo das aulas (incluindo `torch`, `numba` e clientes do Google). Instale-o só
+se quiser o ambiente completo:
+
+```bash
 python -m venv venv
 source venv/bin/activate   # Linux/Mac
 venv\Scripts\activate      # Windows
-
-# Instale as dependências
 pip install -r requirements.txt
 ```
 
-> **Nota sobre GPU:** O PyTorch com CUDA deve ser instalado separadamente via [pytorch.org/get-started](https://pytorch.org/get-started). O CuPy também requer versão compatível com seu CUDA (`pip install cupy-cuda12x`).
+> **Nota sobre GPU:** `torch` com CUDA e `cupy` exigem instalação específica para o seu
+> driver — veja [pytorch.org/get-started](https://pytorch.org/get-started). Sem isso, os
+> scripts usam o fallback (CPU/NumPy).
 
 ---
 
