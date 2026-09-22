@@ -84,14 +84,15 @@ No notebook `aula14_automacao_gpu_bash.ipynb`, você encontrará:
 
 ## 📂 Arquivos Auxiliares da Aula
 
-Em [`aulas/aula14/`](.) também estão os scripts prontos para servidores Linux reais:
+Em [`aulas/aula14/`](.) também estão os materiais de apoio:
 
-- [`monitor_gpu.sh`](monitor_gpu.sh) — coleta métricas de GPU em CSV.
-- [`alerta_gpu.sh`](alerta_gpu.sh) — verifica limites e notifica (Slack/e-mail).
-- [`gerar_graficos.sh`](gerar_graficos.sh) — dashboard de 4 gráficos com gnuplot.
-- [`enviar_para_sheets.py`](enviar_para_sheets.py) — publica o CSV no Google Sheets
-  (sem credenciais, apenas valida e avisa, sem falhar).
 - [`apresentacao_aula14.html`](apresentacao_aula14.html) — slides teóricos da aula.
+- [`scripts_linux/`](scripts_linux/) — scripts prontos para servidores Linux reais:
+  - [`monitor_gpu.sh`](scripts_linux/monitor_gpu.sh) — coleta métricas de GPU em CSV.
+  - [`alerta_gpu.sh`](scripts_linux/alerta_gpu.sh) — verifica limites e notifica (Slack/e-mail).
+  - [`gerar_graficos.sh`](scripts_linux/gerar_graficos.sh) — dashboard de 4 gráficos com gnuplot.
+  - [`enviar_para_sheets.py`](scripts_linux/enviar_para_sheets.py) — publica o CSV no Google
+    Sheets (sem credenciais, apenas valida e avisa, sem falhar).
 
 ---
 

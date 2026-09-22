@@ -34,8 +34,23 @@ alerta() {
     fi
 }
 
+# ── Fonte dos dados: nvidia-smi (real) ou a última amostra do CSV (simulado) ─
+# A query devolve CSV no formato: "0, Tesla T4, 52, 87".
+# Sem GPU NVIDIA, usamos a última linha do gpu_log.csv (se existir) ou uma
+# amostra simulada — assim o alerta também funciona no laboratório.
+if command -v nvidia-smi >/dev/null 2>&1; then
+    DADOS=$(nvidia-smi \
+        --query-gpu=index,name,temperature.gpu,utilization.gpu \
+        --format=csv,noheader,nounits)
+elif [ -f gpu_log.csv ]; then
+    ULTIMA=$(tail -n 1 gpu_log.csv)
+    IFS="," read -r _ idx nome temp util _ <<< "$ULTIMA"
+    DADOS="$idx, $nome, $temp, $util"
+else
+    DADOS="0, Tesla T4 (sim), 84, 97"
+fi
+
 # ── Verifica cada GPU ───────────────────────────────────────────────────────
-# A query devolve CSV no formato: "0, Tesla T4, 52, 87"
 # Separamos por vírgula (IFS=",") e removemos os espaços com tr.
 # IMPORTANTE: NÃO usar IFS=", " — o shell trataria vírgula E espaço como
 # separadores, desalinhando os campos (ex.: temp receberia "T4").
@@ -53,8 +68,6 @@ while IFS="," read -r idx nome temp util; do
     if [[ "$util" =~ ^[0-9]+$ ]] && [ "$util" -ge "$LIMITE_UTIL" ]; then
         alerta "GPU $idx ($nome): utilizacao ${util}% >= ${LIMITE_UTIL}%"
     fi
-done < <(nvidia-smi \
-    --query-gpu=index,name,temperature.gpu,utilization.gpu \
-    --format=csv,noheader,nounits)
+done <<< "$DADOS"
 
 echo "Verificacao concluida: $(date)"

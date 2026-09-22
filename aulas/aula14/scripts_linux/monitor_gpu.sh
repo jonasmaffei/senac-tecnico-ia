@@ -38,12 +38,20 @@ AMOSTRA=0
 while [ "$AMOSTRA" -lt "$MAX_AMOSTRAS" ]; do
     TS=$(date +"%Y-%m-%d %H:%M:%S")  # Timestamp da coleta
 
-    # nvidia-smi --query-gpu devolve UMA LINHA POR GPU (CSV sem cabeçalho/unidades)
-    DADOS=$(nvidia-smi \
-        --query-gpu=index,name,temperature.gpu,utilization.gpu,\
+    # nvidia-smi --query-gpu devolve UMA LINHA POR GPU (CSV sem cabeçalho/unidades).
+    # Se não houver GPU NVIDIA, geramos uma amostra SIMULADA no mesmo formato,
+    # para a aula (dashboard e alerta) continuar funcionando.
+    if command -v nvidia-smi >/dev/null 2>&1; then
+        DADOS=$(nvidia-smi \
+            --query-gpu=index,name,temperature.gpu,utilization.gpu,\
 utilization.memory,memory.used,memory.total,\
 power.draw,power.limit,clocks.current.graphics,clocks.current.memory \
-        --format=csv,noheader,nounits)
+            --format=csv,noheader,nounits)
+    else
+        # Temperatura sobe a cada amostra (60, 66, 72...) para disparar o alerta no fim
+        TEMP=$(( 60 + AMOSTRA * 6 ))
+        DADOS="0, Tesla T4 (sim), $TEMP, 80, 50, 8000, 15360, 60, 70, 1590, 5001"
+    fi
 
     # Prefixa o timestamp em cada linha (cada GPU vira uma linha do CSV)
     while IFS= read -r linha; do
