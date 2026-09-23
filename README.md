@@ -74,7 +74,7 @@ pip install -r requirements.txt
 | **03** | Estrutura de Memória em GPUs (Hierarquia, RAM vs VRAM, PCIe) | [`aula03_memoria_gpu.ipynb`](aulas/aula03/aula03_memoria_gpu.ipynb), [Apresentação](aulas/aula03/apresentacao_aula03.html), [Atividade](aulas/aula03/atividade.md), [`scripts/`](aulas/aula03/scripts) ([`benchmark_ram_vram.py`](aulas/aula03/scripts/benchmark_ram_vram.py), [`hierarquia_memoria.py`](aulas/aula03/scripts/hierarquia_memoria.py), [`monitor_memoria.py`](aulas/aula03/scripts/monitor_memoria.py), [`lib_backend.py`](aulas/aula03/scripts/lib_backend.py)), [Guia da Aula](aulas/aula03/README.md) |
 | **04** | Fundamentos de Processos e Threads (GIL, warps/blocos/grade) | [`aula04_processos_threads.ipynb`](aulas/aula04/aula04_processos_threads.ipynb), [Apresentação](aulas/aula04/apresentacao_aula04.html), [Atividade](aulas/aula04/atividade.md), [`scripts/`](aulas/aula04/scripts) ([`processos_threads.py`](aulas/aula04/scripts/processos_threads.py), [`io_bound.py`](aulas/aula04/scripts/io_bound.py), [`kernels_cuda.py`](aulas/aula04/scripts/kernels_cuda.py), [`monitor_processos.py`](aulas/aula04/scripts/monitor_processos.py)), [Guia da Aula](aulas/aula04/README.md) |
 | **05** | Protocolos de Redes e Interação com GPUs (IPv4/IPv6, TCP/UDP, SSH, rsync) | [`aula05_redes.ipynb`](aulas/aula05/aula05_redes.ipynb), [Apresentação](aulas/aula05/apresentacao_aula05.html), [Atividade](aulas/aula05/atividade.md), [`scripts/`](aulas/aula05/scripts) ([`demo_tcp_udp.py`](aulas/aula05/scripts/demo_tcp_udp.py), [`telemetria_tcp.py`](aulas/aula05/scripts/telemetria_tcp.py), [`ipv4_ipv6.py`](aulas/aula05/scripts/ipv4_ipv6.py), [`comandos_rede.sh`](aulas/aula05/scripts/comandos_rede.sh)), [Guia da Aula](aulas/aula05/README.md) |
-| **06** | Sistemas Operacionais Linux e GPU (/proc, /sys, drivers, cron, systemd) | [`aula06_linux_gpu.ipynb`](aulas/aula06/aula06_linux_gpu.ipynb), [Apresentação](aulas/aula06/apresentacao_aula06.html), [Atividade](aulas/aula06/atividade.md), [`scripts/`](aulas/aula06/scripts) ([`gpu_status.sh`](aulas/aula06/scripts/gpu_status.sh), [`monitoramento_linux.py`](aulas/aula06/scripts/monitoramento_linux.py), [`cron_exemplos.sh`](aulas/aula06/scripts/cron_exemplos.sh), [`gpu-monitor.service`](aulas/aula06/scripts/gpu-monitor.service)), [Guia da Aula](aulas/aula06/README.md) |
+| **06** | Sistemas Operacionais Linux e GPU (/proc, /sys, drivers, cron, systemd) | [Notebook](aulas/aula06/notebook_colab/aula06_linux_gpu.ipynb), [Apresentação](aulas/aula06/apresentacao_aula06.html), [Atividade](aulas/aula06/atividade.md), [Laboratório Windows](aulas/aula06/laboratorio_windows/README.md), [`scripts/`](aulas/aula06/scripts) ([`gpu_status.sh`](aulas/aula06/scripts/gpu_status.sh), [`cron_exemplos.sh`](aulas/aula06/scripts/cron_exemplos.sh), [`gpu-monitor.service`](aulas/aula06/scripts/gpu-monitor.service)), [Guia da Aula](aulas/aula06/README.md) |
 
 ### Bloco 2 — Programação, Otimização e Computação Heterogênea
 
@@ -159,11 +159,12 @@ senac-tecnico-ia/
 │   │   ├── scripts/                         → demo_tcp_udp.py, telemetria_tcp.py, ipv4_ipv6.py, comandos_rede.sh
 │   │   └── README.md
 │   ├── aula06/
-│   │   ├── aula06_linux_gpu.ipynb
 │   │   ├── apresentacao_aula06.html
-│   │   ├── atividade.md
-│   │   ├── scripts/                         → gpu_status.sh, monitoramento_linux.py, cron_exemplos.sh, gpu-monitor.service
-│   │   └── README.md
+│   │   ├── README.md
+│   │   ├── notebook_colab/aula06_linux_gpu.ipynb
+│   │   ├── laboratorio_windows/             → hardware real (iniciar.bat + 1_inspecionar.sh, 2_status_gpu.sh, 3_agendar.sh, monitoramento_linux.py)
+│   │   ├── scripts/                         → gpu_status.sh, cron_exemplos.sh, gpu-monitor.service (referências servidor Linux)
+│   │   └── atividade.md
 │   ├── aula07/
 │   │   ├── aula07_cuda.ipynb
 │   │   ├── apresentacao_aula07.html

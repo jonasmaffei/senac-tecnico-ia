@@ -339,30 +339,31 @@
   <section class="slide">
     <div class="kicker">Teoria · Explorando</div>
     <h2><span class="num">3.</span>Lendo o hardware como arquivos</h2>
+    <p>No Linux, até o estado do processador e da GPU pode ser <strong>lido como texto</strong>.
+      Um único comando revela o modelo da CPU; outro, a saúde da GPU:</p>
     <div class="grid cols-2">
-      <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>ls /dev/nvidia*            # dispositivos NVIDIA
-ls /dev/dri/               # GPUs AMD/Intel
-cat /proc/cpuinfo          # modelo da CPU
-cat /proc/meminfo          # memória RAM
-ls /sys/class/drm/         # GPUs (DRM)</code></pre>
-        </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧠</span> CPU e memória</h3>
+        <p><code>cat /proc/cpuinfo</code> mostra o processador; <code>cat /proc/meminfo</code>,
+          a RAM. São arquivos que “não existem no disco” — o kernel os gera na hora.</p>
       </div>
-      <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>lsmod | grep nvidia        # driver carregado?
-lsmod | grep amdgpu        # driver AMD?
-modinfo nvidia | head      # detalhes do módulo</code></pre>
-        </div>
-        <div class="note" style="margin-top:12px">
-          <span class="ico">📄</span>
-          <span>No Windows, o equivalente é o
-            <code>scripts/monitoramento_linux.py</code> (via psutil).</span>
-        </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🎮</span> GPU</h3>
+        <p>As placas aparecem em <code>/dev</code> (dispositivos), <code>/sys</code> (estado)
+          e <code>/proc/driver</code> (driver). É daí que <code>htop</code> e
+          <code>nvtop</code> leem.</p>
       </div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">🇧🇷</span>
+      <span><strong>Caso real:</strong> as distribuições Linux expõem quase tudo em
+        <code>/proc</code> e <code>/sys</code> — por isso um servidor de IA se monitora com
+        poucos comandos, sem instalar nada.</span>
+    </div>
+    <div class="note">
+      <span class="ico">📄</span>
+      <span>No laboratório, rode <code>laboratorio_windows/1_inspecionar.sh</code>
+        (comentado linha a linha).</span>
     </div>
   </section>
 
@@ -371,75 +372,62 @@ modinfo nvidia | head      # detalhes do módulo</code></pre>
     <div class="kicker">Demo · Verificar drivers</div>
     <h2><span class="num">4.</span>Drivers: a causa nº 1 de falhas</h2>
     <div class="grid cols-2">
-      <div>
-        <h3 style="margin-bottom:10px">NVIDIA</h3>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>nvidia-smi -L
-nvidia-smi --query-gpu=name,driver_version \
-           --format=csv,noheader</code></pre>
-        </div>
-        <h3 style="margin:12px 0 10px">AMD (ROCm)</h3>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>rocminfo
-rocm-smi --showmeminfo vram</code></pre>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">✅</span> Driver funcionando</h3>
+        <p>A placa responde e informa nome, VRAM e temperatura.</p>
+        <div class="terminal" style="margin-top:10px">
+<span class="dim">$ nvidia-smi -L</span>
+GPU 0: Tesla T4 (UUID: GPU-...)
+<span class="dim">$ rocm-smi --showmeminfo vram</span>
+VRAM Total: 24560 MB
         </div>
       </div>
-      <div>
-        <h3 style="margin-bottom:10px">Identificar a placa</h3>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>lspci | grep -i 'vga|3d|display'
-lspci -v -s $(lspci | grep -i nvidia | cut -d' ' -f1)</code></pre>
-        </div>
-        <div class="terminal" style="margin-top:12px">
-<span class="dim">Driver OK:</span>
-  GPU 0: Tesla T4 (UUID: GPU-...)
-  GPU 1: Tesla T4 (UUID: GPU-...)
-
-<span class="bad">Driver ausente:</span>
-  NVIDIA-SMI has failed because it
-  couldn't communicate with the
-  NVIDIA driver.
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">❌</span> Driver ausente</h3>
+        <p>O utilitário existe, mas não consegue falar com a placa — o erro mais comum
+          ao chegar num servidor novo.</p>
+        <div class="terminal" style="margin-top:10px">
+<span class="bad">NVIDIA-SMI has failed because it
+couldn't communicate with the
+NVIDIA driver.</span>
         </div>
       </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">🔎</span>
+      <span>Para descobrir <strong>qual placa</strong> está instalada, use
+        <code>lspci | grep -i vga</code> (funciona para NVIDIA, AMD e Intel).
+        📄 Implementado em <code>laboratorio_windows/1_inspecionar.sh</code>.</span>
     </div>
   </section>
 
   <!-- 07 — Script Bash -->
   <section class="slide">
     <div class="kicker">Atividade · Script de status</div>
-    <h2><span class="num">5.</span>gpu_status.sh — listar e alertar</h2>
+    <h2><span class="num">5.</span>Um script que lista e alerta</h2>
     <div class="grid cols-2">
       <div>
-        <p>O script descobre as GPUs, mostra temperatura/uso/memória e emite
-          <strong>alerta</strong> acima do limite.</p>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>if command -v nvidia-smi &> /dev/null; then
-  nvidia-smi --query-gpu=index,name,...
-  ...
-  [ "$TEMP_NUM" -gt "$LIMITE_TEMP" ] && \
-    echo "ALERTA: temperatura alta!"</code></pre>
-        </div>
-        <div class="note">
-          <span class="ico">📄</span>
-          <span>Rode <code>scripts/gpu_status.sh</code> (comentado linha a linha).</span>
-        </div>
+        <p>O script descobre as GPUs, mostra temperatura/uso/memória e dispara um
+          <strong>alerta</strong> quando a temperatura passa do limite.</p>
+        <ul class="clean">
+          <li><strong>Entrada:</strong> saída do <code>nvidia-smi</code>/<code>rocm-smi</code></li>
+          <li><strong>Regra:</strong> temperatura &gt; limite → alerta</li>
+          <li><strong>Saída:</strong> painel legível + código de erro</li>
+        </ul>
       </div>
-      <div>
-        <h3 style="margin-bottom:10px">Suporta NVIDIA e AMD</h3>
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">🛠️</span> Suporta NVIDIA e AMD</h3>
         <ul class="clean">
           <li><strong>nvidia-smi</strong> → NVIDIA</li>
           <li><strong>rocm-smi</strong> → AMD (ROCm)</li>
-          <li><strong>lspci</strong> → qualquer placa no barramento</li>
+          <li><strong>lspci</strong> → qualquer placa</li>
         </ul>
-        <div class="note" style="margin-top:12px">
-          <span class="ico">⚙️</span>
-          <span>Ajuste o limite: <code>LIMITE_TEMP=75 bash gpu_status.sh</code></span>
-        </div>
+        <p style="margin-top:8px">O limite é ajustável: <code>LIMITE_TEMP=75</code>.</p>
       </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">📄</span>
+      <span>Rode <code>laboratorio_windows/2_status_gpu.sh</code> (comentado linha a linha).</span>
     </div>
   </section>
 
@@ -449,19 +437,13 @@ lspci -v -s $(lspci | grep -i nvidia | cut -d' ' -f1)</code></pre>
     <h2><span class="num">6.</span>Manter o treino vivo após o logout</h2>
     <div class="grid cols-2">
       <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>ps aux | grep python
-htop
-nvidia-smi pmon
-fuser /dev/nvidia*</code></pre>
+        <p>Um job de treino leva horas. Se o SSH cair, o processo morre junto — a menos que
+          ele rode numa <strong>sessão persistente</strong>.</p>
+        <div class="note">
+          <span class="ico">🖥️</span>
+          <span>Para ver o que está rodando: <code>htop</code> (CPU) e
+            <code>nvidia-smi pmon</code> (GPU).</span>
         </div>
-        <h3 style="margin:12px 0 8px">Sinais</h3>
-        <ul class="clean">
-          <li><code>kill -15</code> = SIGTERM (gracioso)</li>
-          <li><code>kill -9</code> = SIGKILL (forçado)</li>
-          <li><code>nice</code>/<code>renice</code> = prioridade</li>
-        </ul>
       </div>
       <div>
         <h3 style="margin-bottom:10px">Sessões persistentes</h3>
@@ -475,8 +457,8 @@ fuser /dev/nvidia*</code></pre>
         </table>
         <div class="note" style="margin-top:12px">
           <span class="ico">🔌</span>
-          <span>Se o SSH caiu no meio do treino, use <strong>tmux/screen</strong> na
-            próxima vez — a sessão sobrevive à desconexão.</span>
+          <span>Se o SSH caiu no meio do treino, use <strong>tmux/screen</strong> na próxima
+            vez — a sessão sobrevive à desconexão.</span>
         </div>
       </div>
     </div>
@@ -488,7 +470,8 @@ fuser /dev/nvidia*</code></pre>
     <h2><span class="num">7.</span>cron — tarefas periódicas</h2>
     <div class="grid cols-2">
       <div>
-        <p>Roda um comando <strong>em horários definidos</strong> e encerra.</p>
+        <p>Roda um comando <strong>em horários definidos</strong> e encerra. Cada campo é
+          uma posição no tempo:</p>
         <div class="code-wrap">
           <span class="badge">conceito</span>
           <pre><code>* * * * *  comando
@@ -500,17 +483,15 @@ fuser /dev/nvidia*</code></pre>
         </div>
       </div>
       <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>crontab -e      # editar
-crontab -l      # listar
-
-# a cada 5 min
-*/5 * * * * gpu_status.sh >> log 2>&1</code></pre>
+        <p><strong>Caso real:</strong> monitorar a GPU a cada 5 minutos durante todo o
+          treinamento.</p>
+        <div class="terminal" style="margin-top:10px">
+<span class="dim"># a cada 5 minutos, grava no log</span>
+*/5 * * * * gpu_status.sh >> gpu.log
         </div>
         <div class="note" style="margin-top:12px">
           <span class="ico">📄</span>
-          <span>Mais exemplos em <code>scripts/cron_exemplos.sh</code>.</span>
+          <span>Mais exemplos em <code>laboratorio_windows/3_agendar.sh</code>.</span>
         </div>
       </div>
     </div>
@@ -522,19 +503,12 @@ crontab -l      # listar
     <h2><span class="num">8.</span>systemd — serviços contínuos</h2>
     <div class="grid cols-2">
       <div>
-        <p>Mantém um serviço <strong>sempre ativo</strong>, reiniciando sozinho se cair.</p>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>[Service]
-ExecStart=/usr/bin/python3 gpu_monitor.py
-Restart=always
-RestartSec=5</code></pre>
-        </div>
-        <div class="code-wrap" style="margin-top:10px">
-          <span class="badge">conceito</span>
-          <pre><code>sudo systemctl enable gpu-monitor
-sudo systemctl start  gpu-monitor
-sudo systemctl status gpu-monitor</code></pre>
+        <p>Enquanto o cron dispara e encerra, o systemd mantém um serviço
+          <strong>sempre ativo</strong> — e <strong>reinicia sozinho</strong> se ele cair.</p>
+        <div class="note">
+          <span class="ico">🔁</span>
+          <span>Ideal para um monitor de GPU que precisa rodar 24h/7d e sobreviver a falhas
+            e reinícios do servidor.</span>
         </div>
       </div>
       <div>

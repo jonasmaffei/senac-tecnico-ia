@@ -17,19 +17,31 @@ ultrapassa 80°C**. Tudo isso via linha de comando Linux.
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula06.html`](apresentacao_aula06.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula06_linux_gpu.ipynb`](aula06_linux_gpu.ipynb) | Notebook do **Google Colab** (pseudo-arquivos, drivers, alerta, cron) |
-| [`atividade.md`](atividade.md) | Atividade guiada (script Bash, cron/systemd) + discussão |
-| `scripts/` | Scripts comentados e templates de automação |
+| [`apresentacao_aula06.html`](apresentacao_aula06.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com hardware real** (AMD/Windows, `iniciar.bat`) |
+| [`atividade.md`](atividade.md) | Atividade de pesquisa e discussão (tarefa de casa) |
+| `scripts/` | Bibliotecas/scripts **compartilhados** (opcional) |
 
-### Scripts
+### Estrutura da aula
+
+```
+aula06/
+  apresentacao_aula06.html   # slides (soltos na raiz)
+  README.md                  # este guia
+  notebook_colab/
+    aula06_linux_gpu.ipynb   # explicação + 5 exercícios
+  laboratorio_windows/       # experimentos (hardware real) + README próprio
+  scripts/                   # referências extras (cron, systemd, servidor Linux)
+```
+
+### `scripts/` (referências complementares)
 
 | Arquivo | O que faz |
 | :--- | :--- |
-| [`gpu_status.sh`](scripts/gpu_status.sh) | Lista GPUs (NVIDIA/AMD) com temperatura, uso e **alerta** acima do limite |
-| [`monitoramento_linux.py`](scripts/monitoramento_linux.py) | Lê `/proc` e `/sys` (Linux) ou o equivalente no Windows (psutil) |
+| [`gpu_status.sh`](scripts/gpu_status.sh) | Versão **servidor Linux**: lista GPUs (NVIDIA/AMD) com alerta de temperatura |
 | [`cron_exemplos.sh`](scripts/cron_exemplos.sh) | **Referência** comentada de linhas de crontab para servidores de GPU |
 | [`gpu-monitor.service`](scripts/gpu-monitor.service) | Template de unit systemd para monitor contínuo |
 
@@ -37,36 +49,36 @@ ultrapassa 80°C**. Tudo isso via linha de comando Linux.
 
 ## 🚀 Como rodar
 
-### No Google Colab (recomendado)
+### No Google Colab (notebook + 5 exercícios)
 
-1. Abra `aula06_linux_gpu.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula06_linux_gpu.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. Rode as células na ordem. As células com `!` usam o shell do Linux.
 
 > 💡 **Sem GPU?** As células caem para exemplos simulados e explicam cada comando.
 
-### No Windows do laboratório
+### No Windows do laboratório (hardware real)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual (`.venv`),
-instala as dependências de [`requirements.txt`](requirements.txt) e abre um **menu**:
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
 ```
-[1] monitoramento_linux.py  - pseudo-arquivos e hardware (CPU/GPU)
-[2] gpu_status.sh           - status das GPUs (Git Bash, se houver)
+[1] 1_inspecionar.sh  - conhecer o hardware e a GPU
+[2] 2_status_gpu.sh   - status + alerta de temperatura
+[3] 3_agendar.sh      - agendamento (simula o cron)
+[4] monitoramento_linux.py - CPU/RAM/GPU via Python
 [0] Sair
 ```
 
-Quem preferir o terminal:
+Quem preferir o terminal (Git Bash, dentro de `laboratorio_windows/`):
 
-```bat
-cd aulas\aula06
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe scripts\monitoramento_linux.py
+```bash
+bash 1_inspecionar.sh
+bash 2_status_gpu.sh
 ```
 
-> No Windows, `monitoramento_linux.py` usa `psutil` para mostrar o equivalente de
-> `/proc/cpuinfo` e `/proc/meminfo`. O `gpu_status.sh` roda no **Git Bash/WSL**.
+> No Windows/AMD a **temperatura** aparece como `N/A` (o Windows não a expõe facilmente); use
+> `GPU06_BACKEND=simulado` para testar o alerta. Detalhes em
+> [`laboratorio_windows/README.md`](laboratorio_windows/README.md).
 
 ---
 
@@ -127,7 +139,9 @@ cat /proc/cpuinfo | grep "model name" | head -1
 cat /proc/meminfo | head -5
 ```
 
-Passo a passo completo, script Bash e automação em [`atividade.md`](atividade.md).
+No **laboratório Windows** (hardware real), os mesmos passos estão em
+[`laboratorio_windows/`](laboratorio_windows/README.md) (`1_inspecionar.sh`, `2_status_gpu.sh`,
+`3_agendar.sh`). Passo a passo de pesquisa e discussão em [`atividade.md`](atividade.md).
 
 ---
 

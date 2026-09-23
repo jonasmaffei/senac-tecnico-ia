@@ -57,6 +57,10 @@ aulas/aula15/laboratorio_windows/reports/*
 !aulas/aula15/laboratorio_windows/reports/.gitkeep
 aulas/aula15/laboratorio_windows/**/__pycache__/
 
+# === Laboratório Windows — Aula 06 ===
+aulas/aula06/laboratorio_windows/reports/*
+!aulas/aula06/laboratorio_windows/reports/.gitkeep
+
 # === Laboratórios realtime (Docker e Windows) — Aula 14 ===
 aulas/aula14/laboratorio_realtime-docker/reports/*
 !aulas/aula14/laboratorio_realtime-docker/reports/.gitkeep
