@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 05 — Protocolos de Redes e Interação com GPUs</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+  }
+  pre code {
+    background: none; border: none; padding: 0; color: #dbe1ff;
+    font-size: .8rem; line-height: 1.55; white-space: pre; display: block;
+  }
+
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge {
+    position: absolute; top: 8px; left: 10px; font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
+    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .code-wrap pre { padding-top: 30px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  .terminal {
+    background: #05070f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto;
+  }
+  .terminal .bad { color: #ff8080; }
+  .terminal .warn { color: #ffd27a; }
+  .terminal .dim { color: #5c6a97; }
+
+  /* Pilha de camadas OSI */
+  .osi { display: flex; flex-direction: column; gap: 7px; max-width: 820px; }
+  .osi .camada {
+    display: flex; align-items: center; gap: 14px; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--panel); padding: 9px 14px;
+  }
+  .osi .camada .n { flex: 0 0 34px; height: 34px; border-radius: 8px; display: grid;
+    place-items: center; font-weight: 700; color: #08101f; }
+  .osi .camada .c-titulo { font-weight: 600; color: var(--text); font-size: .9rem; min-width: 150px; }
+  .osi .camada .c-ex { font-size: .8rem; color: var(--muted); }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 1 · Fundamentos</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 05</div>
+    <h1>Protocolos de Redes e Interação com GPUs</h1>
+    <p class="lead">Como os dados <strong>trafegam entre nós</strong> de um cluster: IPv4/IPv6,
+      TCP/UDP, e as ferramentas essenciais — <strong>SSH, scp e rsync</strong> — para
+      operar GPUs remotas.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">1 — Fundamentos</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Execução</div><div class="v">Colab + Cloud Shell + Windows</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
+        <p>A startup vai escalar o treinamento para um <strong>cluster remoto com múltiplas
+          GPUs</strong>. É preciso configurar a rede, entender TCP/UDP e IPv4/IPv6, conectar
+          via <strong>SSH</strong> e transferir um dataset de <strong>200 GB</strong> com
+          rsync.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧭</span> O que precisamos</h3>
+        <p>Entender as <strong>camadas</strong> (OSI), escolher <strong>TCP ou UDP</strong>
+          para cada caso e dominar as ferramentas de acesso remoto e transferência.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Roteiro -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> aplicar conceitos de redes (IPv4/IPv6, TCP/UDP) para
+      configurar e operar ambientes distribuídos com GPUs, garantindo comunicação eficiente
+      em projetos de IA.</p>
+    <div class="note">
+      <span class="ico">📌</span>
+      <span>Indicador da UC: <strong>aplica conceitos de redes para operar ambientes
+        distribuídos com GPUs</strong>. Revisão da Aula 4: processos, threads, warps e blocos.</span>
+    </div>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura e contextualização</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Teoria: IPv4, IPv6 e modelo OSI</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: TCP vs. UDP</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Demo: configurar rede com ip/netplan</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Atividade: Wireshark + netcat</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Atividade: SSH e scp/rsync</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Síntese e tarefa de casa</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>IPv4 · IPv6 · modelo OSI · TCP · UDP · handshake · SSH · scp · rsync ·
+            netcat · Wireshark · túnel SSH</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Material da aula</h3>
+          <p>Notebook <code>aula05_redes.ipynb</code> e os scripts em
+            <code>scripts/</code> (TCP/UDP, telemetria, IPv4/IPv6).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — IPv4 vs IPv6 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Endereçamento</div>
+    <h2><span class="num">1.</span>IPv4 vs. IPv6</h2>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">4️⃣</span> IPv4</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li><strong>32 bits</strong> → ~4,3 bilhões de endereços</li>
+          <li>Notação: <code>192.168.1.100</code></li>
+          <li><strong>Esgotado</strong> desde 2011 (NAT como solução)</li>
+          <li>Ainda dominante em redes locais</li>
+          <li>Máscara: <code>/24</code> = 255.255.255.0</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">6️⃣</span> IPv6</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li><strong>128 bits</strong> → 340 undecilhões de endereços</li>
+          <li>Notação: <code>2001:db8::1</code></li>
+          <li><strong>Autoconfiguração</strong> (dispensa DHCP)</li>
+          <li>Segurança nativa (IPSec)</li>
+          <li>Crescendo em data centers de IA</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">💡</span>
+      <span>Hoje a maioria das máquinas é <strong>dual stack</strong>: tem IPv4 e IPv6 ao
+        mesmo tempo. Os dois coexistem.</span>
+    </div>
+  </section>
+
+  <!-- 04 — Modelo OSI -->
+  <section class="slide">
+    <div class="kicker">Teoria · Camadas</div>
+    <h2><span class="num">2.</span>Modelo OSI (simplificado)</h2>
+    <p>Um dado desce da aplicação até o cabo e sobe no outro nó. Cada camada tem seu papel:</p>
+    <div class="osi">
+      <div class="camada"><div class="n" style="background:#a78bfa">7</div><div class="c-titulo">Aplicação</div><div class="c-ex">HTTP, SSH, gRPC, NCCL — o que sua IA usa</div></div>
+      <div class="camada"><div class="n" style="background:#f472b6">4</div><div class="c-titulo">Transporte</div><div class="c-ex">TCP, UDP — controle de entrega</div></div>
+      <div class="camada"><div class="n" style="background:#fbbf24">3</div><div class="c-titulo">Rede</div><div class="c-ex">IPv4, IPv6, ICMP — endereçamento e roteamento</div></div>
+      <div class="camada"><div class="n" style="background:#34d399">2</div><div class="c-titulo">Enlace</div><div class="c-ex">Ethernet, InfiniBand — comunicação entre nós</div></div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">🔗</span>
+      <span><strong>2 GPUs em nós diferentes:</strong> gRPC/NCCL (7) → socket TCP/IP (4/3) →
+        Ethernet 100GbE ou InfiniBand (2) → cabo/fibra.</span>
+    </div>
+  </section>
+
+  <!-- 05 — TCP vs UDP -->
+  <section class="slide">
+    <div class="kicker">Teoria · Transporte</div>
+    <h2><span class="num">3.</span>TCP vs. UDP</h2>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🔒</span> TCP — confiável</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li>Garante <strong>entrega e ordem</strong></li>
+          <li>Controle de fluxo e congestionamento</li>
+          <li><strong>Handshake</strong> de 3 vias (SYN → SYN-ACK → ACK)</li>
+          <li>Mais lento (overhead de confirmação)</li>
+          <li>Ideal para: <strong>SSH, HTTP, datasets e modelos</strong></li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">⚡</span> UDP — rápido</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li>Sem confirmação de entrega (<em>fire-and-forget</em>)</li>
+          <li>Sem conexão prévia</li>
+          <li>Menor latência, sem retransmissão</li>
+          <li>Pode <strong>perder pacotes</strong></li>
+          <li>Ideal para: <strong>telemetria de GPU, streaming</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">🔍</span>
+      <span>O <strong>Wireshark</strong> mostra o handshake TCP (SYN/SYN-ACK/ACK) e a
+        ausência dele no UDP — é o jeito visual de entender a diferença.</span>
+    </div>
+  </section>
+
+  <!-- 06 — Quando usar -->
+  <section class="slide">
+    <div class="kicker">Teoria · Decisão</div>
+    <h2><span class="num">4.</span>Qual protocolo para cada caso?</h2>
+    <table style="max-width:920px">
+      <thead><tr><th>Caso de uso em IA</th><th>Protocolo</th><th>Motivo</th></tr></thead>
+      <tbody>
+        <tr><td>Transferir dataset (scp/rsync)</td><td class="yes">TCP</td><td>Dados não podem ser corrompidos</td></tr>
+        <tr><td>Monitorar GPU em tempo real</td><td class="mid">UDP</td><td>Velocidade &gt; confiabilidade</td></tr>
+        <tr><td>Treinamento distribuído (NCCL)</td><td class="yes">TCP / RDMA</td><td>Ordem dos gradientes importa</td></tr>
+        <tr><td>Servir predições (REST API)</td><td class="yes">TCP (HTTP)</td><td>Resposta garantida ao cliente</td></tr>
+        <tr><td>Vídeo da câmera industrial</td><td class="mid">UDP</td><td>Latência baixa, perdas aceitáveis</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 07 — Demo rede -->
+  <section class="slide">
+    <div class="kicker">Demonstração · Configurar e diagnosticar</div>
+    <h2><span class="num">5.</span>Rede no Linux: ip e netplan</h2>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">Diagnóstico</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>ip addr show          # endereços IPv4/IPv6
+ip route get 8.8.8.8  # rota usada
+ss -tulnp             # portas em uso
+ping -c 4 8.8.8.8</code></pre>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Netplan (persistente)</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>network:
+  ethernets:
+    eth0:
+      addresses: [192.168.1.100/24]
+      gateway4: 192.168.1.1</code></pre>
+        </div>
+        <div class="note">
+          <span class="ico">📄</span>
+          <span>Todos os comandos comentados em <code>scripts/comandos_rede.sh</code>.</span>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">🔥</span>
+      <span><strong>Segurança:</strong> num servidor de GPUs, libere só o necessário —
+        SSH (<code>22</code>) e as portas do treino distribuído (ex.: <code>29500</code> para
+        PyTorch DDP).</span>
+    </div>
+  </section>
+
+  <!-- 08 — Atividade netcat -->
+  <section class="slide">
+    <div class="kicker">Atividade · Simular e capturar</div>
+    <h2><span class="num">6.</span>netcat e Wireshark</h2>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">netcat (nc)</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>nc -lvp 9999            # servidor TCP
+nc 127.0.0.1 9999       # cliente
+nc -u -lvp 9999         # servidor UDP</code></pre>
+        </div>
+        <ul class="clean">
+          <li>Simula servidor/cliente sem escrever código</li>
+          <li>Transfere arquivos e faz <em>scan</em> de portas</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Wireshark</h3>
+        <ul class="clean">
+          <li>Captura na interface <code>lo</code> (loopback)</li>
+          <li>Filtro: <code>tcp.port == 9999</code></li>
+          <li>Identifique <strong>SYN, SYN-ACK, ACK</strong></li>
+          <li>Repita com UDP e compare o nº de pacotes</li>
+        </ul>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Em Python, <code>scripts/demo_tcp_udp.py</code> e
+            <code>scripts/telemetria_tcp.py</code> mostram TCP e UDP na prática.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 — SSH/scp/rsync -->
+  <section class="slide">
+    <div class="kicker">Atividade · Operar o servidor de GPUs</div>
+    <h2><span class="num">7.</span>SSH, scp e rsync</h2>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">SSH</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>ssh usuario@192.168.1.50
+ssh-keygen -t ed25519     # sem senha
+ssh-copy-id usuario@host
+ssh -L 8888:localhost:8888 usuario@host</code></pre>
+        </div>
+        <p>O <strong>túnel</strong> (<code>-L</code>) traz um Jupyter remoto para
+          <code>localhost:8888</code> no seu navegador.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">scp vs. rsync</h3>
+        <table>
+          <thead><tr><th></th><th>scp</th><th>rsync</th></tr></thead>
+          <tbody>
+            <tr><td>Retomável</td><td class="no">não</td><td class="yes">sim (-P)</td></tr>
+            <tr><td>Incremental</td><td class="no">não</td><td class="yes">sim</td></tr>
+            <tr><td>Compressão</td><td class="mid">limitada</td><td class="yes">-z</td></tr>
+            <tr><td>Dataset grande</td><td class="no">arriscado</td><td class="yes">ideal</td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Exemplos em <code>scripts/comandos_rede.sh</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 — Discussão -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">8.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>Treinamento distribuído lento em 4 nós com
+      <strong>Ethernet 1GbE</strong>. Como diagnosticar se o gargalo é a rede e qual
+      <em>upgrade</em> recomendar?</p></div>
+    <div class="debate"><div class="q">2</div><p>Por que o <strong>PyTorch DDP</strong> usa
+      TCP (e não UDP) para sincronizar gradientes?</p></div>
+    <div class="debate"><div class="q">3</div><p>Dataset de <strong>500 GB</strong>: scp
+      direto, rsync comprimido ou tar primeiro? Qual seria mais rápido?</p></div>
+    <div class="debate"><div class="q">4</div><p>Na nuvem, qual a diferença entre
+      <strong>IPv4 privado</strong> (10.x.x.x) e <strong>IPv6</strong> para a comunicação
+      interna entre nós?</p></div>
+  </section>
+
+  <!-- 11 — Síntese + tarefa -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>IPv4</strong> — 32 bits, dominante em LANs, NAT compensa a escassez</li>
+          <li><strong>IPv6</strong> — 128 bits, autoconfiguração, crescendo em data centers</li>
+          <li><strong>TCP</strong> — confiável, handshake 3 vias → SSH, transfers, APIs</li>
+          <li><strong>UDP</strong> — rápido, sem garantia → telemetria, streaming</li>
+          <li><strong>SSH/scp/rsync</strong> — essenciais para operar GPUs remotas</li>
+          <li><strong>Wireshark/netcat</strong> — diagnóstico e simulação de tráfego</li>
+        </ul>
+        <p style="margin-top:12px">Recursos: notebook <code>aula05_redes.ipynb</code> e
+          <code>scripts/</code> — todos comentados.</p>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa (opcional)</h3>
+          <p>Configure uma mini rede local virtual (2 VMs ou 2 instâncias na nuvem):</p>
+          <ul class="clean" style="margin-top:6px">
+            <li>IPs estáticos em ambas</li>
+            <li><code>ping</code> e <code>traceroute</code></li>
+            <li>Transferir um <code>.pt</code> via scp e rsync</li>
+            <li>Servidor TCP em Python recebendo métricas de GPU</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔧</span> Recursos de apoio</h3>
+          <p><strong>Wireshark</strong> (análise de tráfego), <strong>netcat</strong>
+            (simulação TCP/UDP), <strong>ip/netplan</strong> (rede no Linux) e
+            <strong>Google Cloud Shell</strong> (terminal Linux + SSH na nuvem).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 11</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

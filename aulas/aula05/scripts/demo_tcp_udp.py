@@ -38,22 +38,26 @@ HOST = "127.0.0.1"   # loopback: conversa da máquina com ela mesma
 # TCP — servidor e cliente (conexão com confirmação)
 # ---------------------------------------------------------------------------
 def servidor_tcp(resultado):
-    """Escuta conexões TCP, recebe tudo e devolve quantos pacotes chegaram."""
+    """Escuta conexões TCP, recebe tudo e conta os BYTES recebidos.
+
+    TCP é um fluxo (stream) de bytes: o sistema pode juntar várias mensagens
+    num único recv. Por isso contamos bytes, não 'pacotes'.
+    """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # reusa a porta
         s.bind((HOST, PORTA_TCP))
         s.listen()                       # começa a aceitar conexões
         conn, _ = s.accept()             # bloqueia até o cliente conectar
         with conn:
-            recebidas = 0
+            total_bytes = 0
             while True:
                 dados = conn.recv(1024)  # lê em blocos de 1024 bytes
                 if not dados:            # 0 bytes = cliente fechou a conexão
                     break
-                recebidas += 1
-            # devolve ao cliente a contagem (prova de que os dados chegaram)
-            conn.sendall(str(recebidas).encode())
-    resultado.append(recebidas)
+                total_bytes += len(dados)
+            # devolve ao cliente o total (prova de que os dados chegaram)
+            conn.sendall(str(total_bytes).encode())
+    resultado.append(total_bytes)
 
 
 def cliente_tcp():
@@ -62,13 +66,17 @@ def cliente_tcp():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORTA_TCP))     # handshake de 3 vias (SYN/SYN-ACK/ACK)
         inicio = time.perf_counter()
+        enviados = 0
         for i in range(MENSAGENS):
-            s.sendall(f"msg-{i}".encode())
+            dado = f"msg-{i}".encode()
+            s.sendall(dado)              # sendall garante que tudo saiu
+            enviados += len(dado)
         s.shutdown(socket.SHUT_WR)       # avisa que terminou de enviar
-        recebidas = int(s.recv(1024).decode())
+        recebidos = int(s.recv(1024).decode())
         tempo = time.perf_counter() - inicio
-    print(f"  TCP: {recebidas}/{MENSAGENS} entregues em {tempo*1000:.1f}ms "
+    print(f"  TCP: {recebidos}/{enviados} bytes entregues em {tempo*1000:.1f}ms "
           f"(garantia de entrega)")
+    assert recebidos == enviados, "TCP deveria entregar TODOS os bytes!"
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,4 @@
+# Dependências da Aula 05 — Protocolos de Redes e Interação com GPUs.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# Nenhuma é obrigatória: os scripts usam apenas a biblioteca padrão (socket,
+# threading, json). A lista fica vazia de propósito — tudo já vem com o Python.

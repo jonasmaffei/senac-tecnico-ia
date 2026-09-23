@@ -34,9 +34,11 @@
 * **Prática (Colab/Windows):** benchmark sequencial vs. threading vs. multiprocessing (CPU-bound) mostra que threading empata com o sequencial (GIL) e multiprocessing acelera; um cenário I/O-bound mostra threading ganhando; os kernels Numba/CUDA medem o efeito de `threads_por_bloco` (256 costuma ser o ótimo) e usam grid 2D para uma imagem.
 
 #### Aula 5: Protocolos de Redes e Interação com GPUs
-* **IPv4 vs. IPv6:** Esgotamento do IPv4 impulsionou o IPv6 com endereçamento massivo.
-* **TCP vs. UDP:** TCP garante entrega confiável (transferência de dados); UDP prioriza velocidade sem confirmação (telemetria).
-* **SSH e Rsync:** Essenciais para controle remoto de servidores de GPU e sincronização de datasets.
+* **IPv4 vs. IPv6:** IPv4 (32 bits, `192.168.1.100`) esgotado, compensado pelo NAT; IPv6 (128 bits, `2001:db8::1`) com autoconfiguração e crescimento em data centers. Hoje as máquinas são dual stack.
+* **Modelo OSI (simplificado):** Aplicação (7 — HTTP, SSH, gRPC, NCCL) → Transporte (4 — TCP/UDP) → Rede (3 — IPv4/IPv6) → Enlace (2 — Ethernet/InfiniBand).
+* **TCP vs. UDP:** TCP garante entrega e ordem (handshake de 3 vias; SSH, datasets, modelos, APIs); UDP é rápido e sem confirmação (telemetria de GPU, streaming). O Wireshark mostra o handshake e a diferença de pacotes.
+* **SSH, scp e rsync:** Essenciais para controle remoto de servidores de GPU e sincronização de datasets; `rsync -avzP` é incremental e retomável (ideal para datasets grandes), enquanto `scp` é simples e sem retomada. Túnel SSH (`-L`) acessa Jupyter remoto.
+* **Prática (Colab/Windows):** socket TCP confirma bytes entregues enquanto UDP só dispara; um servidor de telemetria TCP recebe métricas de GPU em JSON; `getaddrinfo` revela as famílias de socket IPv4 (`AF_INET`) e IPv6 (`AF_INET6`).
 
 #### Aula 6: Sistemas Operacionais Linux e GPU
 * **Estrutura Virtual:** Uso de `/dev`, `/proc` e `/sys` para interagir com o kernel e estado das GPUs.
