@@ -21,12 +21,12 @@ Tudo abaixo é **opcional** (o Colab já traz a maior parte):
 | Recurso | Quando aparece |
 | :--- | :--- |
 | **NumPy** | Todas as aulas (vetorização/SIMD) |
-| **PyTorch** | Aulas 3, 10 e 11 (benchmarks, portabilidade e treino de ResNet) |
-| **CuPy** | Aulas 7 e 8 (FFT e estresse de GPU) |
-| **Numba** | Aula 8 (kernels CUDA com Tiling) |
-| **Weights & Biases** | Aula 11 (registro de experimentos de ML) |
-| **GPU NVIDIA / AMD** | Recomendada para Aulas 3, 7, 8, 10 e 11 (há fallback para CPU) |
-| **Docker / WSL 2** | Aulas 9 e 10 (Open WebUI e AMD ROCm / PyTorch) |
+| **PyTorch** | Aulas 10, 11 e 13 (portabilidade, treino e benchmark) |
+| **CuPy** | Aulas 7, 8 e 13 (FFT, estresse de GPU e benchmark) |
+| **Numba** | Aulas 3, 4, 7, 8 e 13 (kernels CUDA e tiling) |
+| **PyOpenCL** | Aula 9 (kernels multiplataforma) |
+| **GPU NVIDIA / AMD** | Recomendada para Aulas 3, 7, 8, 9, 10, 11 e 13 (há fallback para CPU) |
+| **Docker / WSL 2** | Aulas 10 e 14 (AMD ROCm / PyTorch e Open WebUI/Ollama) |
 
 ---
 
@@ -84,8 +84,8 @@ pip install -r requirements.txt
 | **08** | Manipulação de Memória em CUDA (Tiling, Coalescing, Profiling) | [`aula08_tiling.ipynb`](aulas/aula08/aula08_tiling.ipynb), [Apresentação](aulas/aula08/apresentacao_aula08.html), [Atividade](aulas/aula08/atividade.md), [`scripts/`](aulas/aula08/scripts) ([`matmul_tiling.py`](aulas/aula08/scripts/matmul_tiling.py), [`matmul_global.py`](aulas/aula08/scripts/matmul_global.py), [`coalescing.py`](aulas/aula08/scripts/coalescing.py), [`profiling_ocupacao.py`](aulas/aula08/scripts/profiling_ocupacao.py), [`stress_nvtop.py`](aulas/aula08/scripts/stress_nvtop.py)), [Guia da Aula](aulas/aula08/README.md) |
 | **09** | Alternativas ao CUDA: OpenCL (+ LLMs locais) | [`aula09_opencl.ipynb`](aulas/aula09/aula09_opencl.ipynb), [Apresentação](aulas/aula09/apresentacao_aula09.html), [Atividade](aulas/aula09/atividade.md), [`scripts/`](aulas/aula09/scripts) ([`primeiro_kernel.py`](aulas/aula09/scripts/primeiro_kernel.py), [`benchmark_work_groups.py`](aulas/aula09/scripts/benchmark_work_groups.py), [`listar_dispositivos.py`](aulas/aula09/scripts/listar_dispositivos.py)), [Tutoriais Ollama/WebUI](aulas/aula09/tutorials), [Guia da Aula](aulas/aula09/README.md) |
 | **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [`aula10_rocm.ipynb`](aulas/aula10/aula10_rocm.ipynb), [Apresentação](aulas/aula10/apresentacao_aula10.html), [Atividade](aulas/aula10/atividade.md), [`scripts/`](aulas/aula10/scripts) ([`rocm_pytorch_benchmark.py`](aulas/aula10/scripts/rocm_pytorch_benchmark.py), [`diagnostico_portabilidade.py`](aulas/aula10/scripts/diagnostico_portabilidade.py)), [Lab ROCm/Docker](aulas/aula10/laboratorio_rocm-docker/README.md), [Guia da Aula](aulas/aula10/README.md) |
-| **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (ResNet, W&B, AMP) | [`atividade_aula11.py`](aulas/aula11/atividade_aula11.py), [Guia da Aula](aulas/aula11/README.md) |
-| **12** | Prática no Colab e Projeto Final do Módulo | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
+| **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (CNN, Mixed Precision/AMP, TCO) | [`atividade_aula11.py`](aulas/aula11/atividade_aula11.py), [Guia da Aula](aulas/aula11/README.md) |
+| **12** | Prática no Colab e Projeto Integrador | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
 | **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [`aula13_implementacao_modelo_paralelo.ipynb`](aulas/aula13/aula13_implementacao_modelo_paralelo.ipynb), [Guia Colab](aulas/aula13/README.md) |
 
 ### Bloco 3 — Automação
@@ -102,7 +102,7 @@ pip install -r requirements.txt
 | Sequência | Documento | Descrição |
 | :---: | :--- | :--- |
 | **01** | [`01_timeline-engenharia.md`](docs/01_timeline-engenharia.md) | Blueprint causal de engenharia: por que cada aula existe e como se conectam |
-| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 14) |
+| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 15) |
 | **05** | [`05_materiais-complementares.md`](docs/05_materiais-complementares.md) | Curadoria de links, playlists e cursos externos |
 | **06** | [`06_tutorial-instalacao-wsl.md`](docs/06_tutorial-instalacao-wsl.md) | Guia de instalação e configuração do WSL 2 no Windows 10 e 11 |
 | **07** | [`07_tutorial-instalacao-docker-wsl.md`](docs/07_tutorial-instalacao-docker-wsl.md) | Guia de instalação e uso do Docker Engine nativo no WSL 2 (Ubuntu) |

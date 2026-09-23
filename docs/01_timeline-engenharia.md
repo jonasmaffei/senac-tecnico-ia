@@ -8,13 +8,20 @@
 ## O Fluxo Contínuo de Dependência Técnica
 
 ```text
-[A1] Von Neumann/Harvard ──> [A2] SIMD/MIMD/RISC/CISC ──> [A3] Hierarquia de Memória (VRAM/PCIe)
-                                                                      │
-                                                                      ▼
-[A10] AMD ROCm & HIP ──> [A11] ResNet CUDA vs ROCm ──> [A12] Lab Prático Colab ──> [A13] Modelo Paralelo (Síntese Bloco 2)
-                                                                                                 ▲
-                                                                                                 │
-[A9] OpenCL Multi-Vendor <── [A8] Tiling & Coalescing <── [A7] Kernels CUDA ──> [A6] Linux Ops ──> [A5] Redes/Rsync ──> [A4] Processos/GIL
+BLOCO 1 — FUNDAMENTOS (o hardware e o host)
+A1 Von Neumann/Harvard ─> A2 SIMD/MIMD/RISC/CISC ─> A3 Memória (VRAM/PCIe)
+   ─> A4 Processos/Threads ─> A5 Redes (TCP/UDP, SSH, rsync) ─> A6 Linux + GPU
+
+BLOCO 2 — PROGRAMAÇÃO E OTIMIZAÇÃO (o código na GPU)
+A6 ─> A7 Kernels CUDA ─> A8 Tiling & Coalescing ─> A9 OpenCL (multi-vendor)
+   ─> A10 ROCm/HIP (AMD + Docker) ─> A11 CNN NVIDIA vs. AMD
+   ─> A12 Lab Colab + Projeto Integrador ─> A13 Modelo Paralelo (síntese do Bloco 2)
+
+BLOCO 3 — AUTOMAÇÃO (a operação contínua)
+A13 ─> A14 Monitoramento 24/7 (cron, dashboard) ─> A15 Fila e concorrência na GPU
+
+Legenda: cada seta (─>) representa a resolução do gargalo que a aula anterior
+deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 ```
 
 ---
@@ -86,19 +93,22 @@
 * **O problema que fica em aberto:** Como estruturar uma avaliação quantitativa rigorosa (throughput, VRAM, custo, energia) para guiar decisões de conselho técnico/CTO na escolha dos próximos 3 anos de infraestrutura?
 
 ### Aula 11: Aplicação de Modelos de IA em GPUs NVIDIA e AMD
-* **Conceito/Fundamento:** Comparar ecossistemas CUDA e ROCm na execução de modelos reais (ResNet-18/50), registrando métricas com Weights & Biases (W&B) e avaliando trade-offs técnicos e operacionais de TCO.
-* **O que se aprende:** Métricas objetivas de IA (throughput em imgs/s, VRAM em MB, tempo por época), otimização com Mixed Precision (`torch.cuda.amp` autocast/GradScaler em FP16/BF16), telemetria unificada via W&B e análise estratégica de infraestrutura.
-* **Conexão com a Aula 10:** Consolida os conhecimentos do Bloco 2. Coloca em prática a execução do mesmo modelo PyTorch em ambas as GPUs, fundamentando a decisão executiva com dados reais empíricos de desempenho, estabilidade e custo.
+* **Conceito/Fundamento:** Rodar o treinamento de uma pequena rede convolucional (CNN simples: `Conv2d` → ReLU → `AdaptiveAvgPool` → `Linear`, entrada 224×224) e comparar o comportamento em **NVIDIA (CUDA)** e **AMD (ROCm)**, medindo throughput e o ganho do Mixed Precision. O código é agnóstico de hardware (`dispositivo = "cuda" if torch.cuda.is_available() else "cpu"`).
+* **O que se aprende:** Métricas objetivas de treino (throughput em imgs/s, tempo total), detecção automática do backend (`torch.version.hip` distingue ROCm de CUDA), otimização com Mixed Precision (`torch.amp.autocast('cuda')` + `torch.amp.GradScaler`), importância do **warm-up** e do `torch.cuda.synchronize()` para medir corretamente, e análise de negócios (custo de aluguel na nuvem, facilidade de uso vs. economia, TCO).
+* **Conexão com a Aula 10:** Consolida o Bloco 2. Coloca em prática a execução do **mesmo** modelo PyTorch nos dois ecossistemas, fundamentando a decisão executiva com dados empíricos de desempenho e custo.
+* **O problema que fica em aberto:** Já sabemos medir um treino real; mas onde, afinal, o ganho da GPU **compensa** — e onde o overhead a torna pior que a CPU?
 
-### Aula 12: Prática no Colab e Projeto Final do Módulo
-* **Conceito/Fundamento:** Laboratório prático interativo no Google Colab integrando CPU vs GPU, barramento PCIe, tiling de imagens e introdução ao projeto integrador.
-* **O que se aprende:** Utilização de formulários interativos, medição de latência PCIe (RAM ➔ VRAM) e prototipagem visual.
-* **Conexão com a Aula 11:** Prepara o terreno para o encerramento do Bloco 2, validando interativamente todos os conceitos de infraestrutura.
+### Aula 12: Prática no Colab e Projeto Integrador
+* **Conceito/Fundamento:** Laboratório prático interativo no Google Colab, em 5 experimentos com formulários (`@title`), revisitando toda a trilha: (1) multiplicação de matrizes CPU vs GPU; (2) custo de transferir RAM ➔ VRAM (PCIe); (3) filtro de imagem paralelo (simulação visual de CUDA/tiling); (4) monitor de VRAM via `nvidia-smi`; (5) classificador de sentimentos de clientes (aplicação real).
+* **O que se aprende:** Uso de widgets/formulários interativos do Colab, medição de latência PCIe, prototipagem rápida e introdução ao Projeto Integrador (pesquisa aplicada).
+* **Conexão com a Aula 11:** Valida interativamente, num só notebook, os conceitos de todo o curso antes do encerramento do Bloco 2.
+* **O problema que fica em aberto:** A prática mostrou o "como"; falta a **medição rigorosa** que quantifica o ponto exato em que a GPU vence a CPU.
 
 ### Aula 13: Implementação de um Modelo Paralelo Simples (Síntese do Bloco 2)
-* **Conceito/Fundamento:** Desenvolvimento e benchmark de 4 implementações (Python Puro, NumPy, CUDA Numba, CuPy) para soma vetorial e produto escalar com redução paralela em Shared Memory.
-* **O que se aprende:** Paralelismo SIMT vs SIMD, limiar de compensação de N ($N \ge 100K$), overhead PCIe/Kernel launch, curva de speedup com Matplotlib e mini-relatório técnico.
-* **Conexão com todo o Bloco 2:** Síntese final e prática reproduzível do Bloco 2, consolidando kernels CUDA, CuPy, vetorização em CPU e análise técnica empírica.
+* **Conceito/Fundamento:** Desenvolvimento e benchmark de 4 implementações (Python Puro, CPU NumPy, GPU CUDA Numba, GPU CuPy) para soma vetorial e produto escalar, com redução paralela (*tree reduction*) em memória compartilhada e `cuda.atomic.add` no fechamento.
+* **O que se aprende:** Paralelismo SIMT vs. SIMD, varredura de N (10K a 100M), limiar de compensação da GPU, overhead de transferência PCIe/kernel launch, gráficos de tempo e speedup com Matplotlib e mini-relatório técnico gerado automaticamente. Inclui a comparação `np.linalg.norm` vs. `cp.linalg.norm`.
+* **Conexão com todo o Bloco 2:** Síntese final e reproduzível do Bloco 2, consolidando kernels CUDA, CuPy, vetorização em CPU e análise técnica empírica — e fecha com o questionário das Aulas 8 a 13.
+* **O problema que fica em aberto:** O código está otimizado e medido, mas quem garante que ele roda **sem falhar por 12 horas seguidas** num servidor de produção?
 
 ### Aula 14: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
 * **Conceito/Fundamento:** Operação contínua e supervisionada de GPUs com `nvidia-smi --query-gpu` para métricas estruturadas, scripts Bash de coleta e alerta, agendamento com `cron`/`systemd timers`, dashboard com `gnuplot`/Matplotlib e integração com o Google Sheets.
@@ -118,11 +128,12 @@
 
 | Elo | Pergunta Crítica Respondida | Evidência Prática no Repositório |
 | :--- | :--- | :--- |
-| **A1-A3** | "Por que meu hardware afeta a conta de luz e nuvem?" | Diagnóstico de arquitetura e escolha de hardware edge/cloud. |
-| **A4-A6** | "Como mexer no cluster remoto sem perder o job de 12h?" | Script de sync `rsync`, túnel SSH, monitoramento `nvtop`/`tmux`. |
-| **A7-A8** | "Como espremer 100% da VRAM da placa de vídeo?" | Kernel otimizado com *tiling*, *coalescing* e medição de latência. |
-| **A9** | "E se o cliente exigir rodar em cluster AMD/Intel?" | Tradução mental de paralelismo para padrão aberto agnóstico (OpenCL). |
-| **A10-A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs ROCm) adotar?" | Treinamento ResNet com métricas de throughput/VRAM no W&B e análise de TCO. |
-| **A12-A13** | "Como quantificar empiricamente o speedup da GPU e responder onde ela compensa?" | Benchmark de 4 implementações (Python, NumPy, CUDA Numba, CuPy), curva de speedup e mini-relatório. |
-| **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` agendados por `cron`, dashboard e envio ao Google Sheets. |
+| **A1-A2** | "Preciso de CPU sequencial ou GPU massiva — e o que cada arquitetura custa em energia?" | Notebooks e scripts de Von Neumann vs. Harvard, SIMD/MIMD e RISC/CISC (`benchmark_simd.py`, `estudo_imagem.py`, `arquitetura_instrucoes.py`). |
+| **A3** | "Onde os dados vivem e qual é o gargalo real de entrega?" | `benchmark_ram_vram.py`, `hierarquia_memoria.py`, `monitor_memoria.py` (VRAM, PCIe, degrau de cache). |
+| **A4-A6** | "Como alimentar a GPU num cluster remoto sem perder o job de 12h?" | `multiprocessing`/`io_bound` (A4), `demo_tcp_udp`/`telemetria_tcp`/`rsync`/SSH (A5), `tmux`/`screen`/`cron`/`systemd` (A6). |
+| **A7-A8** | "Como espremer 100% da VRAM da placa de vídeo?" | Kernels CUDA (A7) e matmul com *tiling*/*coalescing* + profiling `cuda.event`/Nsight (A8). |
+| **A9** | "E se o cliente exigir rodar em cluster AMD/Intel?" | Tradução do paralelismo para padrão aberto agnóstico (OpenCL/PyOpenCL). |
+| **A10-A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs. ROCm) adotar?" | ROCm/HIP + Docker (A10) e treino de CNN comparando throughput FP32×FP16 e custo (A11). |
+| **A12-A13** | "Onde o speedup da GPU compensa de fato (e quando não)?" | Lab interativo no Colab (A12) + benchmark de 4 implementações, curva de speedup e mini-relatório (A13). |
+| **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` via `cron`, dashboard e envio ao Google Sheets. |
 | **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |

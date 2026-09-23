@@ -119,25 +119,24 @@
 * **Prática (Colab/Windows/Docker):** `lib_rocm.py` detecta o backend (CUDA nativo, ROCm/HIP ou CPU); `rocm_pytorch_benchmark.py` mede matmul e o throughput de treino (ResNet-18 ou CNN de fallback) — o **mesmo código** roda em NVIDIA e AMD. Laboratórios: ROCm+Docker (`rocm/pytorch`, dispositivos `/dev/kfd` e `/dev/dri`) e versões Windows (Vulkan/D3D12 no WSL 2).
 
 #### Aula 11: Aplicação de Modelos de IA em GPUs NVIDIA e AMD
-* **Treinamento Unificado CUDA vs. ROCm:** O PyTorch abstrai a execução de treinos em hardware NVIDIA e AMD sem necessidade de alteração no código Python (`torch.cuda` é emulado via HIP no ROCm).
-* **Métricas Objetivas de Comparação:**
-  * **Throughput (imagens/s):** Métrica primordial de produtividade em treinamento.
-  * **VRAM Alocada (MB/GB):** Consumo de memória durante os passos de *forward* e *backward*.
-  * **Tempo por Época & Custo (US$/h):** Fundamentais para a modelagem de TCO (Total Cost of Ownership).
-* **Mixed Precision (AMP FP16/BF16):** Uso de `torch.cuda.amp.autocast()` e `GradScaler` para reduzir VRAM em ~50% e aumentar throughput em até 2–3× em ambas as plataformas.
-* **Weights & Biases (W&B):** Rastreamento de experimentos de ML em dashboards comparativos unificados via tags/configurações do backend (`CUDA` vs `ROCm`).
+* **Treinamento Unificado CUDA vs. ROCm:** O PyTorch abstrai a execução de treinos em hardware NVIDIA e AMD sem alteração no código Python (`torch.cuda` é emulado via HIP no ROCm). O script detecta o backend automaticamente (`torch.version.hip` indica ROCm; caso contrário, CUDA).
+* **Modelo e Métricas:** treina uma **CNN simples** (`Conv2d` → `BatchNorm`/ReLU → `AdaptiveAvgPool2d` → `Linear`, entrada 224×224, 10 classes) e mede **throughput (imgs/s)** e **tempo total**. O **warm-up** (passada invisível antes do cronômetro) e o `torch.cuda.synchronize()` são essenciais para medir corretamente.
+* **Mixed Precision (AMP FP16):** uso de `torch.amp.autocast('cuda')` + `torch.amp.GradScaler` para reduzir memória e aumentar o throughput. O script compara o modo **FP32 (padrão)** com o **FP16 (otimizado)** e mostra o ganho.
+* **Análise de Negócios (pesquisa):** custo por hora de aluguel de GPUs NVIDIA vs. AMD na nuvem, facilidade de uso (CUDA maduro vs. adaptação ao ROCm) e a decisão de compra considerando **custo × esforço de migração** (TCO).
 * **Matriz de Trade-offs para Decisão Técnica:**
-  * **NVIDIA (CUDA):** Ecossistema extremamente maduro, ecossistema cuDNN/cuBLAS consolidado, menor tempo de setup, porém maior custo por GPU.
-  * **AMD (ROCm):** 100% open-source, maior densidade de VRAM por chip (ex: MI300X com 192GB), melhor relação custo/desempenho (~30% mais barato), exigindo suporte via contêineres Docker recomendados.
+  * **NVIDIA (CUDA):** ecossistema maduro (cuDNN/cuBLAS), menor tempo de setup, porém maior custo por GPU.
+  * **AMD (ROCm):** 100% open-source, maior densidade de VRAM por chip (ex.: MI300X com 192 GB), melhor relação custo/desempenho, exigindo suporte via contêineres Docker recomendados.
 
-#### Aula 12: Prática no Colab e Projeto Final do Módulo
-* **Laboratório Prático:** Exploração interativa no Google Colab de multiplicação de matrizes CPU vs GPU, latência de barramento PCIe na transferência RAM ➔ VRAM e aplicação de filtros em imagens por meio de Tiling simulado.
-* **Prototipagem Rápida:** Uso de widgets e formulários interativos do Colab para modificar dinamicamente parâmetros de execução.
+#### Aula 12: Prática no Colab e Projeto Integrador
+* **Laboratório Interativo (5 experimentos):** notebook no Colab com formulários (`@title`) que revisita a trilha — (1) multiplicação de matrizes CPU vs GPU; (2) custo de transferir RAM ➔ VRAM (PCIe); (3) filtro de imagem paralelo (simulação visual de CUDA/tiling); (4) monitor de VRAM via `nvidia-smi`; (5) classificador de sentimentos de clientes (aplicação real de NLP). 
+* **Prototipagem Rápida:** uso de widgets e formulários interativos do Colab para alterar parâmetros e ver o resultado na hora.
+* **Projeto Integrador:** a aula também apresenta o trabalho final (pesquisa aplicada que amarra a UC; detalhes em `aulas/projeto-integrador/README.md`).
 
 #### Aula 13: Implementação de um Modelo Paralelo Simples (Síntese do Bloco 2)
 * **Comparativo Quádruplo:** Implementação e medição das 4 abordagens para soma vetorial e produto escalar (Python Puro, CPU NumPy, GPU CUDA Numba e GPU CuPy).
 * **Redução Paralela em Shared Memory:** Implementação de *Tree Reduction* dentro do bloco CUDA para produto escalar em Numba com acúmulo via `cuda.atomic.add`.
 * **Análise de Speedup & Overhead:** Diagnóstico empírico demonstrando que para $N < 100K$ o overhead de transferência PCIe e lançamento de kernels torna a GPU mais lenta que a CPU ($<1\times$), enquanto para $N \ge 10M$ o speedup atinge ganhos expressivos ($>20\times$).
+* **Extras:** varredura de $N \in [10K, 100K, 1M, 10M, 100M]$, gráficos de tempo e speedup com Matplotlib, comparação `np.linalg.norm` vs. `cp.linalg.norm`, mini-relatório gerado automaticamente e fechamento com o questionário das Aulas 8 a 13.
 
 #### Aula 14: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
 * **Monitoramento com `nvidia-smi`:** A opção `--query-gpu` extrai métricas estruturadas (`temperature.gpu`, `utilization.gpu`, `utilization.memory`, `memory.used`, `power.draw`, `power.limit`, clocks e `fan.speed`). A flag `--format=csv,noheader,nounits` produz saída ideal para scripts.
