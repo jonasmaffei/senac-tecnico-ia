@@ -41,8 +41,10 @@
 * **Prática (Colab/Windows):** socket TCP confirma bytes entregues enquanto UDP só dispara; um servidor de telemetria TCP recebe métricas de GPU em JSON; `getaddrinfo` revela as famílias de socket IPv4 (`AF_INET`) e IPv6 (`AF_INET6`).
 
 #### Aula 6: Sistemas Operacionais Linux e GPU
-* **Estrutura Virtual:** Uso de `/dev`, `/proc` e `/sys` para interagir com o kernel e estado das GPUs.
-* **Automação:** Uso combinado de `cron` para tarefas agendadas e `systemd` para serviços contínuos, além de sessões persistentes com `tmux` e `screen`.
+* **Estrutura Virtual:** Uso de `/dev` (`/dev/nvidia*`), `/proc` (`/proc/driver/nvidia`, `cpuinfo`, `meminfo`) e `/sys` (`/sys/class/drm`) para interagir com o kernel e o estado das GPUs. São **pseudo-arquivos** (janela viva para o kernel, sem ocupar disco) — é deles que `htop` e `nvtop` leem.
+* **Drivers:** `lspci` identifica a placa; `nvidia-smi`/`rocm-smi` confirmam o driver. Driver ausente é a causa nº 1 de falhas em ambientes de IA.
+* **Automação:** `cron` para tarefas periódicas (ex.: `*/5 * * * * gpu_status.sh`) e `systemd` para serviços contínuos (reinício automático, início no boot), além de sessões persistentes com `tmux`/`screen`/`nohup` para sobreviver a quedas de SSH.
+* **Prática (Colab/Windows):** `gpu_status.sh` lista GPUs (NVIDIA/AMD) e alerta acima do limite de temperatura; `monitoramento_linux.py` lê os pseudo-arquivos no Linux (ou psutil no Windows); templates de `cron` e de unit systemd comentados.
 
 ---
 

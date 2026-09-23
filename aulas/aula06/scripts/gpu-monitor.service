@@ -1,0 +1,31 @@
+# ============================================================================
+# gpu-monitor.service — Serviço systemd (referência) para monitor contínuo
+# ----------------------------------------------------------------------------
+# OBJETIVO: manter um monitor de GPU SEMPRE ativo, reiniciando sozinho se cair.
+#
+# Onde colocar (Linux com systemd):
+#   sudo cp gpu-monitor.service /etc/systemd/system/gpu-monitor.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable gpu-monitor   # inicia no boot
+#   sudo systemctl start  gpu-monitor
+#   sudo systemctl status gpu-monitor
+#
+# Diferença para o cron:
+#   cron    -> roda uma tarefa PERIÓDICA e encerra (ex.: a cada 5 min)
+#   systemd -> mantém um SERVIÇO CONTÍNUO, com reinício automático
+# ============================================================================
+
+[Unit]
+Description=Monitor de GPU (coleta continua)
+After=network.target
+
+[Service]
+Type=simple
+User=usuario
+# Comando executado pelo serviço (ajuste o caminho conforme o seu script)
+ExecStart=/usr/bin/python3 /home/usuario/scripts/monitoramento_linux.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+# Dependências da Aula 06 — Sistemas Operacionais Linux e GPU.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# Os scripts usam apenas a biblioteca padrão. O psutil é opcional: no Windows
+# ele mostra o equivalente de /proc/cpuinfo e /proc/meminfo.
+psutil>=5.9.0
