@@ -72,7 +72,7 @@ pip install -r requirements.txt
 | **01** | Introdução às Arquiteturas de Computadores e GPUs (Von Neumann/Harvard, CPU vs GPU) | [`aula01_arquiteturas_cpu_gpu.ipynb`](aulas/aula01/aula01_arquiteturas_cpu_gpu.ipynb), [Apresentação](aulas/aula01/apresentacao_aula01.html), [Atividade](aulas/aula01/atividade.md), [`scripts/arquitetura_cpu_gpu.py`](aulas/aula01/scripts/arquitetura_cpu_gpu.py), [Guia da Aula](aulas/aula01/README.md) |
 | **02** | Modelos de Processamento (SIMD/MIMD, RISC/CISC) | [`aula02_modelos_processamento.ipynb`](aulas/aula02/aula02_modelos_processamento.ipynb), [Apresentação](aulas/aula02/apresentacao_aula02.html), [Atividade](aulas/aula02/atividade.md), [`scripts/`](aulas/aula02/scripts) ([`benchmark_simd.py`](aulas/aula02/scripts/benchmark_simd.py), [`estudo_imagem.py`](aulas/aula02/scripts/estudo_imagem.py), [`lib_backend.py`](aulas/aula02/scripts/lib_backend.py)), [Guia da Aula](aulas/aula02/README.md) |
 | **03** | Estrutura de Memória em GPUs (Hierarquia, RAM vs VRAM, PCIe) | [`aula03_memoria_gpu.ipynb`](aulas/aula03/aula03_memoria_gpu.ipynb), [Apresentação](aulas/aula03/apresentacao_aula03.html), [Atividade](aulas/aula03/atividade.md), [`scripts/`](aulas/aula03/scripts) ([`benchmark_ram_vram.py`](aulas/aula03/scripts/benchmark_ram_vram.py), [`hierarquia_memoria.py`](aulas/aula03/scripts/hierarquia_memoria.py), [`monitor_memoria.py`](aulas/aula03/scripts/monitor_memoria.py), [`lib_backend.py`](aulas/aula03/scripts/lib_backend.py)), [Guia da Aula](aulas/aula03/README.md) |
-| **04** | Processos e Threads (GIL, Multiprocessing) | [`processos_threads.py`](aulas/aula04/processos_threads.py) |
+| **04** | Fundamentos de Processos e Threads (GIL, warps/blocos/grade) | [`aula04_processos_threads.ipynb`](aulas/aula04/aula04_processos_threads.ipynb), [Apresentação](aulas/aula04/apresentacao_aula04.html), [Atividade](aulas/aula04/atividade.md), [`scripts/`](aulas/aula04/scripts) ([`processos_threads.py`](aulas/aula04/scripts/processos_threads.py), [`io_bound.py`](aulas/aula04/scripts/io_bound.py), [`kernels_cuda.py`](aulas/aula04/scripts/kernels_cuda.py), [`monitor_processos.py`](aulas/aula04/scripts/monitor_processos.py)), [Guia da Aula](aulas/aula04/README.md) |
 | **05** | Redes e Transferência de Dados (TCP/UDP, SSH, rsync) | [`demo_tcp_udp.py`](aulas/aula05/demo_tcp_udp.py), [`comandos_transferencia.sh`](aulas/aula05/comandos_transferencia.sh) |
 | **06** | Linux e GPUs (/proc, /sys, tmux, cron) | [`monitoramento_linux.py`](aulas/aula06/monitoramento_linux.py), [`gpu_status.sh`](aulas/aula06/gpu_status.sh) |
 
@@ -147,7 +147,11 @@ senac-tecnico-ia/
 │   │   ├── scripts/                         → lib_backend.py, benchmark_ram_vram.py, hierarquia_memoria.py, monitor_memoria.py
 │   │   └── README.md
 │   ├── aula04/
-│   │   └── processos_threads.py
+│   │   ├── aula04_processos_threads.ipynb
+│   │   ├── apresentacao_aula04.html
+│   │   ├── atividade.md
+│   │   ├── scripts/                         → processos_threads.py, io_bound.py, kernels_cuda.py, monitor_processos.py
+│   │   └── README.md
 │   ├── aula05/
 │   │   ├── comandos_transferencia.sh
 │   │   └── demo_tcp_udp.py

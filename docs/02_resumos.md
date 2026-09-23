@@ -28,8 +28,10 @@
 * **Prática (Colab/Windows):** `nvidia-smi`/`pynvml` monitoram VRAM e utilização; o benchmark mede a mesma soma na RAM (CPU) e na VRAM (GPU) mais o custo da cópia PCIe; a `hierarquia_memoria.py` mostra o degrau de largura de banda entre cache e RAM. O kernel CUDA (Numba) contrasta memória global vs. compartilhada (`cuda.shared.array` + `syncthreads`).
 
 #### Aula 4: Fundamentos de Processos e Threads
-* **Processos vs. Threads:** Processos isolam memória (contornam o GIL do Python); Threads compartilham memória (leves, mas limitadas pelo GIL em tarefas CPU-bound).
-* **Hierarquia CUDA:** Threads agrupadas em Warps (32 threads SIMD), Blocos (compartilham SRAM) e Grades (problema completo).
+* **Processos vs. Threads:** Processos isolam memória (contornam o GIL do Python); Threads compartilham memória (leves, mas limitadas pelo GIL em tarefas CPU-bound). Regra: **CPU-bound → multiprocessing; I/O-bound → threading**.
+* **GIL (Global Interpreter Lock):** mutex que deixa só uma thread Python rodar bytecode por vez; NumPy/PyTorch liberam o GIL nas operações nativas.
+* **Hierarquia CUDA:** Threads agrupadas em Warps (32 threads SIMD, unidade de escalonamento), Blocos (compartilham SRAM, rodam em 1 SM, até 1024 threads) e Grades (problema completo). **Divergência de warp** (if/else no mesmo warp) faz a GPU serializar os dois caminhos — perda de desempenho.
+* **Prática (Colab/Windows):** benchmark sequencial vs. threading vs. multiprocessing (CPU-bound) mostra que threading empata com o sequencial (GIL) e multiprocessing acelera; um cenário I/O-bound mostra threading ganhando; os kernels Numba/CUDA medem o efeito de `threads_por_bloco` (256 costuma ser o ótimo) e usam grid 2D para uma imagem.
 
 #### Aula 5: Protocolos de Redes e Interação com GPUs
 * **IPv4 vs. IPv6:** Esgotamento do IPv4 impulsionou o IPv6 com endereçamento massivo.
