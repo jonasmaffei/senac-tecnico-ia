@@ -51,6 +51,6 @@ ENV VK_ICD_FILENAMES="/usr/share/vulkan/icd.d/dzn_icd.x86_64.json"
 
 WORKDIR /app
 
-COPY stress_gpu.py /app/stress_gpu.py
+COPY teste_gpu.py /app/teste_gpu.py
 
-CMD ["python3", "/app/stress_gpu.py"]
+CMD ["python3", "/app/teste_gpu.py"]

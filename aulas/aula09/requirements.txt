@@ -1,0 +1,6 @@
+# Dependências da Aula 09 — Alternativas ao CUDA: OpenCL.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# numpy é obrigatório; pyopencl é opcional (sem ele os scripts mostram o conceito).
+# No Windows o pyopencl usa os drivers OpenCL já presentes (AMD/Intel/NVIDIA).
+numpy>=1.24.0
+pyopencl>=2023.1

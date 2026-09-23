@@ -1,6 +1,0 @@
-# Atividades Conceituais: Aula 10 - Introdução ao ROCm e GPUs AMD
-
-1. **A Promessa do "Zero Código"**: O engenheiro sênior da startup afirmou que o PyTorch em CUDA roda no ROCm/AMD sem mudar nenhuma linha de código em Python. Na prática, por que ter uma camada de compatibilidade (HIP) que emula o CUDA facilita a vida de uma empresa que quer mudar de fornecedor de hardware?
-2. **Dependência de Fabricante (*Vendor Lock-in*)**: Se uma empresa desenvolve todo o seu sistema dependendo exclusivamente de tecnologias proprietárias da NVIDIA (como CUDA e cuDNN), qual é o risco estratégico e financeiro ao negociar preços de infraestrutura em nuvem no futuro?
-3. **Praticidade com Docker**: Instalar drivers de GPU diretamente no sistema operacional pode gerar conflitos e quebrar o ambiente de trabalho. De que forma o uso de contêineres Docker pre-configurados (`rocm/pytorch`) ajuda profissionais de diferentes áreas a testar novas tecnologias sem complicação técnica?
-4. **Decisão de Investimento (Custo vs. Treinamento)**: As GPUs AMD (como a MI300X) chegam a ser 40% mais baratas que as concorrentes da NVIDIA. Além do preço da placa em si, quais outros fatores uma empresa deve considerar antes de decidir migrar toda a sua equipe para um novo ecossistema?

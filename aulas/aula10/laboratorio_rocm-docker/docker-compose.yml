@@ -1,0 +1,30 @@
+# ============================================================================
+# docker-compose.yml — PyTorch + ROCm (GPUs AMD)
+# ----------------------------------------------------------------------------
+# Sobe o benchmark portável dentro da imagem oficial rocm/pytorch, repassando
+# os dispositivos da GPU AMD (/dev/kfd e /dev/dri).
+#
+# Uso:  docker compose up --build
+# ============================================================================
+services:
+  rocm-benchmark:
+    build:
+      # O contexto é a raiz da aula10, para copiar scripts/ no Dockerfile.
+      context: ..
+      dockerfile: laboratorio_rocm-docker/Dockerfile
+    image: senac-rocm-benchmark:latest
+    # Acesso às GPUs AMD (Kernel Fusion Driver + Direct Rendering Interface)
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    # Grupos necessários para acessar a GPU
+    group_add:
+      - video
+      - render
+    # Memória compartilhada maior (treinamento usa bastante)
+    ipc: host
+    shm_size: "8gb"
+    # Variáveis úteis para depuração de ROCm
+    environment:
+      - HSA_OVERRIDE_GFX_VERSION=
+      - PYTHONUNBUFFERED=1

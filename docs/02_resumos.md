@@ -106,6 +106,7 @@
   * Código mais verboso (~3× mais longo).
   * Compilação JIT gera latência na inicialização.
   * Ecossistema de alto nível para Deep Learning (PyTorch/TensorFlow/cuDNN) fortemente acoplado à NVIDIA.
+* **Prática (Colab/Windows):** `listar_dispositivos.py` descobre plataformas/dispositivos; `primeiro_kernel.py` compila e executa um kernel OpenCL (soma de vetores) — no laboratório AMD o driver expõe OpenCL 2.1; `benchmark_work_groups.py` compara CPU (NumPy) vs. OpenCL e mede com eventos. Regra: `global_size` deve ser múltiplo de `local_size`. Sem OpenCL, os scripts mostram o conceito e números de referência.
 
 #### Aula 10: Introdução ao ROCm e GPUs AMD
 * **Ecossistema ROCm:** Plataforma open-source da AMD para computação GPU (alternativa direta ao CUDA proprietário). Stack: Aplicação -> Framework (MIOpen, rocBLAS) -> HIP Runtime -> ROCr (HSA) -> KFD Driver -> Hardware (MI300X, RDNA3, CDNA).
@@ -115,6 +116,7 @@
   * Ferramenta `hipify-clang` converte kernels CUDA C/C++ para HIP C++.
 * **Containers e Prática via Docker:** Imagens oficiais `rocm/pytorch` abstraem drivers no host. Dispositivos repassados via `--device=/dev/kfd` e `--device=/dev/dri` com permissões `video` e `render`.
 * **Estratégia de Negócios:** Mitigação de *vendor lock-in*, redução de custos de infraestrutura de nuvem/hardware e análise de TCO (Total Cost of Ownership).
+* **Prática (Colab/Windows/Docker):** `lib_rocm.py` detecta o backend (CUDA nativo, ROCm/HIP ou CPU); `rocm_pytorch_benchmark.py` mede matmul e o throughput de treino (ResNet-18 ou CNN de fallback) — o **mesmo código** roda em NVIDIA e AMD. Laboratórios: ROCm+Docker (`rocm/pytorch`, dispositivos `/dev/kfd` e `/dev/dri`) e versões Windows (Vulkan/D3D12 no WSL 2).
 
 #### Aula 11: Aplicação de Modelos de IA em GPUs NVIDIA e AMD
 * **Treinamento Unificado CUDA vs. ROCm:** O PyTorch abstrai a execução de treinos em hardware NVIDIA e AMD sem necessidade de alteração no código Python (`torch.cuda` é emulado via HIP no ROCm).

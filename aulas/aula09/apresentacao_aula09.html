@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 09 — Alternativas ao CUDA: OpenCL</title>
+<style>
+  :root {
+    --bg: #0b1020; --panel: #161f3d; --panel-2: #1c2749; --border: #2b3868;
+    --text: #e8ecff; --muted: #9aa7d4; --accent: #6366f1; --accent-2: #10b981;
+    --accent-3: #f97316; --accent-4: #ef4444; --accent-5: #7e22ce;
+    --code-bg: #0a0f22; --radius: 14px; --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+  #progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease; }
+  #topbar { position: fixed; top: 4px; left: 0; right: 0; height: 40px; display: flex;
+    align-items: center; justify-content: space-between; padding: 0 22px; font-size: .74rem;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none; }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2); }
+  #deck { position: relative; height: 100%; width: 100%; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center;
+    padding: 66px 7vw 76px; opacity: 0; transform: translateY(14px);
+    transition: opacity .3s ease, transform .3s ease; overflow-y: auto; }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  .kicker { display: inline-block; align-self: flex-start; font-size: .7rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border);
+    background: rgba(16,185,129,.08); padding: 5px 12px; border-radius: 999px; margin-bottom: 14px; }
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li { position: relative; padding: 7px 0 7px 28px; font-size: 1rem; line-height: 1.5;
+    color: var(--muted); max-width: 72ch; }
+  ul.clean > li::before { content: ""; position: absolute; left: 4px; top: 15px; width: 9px; height: 9px;
+    border-radius: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700;
+    left: 0; top: 6px; width: auto; height: auto; }
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 17px 19px; box-shadow: var(--shadow); }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+  code { font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace; font-size: .9em;
+    background: rgba(99,102,241,.16); border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35); }
+  pre code { background: none; border: none; padding: 0; color: #dbe1ff; font-size: .8rem;
+    line-height: 1.55; white-space: pre; display: block; }
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge { position: absolute; top: 8px; left: 10px; font-size: .64rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--accent-2); background: rgba(10,15,34,.85);
+    padding: 3px 8px; border-radius: 6px; pointer-events: none; }
+  .code-wrap pre { padding-top: 30px; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+  .debate { display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px; }
+  .debate .q { flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem; }
+  .debate p { margin: 0; font-size: .95rem; }
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item { display: flex; gap: 14px; align-items: center; border: 1px solid var(--border);
+    border-radius: 11px; background: var(--panel); padding: 10px 14px; }
+  .tl-item .tl-time { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px; }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+  .terminal { background: #05070f; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+    font-family: "Cascadia Code", Consolas, monospace; font-size: .78rem; line-height: 1.6;
+    color: #9fe8c4; overflow-x: auto; }
+  .terminal .bad { color: #ff8080; } .terminal .warn { color: #ffd27a; } .terminal .dim { color: #5c6a97; }
+  .stack { display: flex; flex-direction: column; gap: 6px; max-width: 620px; }
+  .stack .cam { border: 1px solid var(--border); border-radius: 9px; padding: 9px 14px; font-size: .86rem;
+    color: var(--text); background: var(--panel); }
+  #bottombar { position: fixed; bottom: 0; left: 0; right: 0; height: 52px; display: flex;
+    align-items: center; justify-content: space-between; padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92)); }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button { background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s; }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 { background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+  .note { display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px; margin-bottom: 14px;
+    align-self: flex-start; }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 2 · Programação e Otimização</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 09</div>
+    <h1>Alternativas ao CUDA: OpenCL</h1>
+    <p class="lead">E quando o hardware <strong>não é NVIDIA</strong>? O OpenCL é o padrão aberto
+      do Khronos Group que roda em GPUs de <strong>qualquer fabricante</strong> — e até na CPU.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">2 — Programação e Otimização</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Execução</div><div class="v">Colab + Windows (AMD/Intel/NVIDIA)</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
+        <p>Um novo cliente usa GPUs <strong>AMD e Intel</strong> — incompatíveis com CUDA. O CTO
+          pediu para reescrever o pipeline de áudio em <strong>OpenCL</strong>. Você tem
+          <strong>2h30</strong> para entregar um protótipo com benchmark CPU vs. GPU.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧭</span> O que precisamos</h3>
+        <p>Entender o <strong>modelo de execução</strong> do OpenCL e mapear os conceitos que já
+          conhecemos do CUDA (kernel, bloco, shared memory) para a terminologia OpenCL.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> reconhecer o OpenCL como alternativa multiplataforma ao CUDA,
+      compreender seu modelo de execução heterogêneo e implementar kernels portáveis que rodam
+      em GPUs de qualquer fabricante (NVIDIA, AMD, Intel) e CPUs.</p>
+    <div class="note">
+      <span class="ico">📌</span>
+      <span>Indicador da UC: <strong>reconhece e implementa modelos de programação paralela
+        multiplataforma</strong>. Revisão das Aulas 7 e 8: kernels, memória e tiling.</span>
+    </div>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura e contextualização</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Teoria: o padrão OpenCL</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: execução OpenCL vs. CUDA</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Demo: primeiro kernel com PyOpenCL</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Atividade: benchmark CPU vs. GPU</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão em grupo</span></div>
+          <div class="tl-item"><span class="tl-time">5 min</span><span class="tl-txt">Síntese e tarefa de casa</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Portabilidade · heterogeneidade · Platform → Device → Context → Queue · kernel
+            OpenCL C · work-item · work-group · NDRange · <code>__local</code> · JIT</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Material da aula</h3>
+          <p>Notebook <code>aula09_opencl.ipynb</code> e os scripts em <code>scripts/</code>
+            (listar dispositivos, primeiro kernel, benchmark). Tutoriais de LLM local em
+            <code>tutorials/</code>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="slide">
+    <div class="kicker">Contexto · O problema</div>
+    <h2><span class="num">1.</span>O lock-in do CUDA</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>CUDA é <strong>exclusivo de GPUs NVIDIA</strong>. Um pipeline escrito nas Aulas 7 e 8
+          simplesmente <strong>não roda</strong> numa GPU AMD ou Intel.</p>
+        <div class="note">
+          <span class="ico">🔓</span>
+          <span><strong>OpenCL</strong> (Open Computing Language), do Khronos Group, é o padrão
+            aberto para programação paralela em <strong>qualquer dispositivo</strong>: GPUs,
+            CPUs, FPGAs e DSPs.</span>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Suporte por fabricante</h3>
+        <table>
+          <thead><tr><th>Fabricante</th><th>OpenCL</th></tr></thead>
+          <tbody>
+            <tr><td>NVIDIA</td><td class="yes">3.0 (CUDA é preferido)</td></tr>
+            <tr><td>AMD</td><td class="yes">3.0 (via ROCm)</td></tr>
+            <tr><td>Intel</td><td class="yes">3.0 (CPU + iGPU + Arc)</td></tr>
+            <tr><td>Apple</td><td class="mid">1.2 deprecated (usa Metal)</td></tr>
+            <tr><td>Qualcomm</td><td class="yes">2.0 (Snapdragon)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Arquitetura OpenCL</div>
+    <h2><span class="num">2.</span>Platform → Device → Context → Queue</h2>
+    <div class="stack">
+      <div class="cam"><strong>Platform</strong> — conjunto de drivers do fabricante (NVIDIA, AMD, Intel). <span class="dim">CUDA: não existe.</span></div>
+      <div class="cam"><strong>Device</strong> — CPU, GPU ou acelerador dentro da plataforma. <span class="dim">CUDA: a GPU escolhida.</span></div>
+      <div class="cam"><strong>Context</strong> — agrupa dispositivos, memória e filas. <span class="dim">CUDA: implícito.</span></div>
+      <div class="cam"><strong>Command Queue</strong> — envia kernels e cópias. <span class="dim">CUDA: stream.</span></div>
+      <div class="cam"><strong>Kernel (OpenCL C)</strong> — compilado em tempo de execução (JIT). <span class="dim">CUDA: @cuda.jit.</span></div>
+      <div class="cam"><strong>Buffer</strong> — região de memória no dispositivo (<code>cl.Buffer</code>). <span class="dim">CUDA: device array.</span></div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">🧭</span>
+      <span>A inicialização é <strong>explícita</strong>: descobrir a plataforma, escolher o
+        dispositivo, criar o contexto e a fila — antes de qualquer kernel.</span>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Equivalências</div>
+    <h2><span class="num">3.</span>OpenCL vs. CUDA</h2>
+    <table style="max-width:900px">
+      <thead><tr><th>Conceito</th><th>CUDA</th><th>OpenCL</th></tr></thead>
+      <tbody>
+        <tr><td>Thread</td><td><code>thread</code></td><td><code>work-item</code></td></tr>
+        <tr><td>Bloco</td><td><code>block</code></td><td><code>work-group</code></td></tr>
+        <tr><td>Grade</td><td><code>grid</code></td><td><code>NDRange</code></td></tr>
+        <tr><td>ID global</td><td><code>cuda.grid(1)</code></td><td><code>get_global_id(0)</code></td></tr>
+        <tr><td>ID local</td><td><code>threadIdx.x</code></td><td><code>get_local_id(0)</code></td></tr>
+        <tr><td>Shared memory</td><td><code>cuda.shared.array()</code></td><td><code>__local float[]</code></td></tr>
+        <tr><td>Barreira</td><td><code>cuda.syncthreads()</code></td><td><code>barrier(CLK_LOCAL_MEM_FENCE)</code></td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">💡</span>
+      <span>O modelo mental é o <strong>mesmo</strong>: paralelismo massivo com hierarquia. Só
+        mudam os nomes — quem aprendeu CUDA já sabe OpenCL.</span>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="slide">
+    <div class="kicker">Demo · Primeiro kernel</div>
+    <h2><span class="num">4.</span>Kernel OpenCL com PyOpenCL</h2>
+    <div class="grid cols-2">
+      <div>
+        <div class="code-wrap">
+          <span class="badge">OpenCL C</span>
+          <pre><code>__kernel void soma(
+  __global const float* a,
+  __global const float* b,
+  __global       float* c) {
+    int i = get_global_id(0);
+    c[i] = a[i] + b[i];
+}</code></pre>
+        </div>
+        <p>Escrito em <strong>OpenCL C</strong> (string) e compilado em tempo de execução
+          (<strong>JIT</strong>) para o dispositivo alvo — por isso é portável.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Fluxo</h3>
+        <ul class="clean">
+          <li><code>cl.Context</code> + <code>cl.CommandQueue</code></li>
+          <li><code>cl.Program(ctx, src).build()</code> — compila JIT</li>
+          <li><code>cl.Buffer</code> — aloca a/b/c no device</li>
+          <li><code>kernel(fila, (global,), (local,), ...)</code></li>
+          <li><code>fila.finish()</code> + <code>enqueue_copy</code></li>
+        </ul>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Rode <code>scripts/primeiro_kernel.py</code> (comentado linha a linha).</span>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:12px">
+      <span class="ico">⚠️</span>
+      <span>O <code>global_size</code> precisa ser <strong>múltiplo</strong> do
+        <code>local_size</code> — por isso o kernel leva um <code>if (i &lt; n)</code>.</span>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="slide">
+    <div class="kicker">Atividade · Benchmark</div>
+    <h2><span class="num">5.</span>CPU vs. GPU e o work-group</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>O <code>local_size</code> (work-group) é o equivalente ao bloco CUDA. Vamos variá-lo e
+          medir com <strong>eventos OpenCL</strong> (precisão de nanossegundos).</p>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>evento = kernel(fila, (global,), (local,), ...)
+evento.wait()
+t = evento.profile.end - evento.profile.start</code></pre>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Resultado de referência</h3>
+        <table>
+          <thead><tr><th>Versão</th><th>Tempo</th></tr></thead>
+          <tbody>
+            <tr><td>CPU (NumPy)</td><td class="no">~8 ms</td></tr>
+            <tr><td>GPU (OpenCL)</td><td class="yes">~1.2 ms</td></tr>
+            <tr><td><strong>Speedup</strong></td><td class="yes"><strong>~6.7×</strong></td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Rode <code>scripts/benchmark_work_groups.py</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Trade-offs</div>
+    <h2><span class="num">6.</span>OpenCL: vale a pena?</h2>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">✓</span> Vantagens</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li>Roda em <strong>qualquer GPU</strong> (NVIDIA, AMD, Intel)</li>
+          <li>Fallback automático para <strong>CPU</strong></li>
+          <li>Padrão aberto — <strong>sem vendor lock-in</strong></li>
+          <li>Suporta FPGAs e DSPs</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">✗</span> Desvantagens</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li>Mais <strong>verboso</strong> que CUDA (~3× mais código)</li>
+          <li>Ecossistema de IA <strong>menor</strong></li>
+          <li><strong>Compilação JIT</strong>: latência no início</li>
+          <li>PyTorch/TensorFlow preferem CUDA/ROCm</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">📌</span>
+      <span>Use OpenCL quando a <strong>portabilidade</strong> for mais importante que o
+        desempenho máximo — ex.: software que precisa rodar no hardware do cliente.</span>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">7.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>Cliente com GPUs AMD e startup com NVIDIA: como
+      manter o <strong>mesmo código-base</strong> funcionando nas duas plataformas?</p></div>
+    <div class="debate"><div class="q">2</div><p>O JIT compila em tempo de execução. Quais as
+      implicações para um sistema que processa áudio <strong>em tempo real</strong>?</p></div>
+    <div class="debate"><div class="q">3</div><p>O PyTorch não suporta OpenCL diretamente. Como
+      isso afeta a decisão de usar OpenCL para <strong>treinar</strong> modelos?</p></div>
+    <div class="debate"><div class="q">4</div><p>Cite <strong>3 cenários</strong> em que OpenCL
+      seria melhor escolha que CUDA.</p></div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>OpenCL</strong> — padrão aberto: NVIDIA, AMD, Intel, CPU, FPGA</li>
+          <li><strong>Platform → Device → Context → Queue</strong> — inicialização explícita</li>
+          <li><strong>work-item / work-group / NDRange</strong> = thread / bloco / grade</li>
+          <li><strong>get_global_id(0)</strong> = <code>cuda.grid(1)</code></li>
+          <li><strong>__local / barrier()</strong> = shared memory / syncthreads</li>
+          <li><strong>JIT</strong> — compila em runtime para o dispositivo alvo</li>
+        </ul>
+        <p style="margin-top:12px">Recursos: notebook <code>aula09_opencl.ipynb</code> e
+          <code>scripts/</code> — todos comentados.</p>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa (opcional)</h3>
+          <p>Porte o kernel de <strong>matmul com tiling</strong> da Aula 8 para OpenCL:</p>
+          <ul class="clean" style="margin-top:6px">
+            <li>Reescreva o kernel CUDA de tiling em OpenCL C</li>
+            <li>Use <code>__local float tile_A[TILE][TILE]</code></li>
+            <li>Compare CUDA vs. OpenCL para N = 256, 512, 1024</li>
+            <li>Explique as diferenças de desempenho no README</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔧</span> Recursos de apoio</h3>
+          <p><strong>PyOpenCL</strong> (bindings Python), <strong>Khronos Group</strong>
+            (especificação oficial), <strong>Intel OpenCL SDK</strong> (CPU/GPU Intel) e
+            <strong>AMD ROCm OpenCL</strong> (GPUs AMD).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 10</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next; render();
+    }
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index; render();
+    }
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") { e.preventDefault(); goTo(0); }
+      else if (e.key === "End") { e.preventDefault(); goTo(slides.length - 1); }
+    });
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

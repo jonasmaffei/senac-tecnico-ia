@@ -82,8 +82,8 @@ pip install -r requirements.txt
 | :---: | :--- | :--- |
 | **07** | Introdução ao Modelo CUDA (Kernels, índice global, CuPy FFT) | [`aula07_cuda.ipynb`](aulas/aula07/aula07_cuda.ipynb), [Apresentação](aulas/aula07/apresentacao_aula07.html), [Atividade](aulas/aula07/atividade.md), [`scripts/`](aulas/aula07/scripts) ([`indice_global.py`](aulas/aula07/scripts/indice_global.py), [`primeiro_kernel.py`](aulas/aula07/scripts/primeiro_kernel.py), [`fft_benchmark.py`](aulas/aula07/scripts/fft_benchmark.py), [`lib_cuda.py`](aulas/aula07/scripts/lib_cuda.py)), [Guia da Aula](aulas/aula07/README.md) |
 | **08** | Manipulação de Memória em CUDA (Tiling, Coalescing, Profiling) | [`aula08_tiling.ipynb`](aulas/aula08/aula08_tiling.ipynb), [Apresentação](aulas/aula08/apresentacao_aula08.html), [Atividade](aulas/aula08/atividade.md), [`scripts/`](aulas/aula08/scripts) ([`matmul_tiling.py`](aulas/aula08/scripts/matmul_tiling.py), [`matmul_global.py`](aulas/aula08/scripts/matmul_global.py), [`coalescing.py`](aulas/aula08/scripts/coalescing.py), [`profiling_ocupacao.py`](aulas/aula08/scripts/profiling_ocupacao.py), [`stress_nvtop.py`](aulas/aula08/scripts/stress_nvtop.py)), [Guia da Aula](aulas/aula08/README.md) |
-| **09** | Alternativas ao CUDA (OpenCL) + LLMs Locais | [`atividades.md`](aulas/aula09/atividades.md), [Tutorial Ollama](aulas/aula09/hands-on-ollama.md), [Tutorial Open WebUI](aulas/aula09/hands-on-frontend-ollama.md) |
-| **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [`rocm_pytorch_benchmark.py`](aulas/aula10/rocm_pytorch_benchmark.py), [`Atividades.md`](aulas/aula10/Atividades.md), [`verificar-gpu-container/`](aulas/aula10/verificar-gpu-container), [`stressar-gpu-container/`](aulas/aula10/stressar-gpu-container) |
+| **09** | Alternativas ao CUDA: OpenCL (+ LLMs locais) | [`aula09_opencl.ipynb`](aulas/aula09/aula09_opencl.ipynb), [Apresentação](aulas/aula09/apresentacao_aula09.html), [Atividade](aulas/aula09/atividade.md), [`scripts/`](aulas/aula09/scripts) ([`primeiro_kernel.py`](aulas/aula09/scripts/primeiro_kernel.py), [`benchmark_work_groups.py`](aulas/aula09/scripts/benchmark_work_groups.py), [`listar_dispositivos.py`](aulas/aula09/scripts/listar_dispositivos.py)), [Tutoriais Ollama/WebUI](aulas/aula09/tutorials), [Guia da Aula](aulas/aula09/README.md) |
+| **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [`aula10_rocm.ipynb`](aulas/aula10/aula10_rocm.ipynb), [Apresentação](aulas/aula10/apresentacao_aula10.html), [Atividade](aulas/aula10/atividade.md), [`scripts/`](aulas/aula10/scripts) ([`rocm_pytorch_benchmark.py`](aulas/aula10/scripts/rocm_pytorch_benchmark.py), [`diagnostico_portabilidade.py`](aulas/aula10/scripts/diagnostico_portabilidade.py)), [Lab ROCm/Docker](aulas/aula10/laboratorio_rocm-docker/README.md), [Guia da Aula](aulas/aula10/README.md) |
 | **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (ResNet, W&B, AMP) | [`atividade_aula11.py`](aulas/aula11/atividade_aula11.py), [Guia da Aula](aulas/aula11/README.md) |
 | **12** | Prática no Colab e Projeto Final do Módulo | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
 | **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [`aula13_implementacao_modelo_paralelo.ipynb`](aulas/aula13/aula13_implementacao_modelo_paralelo.ipynb), [Guia Colab](aulas/aula13/README.md) |
@@ -177,14 +177,21 @@ senac-tecnico-ia/
 │   │   ├── scripts/                         → lib_cuda.py, coalescing.py, matmul_global.py, matmul_tiling.py, profiling_ocupacao.py, stress_nvtop.py
 │   │   └── README.md
 │   ├── aula09/
-│   │   ├── atividades.md
-│   │   ├── hands-on-frontend-ollama.md
-│   │   └── hands-on-ollama.md
+│   │   ├── aula09_opencl.ipynb
+│   │   ├── apresentacao_aula09.html
+│   │   ├── atividade.md
+│   │   ├── scripts/                         → lib_opencl.py, listar_dispositivos.py, primeiro_kernel.py, benchmark_work_groups.py
+│   │   ├── tutorials/                       → hands-on-ollama.md, hands-on-frontend-ollama.md
+│   │   └── README.md
 │   ├── aula10/
-│   │   ├── Atividades.md
-│   │   ├── rocm_pytorch_benchmark.py
-│   │   ├── stressar-gpu-container/
-│   │   └── verificar-gpu-container/
+│   │   ├── aula10_rocm.ipynb
+│   │   ├── apresentacao_aula10.html
+│   │   ├── atividade.md
+│   │   ├── scripts/                         → lib_rocm.py, rocm_pytorch_benchmark.py, diagnostico_portabilidade.py
+│   │   ├── laboratorio_rocm-docker/         → ROCm + PyTorch via Docker (industrial)
+│   │   ├── laboratorio_verificar-gpu/       → verifica acesso à GPU (Windows/AMD)
+│   │   ├── laboratorio_stressar-gpu/        → estressa GPU via Vulkan (Windows/AMD)
+│   │   └── README.md
 │   ├── aula11/
 │   │   ├── atividade_aula11.py
 │   │   └── README.md

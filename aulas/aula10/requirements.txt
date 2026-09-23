@@ -1,0 +1,5 @@
+# Dependências da Aula 10 — Introdução ao ROCm e GPUs AMD.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# O torch (CPU) permite testar o diagnóstico e o benchmark portável mesmo sem GPU.
+# Num servidor AMD real, use a imagem Docker rocm/pytorch (ver laboratorio_rocm-docker/).
+torch>=2.0.0

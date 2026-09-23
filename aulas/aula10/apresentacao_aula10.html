@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 10 — Introdução ao ROCm e GPUs AMD</title>
+<style>
+  :root {
+    --bg: #0b1020; --panel: #161f3d; --panel-2: #1c2749; --border: #2b3868;
+    --text: #e8ecff; --muted: #9aa7d4; --accent: #6366f1; --accent-2: #10b981;
+    --accent-3: #f97316; --accent-4: #ef4444; --accent-5: #7e22ce;
+    --code-bg: #0a0f22; --radius: 14px; --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+  #progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease; }
+  #topbar { position: fixed; top: 4px; left: 0; right: 0; height: 40px; display: flex;
+    align-items: center; justify-content: space-between; padding: 0 22px; font-size: .74rem;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none; }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2); }
+  #deck { position: relative; height: 100%; width: 100%; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center;
+    padding: 66px 7vw 76px; opacity: 0; transform: translateY(14px);
+    transition: opacity .3s ease, transform .3s ease; overflow-y: auto; }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  .kicker { display: inline-block; align-self: flex-start; font-size: .7rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent-2); border: 1px solid var(--border);
+    background: rgba(16,185,129,.08); padding: 5px 12px; border-radius: 999px; margin-bottom: 14px; }
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li { position: relative; padding: 7px 0 7px 28px; font-size: 1rem; line-height: 1.5;
+    color: var(--muted); max-width: 72ch; }
+  ul.clean > li::before { content: ""; position: absolute; left: 4px; top: 15px; width: 9px; height: 9px;
+    border-radius: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700;
+    left: 0; top: 6px; width: auto; height: auto; }
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 17px 19px; box-shadow: var(--shadow); }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+  code { font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace; font-size: .9em;
+    background: rgba(99,102,241,.16); border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35); }
+  pre code { background: none; border: none; padding: 0; color: #dbe1ff; font-size: .8rem;
+    line-height: 1.55; white-space: pre; display: block; }
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge { position: absolute; top: 8px; left: 10px; font-size: .64rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--accent-2); background: rgba(10,15,34,.85);
+    padding: 3px 8px; border-radius: 6px; pointer-events: none; }
+  .code-wrap pre { padding-top: 30px; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+  .debate { display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px; }
+  .debate .q { flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem; }
+  .debate p { margin: 0; font-size: .95rem; }
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item { display: flex; gap: 14px; align-items: center; border: 1px solid var(--border);
+    border-radius: 11px; background: var(--panel); padding: 10px 14px; }
+  .tl-item .tl-time { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px; }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+  .terminal { background: #05070f; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+    font-family: "Cascadia Code", Consolas, monospace; font-size: .78rem; line-height: 1.6;
+    color: #9fe8c4; overflow-x: auto; }
+  .terminal .bad { color: #ff8080; } .terminal .warn { color: #ffd27a; } .terminal .dim { color: #5c6a97; }
+  .stack { display: flex; flex-direction: column; gap: 6px; max-width: 620px; }
+  .stack .cam { border: 1px solid var(--border); border-radius: 9px; padding: 9px 14px; font-size: .86rem;
+    color: var(--text); background: var(--panel); }
+  #bottombar { position: fixed; bottom: 0; left: 0; right: 0; height: 52px; display: flex;
+    align-items: center; justify-content: space-between; padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92)); }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button { background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s; }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 { background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+  .note { display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px; margin-bottom: 14px;
+    align-self: flex-start; }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 2 · Programação e Otimização</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 10</div>
+    <h1>Introdução ao ROCm e GPUs AMD</h1>
+    <p class="lead">Rodar o mesmo PyTorch em GPUs <strong>AMD</strong> via <strong>HIP</strong> e
+      containers <strong>Docker</strong> — quebrando o <em>vendor lock-in</em> do CUDA.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">2 — Programação e Otimização</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Execução</div><div class="v">Docker ROCm + Windows/AMD</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
+        <p>A startup comprou GPUs <strong>AMD Instinct MI300X</strong> (40% mais baratas que as
+          A100). O engenheiro sênior afirma que o ROCm roda o PyTorch existente
+          <strong>sem modificações</strong>. Verifique e compare o desempenho.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧭</span> O que precisamos</h3>
+        <p>Entender o ecossistema <strong>ROCm</strong>, a camada de portabilidade
+          <strong>HIP</strong> e como subir tudo com a imagem
+          <strong>rocm/pytorch</strong> no Docker.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> configurar e executar aplicações de IA em GPUs AMD usando o
+      ecossistema ROCm, compreender a portabilidade via HIP e rodar modelos PyTorch em ambiente
+      Docker, promovendo independência de fabricante.</p>
+    <div class="note">
+      <span class="ico">📌</span>
+      <span>Indicador da UC: <strong>configura e executa aplicações de IA em GPUs AMD usando
+        ROCm</strong>. Revisão da Aula 9: OpenCL e portabilidade.</span>
+    </div>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura e contextualização</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: ecossistema ROCm</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Demo: rocminfo e rocm-smi</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: HIP (CUDA → ROCm)</span></div>
+          <div class="tl-item"><span class="tl-time">35 min</span><span class="tl-txt">Atividade: PyTorch + ROCm via Docker</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão em grupo</span></div>
+          <div class="tl-item"><span class="tl-time">5 min</span><span class="tl-txt">Síntese e tarefa de casa</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>ROCm · HIP · rocBLAS · MIOpen · rocFFT · rocm-smi · hipify · vendor lock-in ·
+            Docker · TCO</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Material da aula</h3>
+          <p>Notebook <code>aula10_rocm.ipynb</code>, scripts em <code>scripts/</code> e os
+            laboratórios Docker em <code>laboratorio_rocm-docker/</code> (e irmãos).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Ecossistema</div>
+    <h2><span class="num">1.</span>A stack do ROCm</h2>
+    <div class="stack">
+      <div class="cam">Aplicação (PyTorch, TensorFlow, JAX)</div>
+      <div class="cam">Framework GPU (MIOpen, rocBLAS, rocFFT)</div>
+      <div class="cam"><strong>HIP Runtime</strong> — API de portabilidade CUDA/AMD</div>
+      <div class="cam">ROCr — ROCm Runtime (HSA)</div>
+      <div class="cam">KFD — Kernel Fusion Driver (módulo do Linux)</div>
+      <div class="cam">Hardware: GPU AMD (GFX9 / RDNA2 / CDNA3)</div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">🔓</span>
+      <span>Diferente do CUDA (proprietário), <strong>todo o stack ROCm é open-source</strong> no
+        GitHub.</span>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Equivalências</div>
+    <h2><span class="num">2.</span>CUDA vs. ROCm/HIP</h2>
+    <table style="max-width:860px">
+      <thead><tr><th>Componente</th><th>CUDA (NVIDIA)</th><th>ROCm (AMD)</th></tr></thead>
+      <tbody>
+        <tr><td>Linguagem de kernel</td><td>CUDA C/C++</td><td>HIP C/C++</td></tr>
+        <tr><td>Compilador</td><td><code>nvcc</code></td><td><code>hipcc</code></td></tr>
+        <tr><td>Álgebra linear</td><td>cuBLAS</td><td class="yes">rocBLAS</td></tr>
+        <tr><td>Deep learning</td><td>cuDNN</td><td class="yes">MIOpen</td></tr>
+        <tr><td>FFT</td><td>cuFFT</td><td class="yes">rocFFT</td></tr>
+        <tr><td>Monitoramento</td><td>nvidia-smi</td><td class="yes">rocm-smi</td></tr>
+        <tr><td>Container</td><td>nvidia/cuda</td><td class="yes">rocm/pytorch</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">💡</span>
+      <span><strong>hipify-clang</strong> converte kernels CUDA C/C++ para HIP automaticamente.
+        Em PyTorch, muitas vezes <strong>não é preciso converter nada</strong>.</span>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Portabilidade</div>
+    <h2><span class="num">3.</span>"Zero código": o que muda?</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>O ROCm <strong>emula a API CUDA</strong> do PyTorch. O código Python é
+          <strong>idêntico</strong>:</p>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>device = "cuda" if torch.cuda.is_available() else "cpu"
+modelo.to(device)
+
+torch.cuda.is_available()  # True no ROCm também!</code></pre>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">O que realmente muda</h3>
+        <ul class="clean">
+          <li><strong>Ambiente</strong>: driver ROCm + <code>hipcc</code></li>
+          <li><strong>Monitoramento</strong>: <code>rocm-smi</code> no lugar de nvidia-smi</li>
+          <li><strong>Imagem Docker</strong>: <code>rocm/pytorch</code></li>
+          <li><strong>Hardware</strong>: GPU AMD (MI300X, RDNA3…)</li>
+        </ul>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Rode <code>scripts/diagnostico_portabilidade.py</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="slide">
+    <div class="kicker">Demo · Docker</div>
+    <h2><span class="num">4.</span>A imagem rocm/pytorch</h2>
+    <div class="grid cols-2">
+      <div>
+        <div class="code-wrap">
+          <span class="badge">terminal</span>
+          <pre><code>docker pull rocm/pytorch:rocm6.2_...
+
+docker run -it \
+  --device=/dev/kfd \
+  --device=/dev/dri \
+  --group-add=video --group-add=render \
+  --ipc=host --shm-size 8G \
+  rocm/pytorch:... bash</code></pre>
+        </div>
+        <p>Os dispositivos <code>/dev/kfd</code> e <code>/dev/dri</code> dão acesso às GPUs AMD.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Dentro do container</h3>
+        <div class="terminal">
+$ python3 -c "import torch; print(torch.cuda.is_available())"
+<span class="warn">True</span>   <span class="dim"># ROCm emula a API CUDA!</span>
+$ python3 -c "import torch; print(torch.version.hip)"
+6.2.0
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Passo a passo em <code>laboratorio_rocm-docker/README.md</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="slide">
+    <div class="kicker">Atividade · Benchmark</div>
+    <h2><span class="num">5.</span>Treinar ResNet-18 com ROCm</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>O mesmo código da Aula 11 (ainda virá) roda em CUDA e ROCm. Aqui medimos
+          <strong>throughput</strong> e <strong>matmul</strong>.</p>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>saida = modelo(imgs)
+perda = criterio(saida, labels)
+perda.backward()
+otimizador.step()</code></pre>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Referência (MI300X vs. A100)</h3>
+        <table>
+          <thead><tr><th>GPU</th><th>MM 4096×4096</th></tr></thead>
+          <tbody>
+            <tr><td>NVIDIA A100 (CUDA)</td><td class="mid">~2.8 ms</td></tr>
+            <tr><td>AMD MI300X (ROCm)</td><td class="yes">~2.1 ms</td></tr>
+            <tr><td>Linhas alteradas</td><td class="yes">0</td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Rode <code>scripts/rocm_pytorch_benchmark.py</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">6.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>Se o PyTorch roda CUDA em AMD via ROCm sem
+      modificação, por que o <strong>CUDA ainda domina</strong>? Quais barreiras restam?</p></div>
+    <div class="debate"><div class="q">2</div><p>Modelos treinados com cuDNN e migrados para
+      MIOpen dão resultados <strong>numericamente idênticos</strong>? Por quê?</p></div>
+    <div class="debate"><div class="q">3</div><p>Docker facilita o ROCm, mas adiciona overhead.
+      Quando ele seria <strong>problemático</strong> para workloads de IA?</p></div>
+    <div class="debate"><div class="q">4</div><p>H100 (US$30k) vs. MI300X (US$20k): além do
+      preço, que fatores <strong>técnicos e operacionais</strong> pesam?</p></div>
+  </section>
+
+  <!-- 09 -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>ROCm</strong> — plataforma open-source da AMD, equivalente ao CUDA</li>
+          <li><strong>HIP</strong> — portabilidade CUDA → AMD com mínimas mudanças</li>
+          <li><strong>rocBLAS / MIOpen / rocFFT</strong> — espelham cuBLAS / cuDNN / cuFFT</li>
+          <li><strong>Docker + rocm/pytorch</strong> — forma recomendada, sem conflito de driver</li>
+          <li><strong>torch.cuda.is_available()</strong> — True também no ROCm</li>
+          <li><strong>rocm-smi</strong> — monitorar GPU AMD (temp, VRAM, uso)</li>
+        </ul>
+        <p style="margin-top:12px">Recursos: notebook <code>aula10_rocm.ipynb</code> e
+          <code>scripts/</code> — todos comentados.</p>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa (opcional)</h3>
+          <p>Compare ResNet-50 em CUDA vs. ROCm e produza um relatório:</p>
+          <ul class="clean" style="margin-top:6px">
+            <li>Tempo por época, throughput, VRAM, potência (W)</li>
+            <li>Trace com <code>torch.profiler</code> nos dois ambientes</li>
+            <li>Documente o setup (CUDA vs. Docker ROCm)</li>
+            <li>Calcule o <strong>TCO</strong> para 1 ano de treino</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔧</span> Recursos de apoio</h3>
+          <p><strong>AMD ROCm Docker</strong> (imagens oficiais), <strong>ROCm
+            Documentation</strong>, <strong>PyTorch com ROCm</strong> (guia oficial) e
+            <strong>rocminfo / rocm-smi</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 09</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next; render();
+    }
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index; render();
+    }
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") { e.preventDefault(); goTo(0); }
+      else if (e.key === "End") { e.preventDefault(); goTo(slides.length - 1); }
+    });
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>
