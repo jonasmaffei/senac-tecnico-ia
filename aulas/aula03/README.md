@@ -18,29 +18,31 @@ hardware.
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula03.html`](apresentacao_aula03.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula03_memoria_gpu.ipynb`](aula03_memoria_gpu.ipynb) | Notebook do **Google Colab** (monitoramento, benchmark RAM×VRAM, global×shared) |
+| [`apresentacao_aula03.html`](apresentacao_aula03.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com hardware real** (`iniciar.bat`) |
 | [`atividade.md`](atividade.md) | Atividade guiada (monitoramento) + discussão em grupo |
-| `scripts/` | Scripts comentados que rodam no **Colab** e no **Windows com GPU AMD** |
 
-### Scripts
+### Estrutura da aula
 
-| Script | O que faz |
-| :--- | :--- |
-| [`lib_backend.py`](scripts/lib_backend.py) | Detecta o backend (CuPy → PyTorch CUDA → DirectML → NumPy) |
-| [`benchmark_ram_vram.py`](scripts/benchmark_ram_vram.py) | RAM (CPU) vs. VRAM (GPU) + custo do PCIe |
-| [`hierarquia_memoria.py`](scripts/hierarquia_memoria.py) | A pirâmide de latência medida (cache vs. RAM) |
-| [`monitor_memoria.py`](scripts/monitor_memoria.py) | Diagnóstico: `nvidia-smi` + RAM do host |
+```
+aula03/
+  apresentacao_aula03.html
+  README.md
+  notebook_colab/aula03_memoria_gpu.ipynb
+  laboratorio_windows/          # 1_benchmark_ram_vram.py, 2_hierarquia_memoria.py, 3_monitor_memoria.py, lib_backend.py
+  atividade.md
+```
 
 ---
 
 ## 🚀 Como rodar
 
-### No Google Colab (recomendado)
+### No Google Colab (notebook + 5 exercícios)
 
-1. Abra `aula03_memoria_gpu.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula03_memoria_gpu.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. *Runtime ➔ Change runtime type ➔ **T4 GPU*** ➔ *Save*.
 3. Rode as células na ordem.
@@ -48,30 +50,19 @@ hardware.
 > 💡 **Sem GPU?** O notebook detecta e entra em **modo simulado** — a aula roda do começo ao
 > fim e ainda mostra a hierarquia pela própria RAM da CPU.
 
-### No Windows do laboratório (GPU AMD)
+### No Windows do laboratório (hardware real)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual (`.venv`),
-instala as dependências de [`requirements.txt`](requirements.txt) e abre um **menu**:
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
 ```
-[1] benchmark_ram_vram.py   - RAM (CPU) vs. VRAM (GPU) + custo do PCIe
-[2] hierarquia_memoria.py   - a piramide de latencia na pratica
-[3] monitor_memoria.py      - diagnostico de memoria (nvidia-smi/RAM)
-[4] lib_backend.py          - detectar o backend de processamento
+[1] 1_benchmark_ram_vram.py  - RAM (CPU) vs. VRAM (GPU) + custo do PCIe
+[2] 2_hierarquia_memoria.py  - a piramide de latencia na pratica
+[3] 3_monitor_memoria.py     - diagnostico de memoria (nvidia-smi/RAM)
 [0] Sair
 ```
 
-Quem preferir o terminal:
-
-```bat
-cd aulas\aula03
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe scripts\benchmark_ram_vram.py
-```
-
 > O mesmo código roda nos dois ambientes: ele detecta o backend em tempo de execução.
-> Requer apenas **NumPy** (e `psutil`, opcional); PyTorch/CuPy são opcionais.
+> Detalhes em [`laboratorio_windows/README.md`](laboratorio_windows/README.md).
 
 ---
 

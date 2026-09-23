@@ -1,0 +1,6 @@
+# Dependências do laboratório Windows — Aula 03.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# numpy é obrigatório; cupy/torch são opcionais (usados só se houver GPU).
+# psutil é opcional (mostra a RAM do host no monitor).
+numpy>=1.24.0
+psutil>=5.9.0

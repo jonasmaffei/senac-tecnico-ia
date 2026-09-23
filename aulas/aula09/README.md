@@ -18,51 +18,52 @@ hardware. Você tem **2h30** para entregar um protótipo funcional com benchmark
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula09.html`](apresentacao_aula09.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula09_opencl.ipynb`](aula09_opencl.ipynb) | Notebook do **Google Colab** (dispositivos, kernel, benchmark) |
+| [`apresentacao_aula09.html`](apresentacao_aula09.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com hardware real** (OpenCL na GPU AMD) |
 | [`atividade.md`](atividade.md) | Atividade (questões conceituais + pesquisa) e discussão |
-| `scripts/` | Scripts comentados (descoberta, kernel, benchmark) |
 | [`tutorials/`](tutorials) | Tutoriais bônus: rodar **LLMs locais** com Ollama e Open WebUI |
 
-### Scripts
+### Estrutura da aula
 
-| Script | O que faz |
-| :--- | :--- |
-| [`lib_opencl.py`](scripts/lib_opencl.py) | Detecta o PyOpenCL; permite rodar com fallback sem OpenCL |
-| [`listar_dispositivos.py`](scripts/listar_dispositivos.py) | Lista plataformas e dispositivos (compute units, VRAM) |
-| [`primeiro_kernel.py`](scripts/primeiro_kernel.py) | Primeiro kernel OpenCL (soma de vetores) |
-| [`benchmark_work_groups.py`](scripts/benchmark_work_groups.py) | CPU vs. OpenCL + escolha do work-group |
+```
+aula09/
+  apresentacao_aula09.html
+  README.md
+  notebook_colab/aula09_opencl.ipynb
+  laboratorio_windows/          # 1_listar_dispositivos.py, 2_primeiro_kernel.py, 3_benchmark_work_groups.py, lib_opencl.py
+  tutorials/                    # hands-on-ollama.md, hands-on-frontend-ollama.md
+  atividade.md
+```
 
 ---
 
 ## 🚀 Como rodar
 
-### No Google Colab (recomendado)
+### No Google Colab (notebook + 5 exercícios)
 
-1. Abra `aula09_opencl.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula09_opencl.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. Rode as células na ordem (a primeira instala o `pyopencl`).
 
 > 💡 **Sem GPU?** O PyOpenCL costuma ter **fallback de CPU** — o kernel roda do mesmo jeito.
 > Sem OpenCL, o notebook explica o conceito e mostra números de referência.
 
-### No Windows do laboratório
+### No Windows do laboratório (GPU AMD real)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual (`.venv`),
-instala as dependências de [`requirements.txt`](requirements.txt) e abre um **menu**:
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
 ```
-[1] listar_dispositivos.py    - plataformas e dispositivos OpenCL
-[2] primeiro_kernel.py        - primeiro kernel OpenCL (soma de vetores)
-[3] benchmark_work_groups.py  - CPU vs. OpenCL e escolha do work-group
-[4] lib_opencl.py             - detectar se ha OpenCL disponivel
+[1] 1_listar_dispositivos.py    - plataformas e dispositivos OpenCL
+[2] 2_primeiro_kernel.py        - primeiro kernel OpenCL (soma de vetores)
+[3] 3_benchmark_work_groups.py  - CPU vs. OpenCL e escolha do work-group
 [0] Sair
 ```
 
 > No laboratório (**GPU AMD**), o driver expõe OpenCL 2.1 — os kernels rodam de verdade.
-> Se não houver PyOpenCL, os scripts mostram o conceito e a referência.
+> Detalhes em [`laboratorio_windows/README.md`](laboratorio_windows/README.md).
 
 ---
 

@@ -9,7 +9,7 @@
 services:
   rocm-benchmark:
     build:
-      # O contexto é a raiz da aula10, para copiar scripts/ no Dockerfile.
+      # O contexto é a raiz da aula10, para copiar laboratorio_windows/ no Dockerfile.
       context: ..
       dockerfile: laboratorio_rocm-docker/Dockerfile
     image: senac-rocm-benchmark:latest

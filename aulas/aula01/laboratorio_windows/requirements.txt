@@ -1,0 +1,5 @@
+# Dependências do laboratório Windows — Aula 01.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# numpy é obrigatório (benchmark); psutil e cupy são opcionais.
+numpy>=1.24.0
+psutil>=5.9.0

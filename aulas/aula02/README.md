@@ -17,29 +17,33 @@ precisa identificar objetos **em tempo real** numa câmera industrial. Antes de 
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula02.html`](apresentacao_aula02.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula02_modelos_processamento.ipynb`](aula02_modelos_processamento.ipynb) | Notebook do **Google Colab** (SIMD, RISC/CISC e estudo de imagem) |
+| [`apresentacao_aula02.html`](apresentacao_aula02.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com hardware real** (`iniciar.bat`) |
 | [`atividade.md`](atividade.md) | Atividade guiada (QEMU/emulação) + discussão em grupo |
-| `scripts/` | Scripts comentados que rodam no **Colab** e no **Windows com GPU AMD** |
+| `scripts/lib_backend.py` | Biblioteca **compartilhada** (detecção de backend) usada pelo notebook e pelo lab |
 
-### Scripts
+### Estrutura da aula
 
-| Script | O que faz |
-| :--- | :--- |
-| [`lib_backend.py`](scripts/lib_backend.py) | Detecta o backend (CuPy → PyTorch CUDA → DirectML → NumPy) |
-| [`benchmark_simd.py`](scripts/benchmark_simd.py) | Sequencial vs. SIMD (NumPy) + GPU, se houver |
-| [`estudo_imagem.py`](scripts/estudo_imagem.py) | Imagem 1080p: loop por pixel vs. vetorizado (SIMD + MIMD) |
-| [`arquitetura_instrucoes.py`](scripts/arquitetura_instrucoes.py) | Identifica RISC/CISC e lista os recursos SIMD da CPU |
+```
+aula02/
+  apresentacao_aula02.html
+  README.md
+  notebook_colab/aula02_modelos_processamento.ipynb
+  laboratorio_windows/          # 1_benchmark_simd.py, 2_estudo_imagem.py, 3_arquitetura_instrucoes.py
+  scripts/lib_backend.py        # compartilhado (notebook + lab)
+  atividade.md
+```
 
 ---
 
 ## 🚀 Como rodar
 
-### No Google Colab (recomendado)
+### No Google Colab (notebook + 5 exercícios)
 
-1. Abra `aula02_modelos_processamento.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula02_modelos_processamento.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. *Runtime ➔ Change runtime type ➔ **T4 GPU*** ➔ *Save*.
 3. Rode as células na ordem.
@@ -47,28 +51,18 @@ precisa identificar objetos **em tempo real** numa câmera industrial. Antes de 
 > 💡 **Sem GPU?** O notebook detecta e cai para **NumPy (SIMD na CPU)** — a comparação
 > sequencial vs. vetorizado funciona igual.
 
-### No Windows do laboratório (GPU AMD)
+### No Windows do laboratório (hardware real)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual
-(`.venv`), instala as dependências de [`requirements.txt`](requirements.txt) e abre um
-**menu** com os scripts disponíveis:
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
 ```
-[1] benchmark_simd.py          - sequencial vs. SIMD (NumPy/GPU)
-[2] estudo_imagem.py           - imagem 1080p: loop vs. vetorizado
-[3] arquitetura_instrucoes.py  - RISC/CISC + recursos SIMD da CPU
-[4] lib_backend.py             - detectar o backend de processamento
+[1] 1_benchmark_simd.py        - sequencial vs. SIMD (NumPy/GPU)
+[2] 2_estudo_imagem.py         - imagem 1080p: loop vs. vetorizado
+[3] 3_arquitetura_instrucoes.py - RISC/CISC + recursos SIMD da CPU
 [0] Sair
 ```
 
-Quem preferir o terminal:
-
-```bat
-cd aulas\aula02
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe scripts\benchmark_simd.py
-```
+> Detalhes em [`laboratorio_windows/README.md`](laboratorio_windows/README.md).
 
 > O mesmo código roda nos dois ambientes: ele detecta o backend em tempo de execução.
 > Requer apenas **NumPy**; CuPy/PyTorch são opcionais.

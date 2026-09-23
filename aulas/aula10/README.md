@@ -18,45 +18,50 @@ e rodar o modelo **ResNet-18** para comparar desempenho.
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula10.html`](apresentacao_aula10.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula10_rocm.ipynb`](aula10_rocm.ipynb) | Notebook do **Google Colab** (diagnóstico, matmul, treino) |
-| [`atividade.md`](atividade.md) | Atividade (questões conceituais + pesquisa) e discussão |
-| `scripts/` | Scripts comentados (diagnóstico, benchmark portável) |
-| [`laboratorio_rocm-docker/`](laboratorio_rocm-docker/README.md) | **Lab principal:** ROCm + PyTorch via Docker (GPUs AMD) |
+| [`apresentacao_aula10.html`](apresentacao_aula10.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com PyTorch** (portabilidade CUDA/ROCm) |
+| [`laboratorio_rocm-docker/`](laboratorio_rocm-docker/README.md) | **Lab industrial:** ROCm + PyTorch via Docker (GPUs AMD) |
 | [`laboratorio_verificar-gpu/`](laboratorio_verificar-gpu/README.md) | Verificar acesso à GPU no container (Windows/AMD) |
 | [`laboratorio_stressar-gpu/`](laboratorio_stressar-gpu/README.md) | Estressar a GPU via Vulkan/D3D12 (Windows/AMD) |
+| [`atividade.md`](atividade.md) | Atividade (questões conceituais + pesquisa) e discussão |
 
-### Scripts
+### Estrutura da aula
 
-| Script | O que faz |
-| :--- | :--- |
-| [`lib_rocm.py`](scripts/lib_rocm.py) | Detecta o backend (CUDA, ROCm/HIP ou CPU) com fallback seguro |
-| [`rocm_pytorch_benchmark.py`](scripts/rocm_pytorch_benchmark.py) | Diagnóstico + matmul + treino (ResNet-18/CNN) |
-| [`diagnostico_portabilidade.py`](scripts/diagnostico_portabilidade.py) | Tabela de equivalência CUDA × ROCm e detecção de ferramentas |
+```
+aula10/
+  apresentacao_aula10.html
+  README.md
+  notebook_colab/aula10_rocm.ipynb
+  laboratorio_windows/          # 1_rocm_pytorch_benchmark.py, 2_diagnostico_portabilidade.py, lib_rocm.py
+  laboratorio_rocm-docker/      # lab industrial (rocm/pytorch)
+  laboratorio_verificar-gpu/    # verifica acesso à GPU
+  laboratorio_stressar-gpu/     # estressa a GPU (Vulkan)
+  atividade.md
+```
 
 ---
 
 ## 🚀 Como rodar
 
-### No Google Colab (recomendado para o notebook)
+### No Google Colab (notebook + 5 exercícios)
 
-1. Abra `aula10_rocm.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula10_rocm.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. Rode as células na ordem. O notebook detecta CUDA (Colab) ou CPU.
 
 > 💡 **Sem GPU?** O código roda na CPU e mostra a referência — é o **mesmo** que rodaria em
 > NVIDIA (CUDA) ou AMD (ROCm).
 
-### No Windows do laboratório
+### No Windows do laboratório (PyTorch portável)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat):
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
 ```
-[1] rocm_pytorch_benchmark.py     - diagnostico + matmul + treino (portatil)
-[2] diagnostico_portabilidade.py  - equivalencia CUDA x ROCm
-[3] lib_rocm.py                   - detectar o backend (CUDA/ROCm/CPU)
+[1] 1_rocm_pytorch_benchmark.py     - diagnostico + matmul + treino (portatil)
+[2] 2_diagnostico_portabilidade.py  - equivalencia CUDA x ROCm
 [0] Sair
 ```
 

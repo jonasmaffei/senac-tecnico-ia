@@ -17,29 +17,31 @@ problemas como **condições de corrida**, **deadlocks** e **subutilização de 
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula04.html`](apresentacao_aula04.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula04_processos_threads.ipynb`](aula04_processos_threads.ipynb) | Notebook do **Google Colab** (CPU-bound, I/O-bound, kernels CUDA) |
+| [`apresentacao_aula04.html`](apresentacao_aula04.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com hardware real** (`iniciar.bat`) |
 | [`atividade.md`](atividade.md) | Atividade guiada (medir paralelismo) + discussão em grupo |
-| `scripts/` | Scripts comentados que rodam no **Colab** e no **Windows** |
 
-### Scripts
+### Estrutura da aula
 
-| Script | O que faz |
-| :--- | :--- |
-| [`processos_threads.py`](scripts/processos_threads.py) | Sequencial vs. threading vs. multiprocessing (CPU-bound) |
-| [`io_bound.py`](scripts/io_bound.py) | Threading num cenário I/O-bound (onde ele ajuda) |
-| [`kernels_cuda.py`](scripts/kernels_cuda.py) | Blocos/threads na GPU + grid 2D (conceito sem GPU) |
-| [`monitor_processos.py`](scripts/monitor_processos.py) | Processos/threads como o htop, em Python |
+```
+aula04/
+  apresentacao_aula04.html
+  README.md
+  notebook_colab/aula04_processos_threads.ipynb
+  laboratorio_windows/          # 1_processos_threads.py, 2_io_bound.py, 3_kernels_cuda.py, 4_monitor_processos.py
+  atividade.md
+```
 
 ---
 
 ## 🚀 Como rodar
 
-### No Google Colab (recomendado)
+### No Google Colab (notebook + 5 exercícios)
 
-1. Abra `aula04_processos_threads.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula04_processos_threads.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. *Runtime ➔ Change runtime type ➔ **T4 GPU*** ➔ *Save* (para a parte de CUDA).
 3. Rode as células na ordem.
@@ -47,30 +49,21 @@ problemas como **condições de corrida**, **deadlocks** e **subutilização de 
 > 💡 **Sem GPU?** O notebook detecta e mostra os números de referência para warps/blocos —
 > as partes de CPU (threading/multiprocessing) rodam normalmente.
 
-### No Windows do laboratório
+### No Windows do laboratório (hardware real)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual (`.venv`),
-instala as dependências de [`requirements.txt`](requirements.txt) e abre um **menu**:
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
 ```
-[1] processos_threads.py  - sequencial vs. threading vs. multiprocessing
-[2] io_bound.py           - quando threading ajuda (I/O)
-[3] kernels_cuda.py       - blocos e threads na GPU (conceito sem GPU)
-[4] monitor_processos.py  - processos/threads como o htop
+[1] 1_processos_threads.py  - sequencial vs. threading vs. multiprocessing
+[2] 2_io_bound.py           - quando threading ajuda (I/O)
+[3] 3_kernels_cuda.py       - blocos e threads na GPU (conceito sem GPU)
+[4] 4_monitor_processos.py  - processos/threads como o htop
 [0] Sair
 ```
 
-Quem preferir o terminal:
-
-```bat
-cd aulas\aula04
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe scripts\processos_threads.py
-```
-
 > Os scripts de CPU usam apenas a biblioteca padrão. `psutil` (opcional) mostra CPU e
-> processos; `numba` (opcional) é usado só no exercício de kernels CUDA.
+> processos; `numba` (opcional) é usado só no exercício de kernels CUDA. Detalhes em
+> [`laboratorio_windows/README.md`](laboratorio_windows/README.md).
 
 ---
 

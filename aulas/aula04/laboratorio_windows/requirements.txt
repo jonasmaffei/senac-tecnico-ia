@@ -1,0 +1,5 @@
+# Dependências do laboratório Windows — Aula 04.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# threading/multiprocessing são da biblioteca padrão.
+# psutil é opcional (mostra CPU/processos no monitor). numba é opcional (kernels CUDA).
+psutil>=5.9.0

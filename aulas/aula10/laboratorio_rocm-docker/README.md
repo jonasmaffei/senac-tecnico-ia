@@ -37,7 +37,7 @@ docker run --rm -it \
   --group-add=video \
   --group-add=render \
   --ipc=host --shm-size 8G \
-  -v "$(pwd)/../scripts":/workspace \
+  -v "$(pwd)/../laboratorio_windows":/workspace \
   rocm/pytorch:rocm6.2_ubuntu22.04_py3.10_pytorch_release_2.3.0 \
   python3 /workspace/rocm_pytorch_benchmark.py
 ```
@@ -64,7 +64,7 @@ watch -n 1 rocm-smi --showuse --showmeminfo vram --showtemp --showpower
 | :--- | :--- |
 | `Dockerfile` | Parte da imagem `rocm/pytorch` e copia o benchmark para `/workspace`. |
 | `docker-compose.yml` | Descreve o serviço com os dispositivos `/dev/kfd` e `/dev/dri`. |
-| `../scripts/rocm_pytorch_benchmark.py` | Script executado (diagnóstico + matmul + treino). |
+| `../laboratorio_windows/1_rocm_pytorch_benchmark.py` | Script executado (diagnóstico + matmul + treino). |
 
 ---
 

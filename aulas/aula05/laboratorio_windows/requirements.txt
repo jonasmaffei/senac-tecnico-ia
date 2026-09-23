@@ -1,0 +1,4 @@
+# Dependências do laboratório Windows — Aula 05.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# Os scripts usam apenas a biblioteca padrão (socket, threading, json).
+# A lista fica vazia de propósito — nada extra para instalar.

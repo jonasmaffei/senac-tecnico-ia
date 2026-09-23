@@ -18,20 +18,31 @@ o computador funciona por dentro e por que as GPUs são tão eficazes em IA.
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula01.html`](apresentacao_aula01.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula01_arquiteturas_cpu_gpu.ipynb`](aula01_arquiteturas_cpu_gpu.ipynb) | Notebook do **Google Colab** (teoria + `nvidia-smi` + benchmark) |
+| [`apresentacao_aula01.html`](apresentacao_aula01.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com hardware real** (`iniciar.bat`) |
 | [`atividade.md`](atividade.md) | Atividade de pesquisa e discussão em grupo |
-| [`scripts/arquitetura_cpu_gpu.py`](scripts/arquitetura_cpu_gpu.py) | Benchmark CPU (sequencial) vs. NumPy (vetorizado), comentado |
+
+### Estrutura da aula
+
+```
+aula01/
+  apresentacao_aula01.html
+  README.md
+  notebook_colab/aula01_arquiteturas_cpu_gpu.ipynb
+  laboratorio_windows/          # 1_hardware.py, 2_benchmark.py, lib_hw.py
+  atividade.md
+```
 
 ---
 
-## 🚀 Como rodar no Google Colab
+## 🚀 Como rodar no Google Colab (notebook + 5 exercícios)
 
 1. Acesse o [Google Colab](https://colab.research.google.com/) e faça login.
 2. Aba **GitHub** → cole `https://github.com/jonasmaffei/senac-tecnico-ia` → abra
-   `aulas/aula01/aula01_arquiteturas_cpu_gpu.ipynb`.
+   `aulas/aula01/notebook_colab/aula01_arquiteturas_cpu_gpu.ipynb`.
 3. **Ative a GPU:** *Runtime ➔ Change runtime type ➔ **T4 GPU*** ➔ *Save*.
 4. Rode as células na ordem. A primeira detecta a GPU:
 
@@ -44,20 +55,23 @@ o computador funciona por dentro e por que as GPUs são tão eficazes em IA.
 
 ---
 
-## 🖥️ Como rodar no laboratório (Windows)
+## 🖥️ Como rodar no laboratório (Windows, hardware real)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual
-(`.venv`), instala as dependências de [`requirements.txt`](requirements.txt) e abre um
-**menu** para rodar os scripts — sem precisar configurar nada na mão.
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
-Quem preferir o terminal:
+```
+[1] 1_hardware.py   - descobrir CPU, RAM e GPU desta maquina
+[2] 2_benchmark.py  - sequencial vs. vetorizado (medido aqui)
+```
+
+Ou pelo terminal (dentro de `laboratorio_windows/`):
 
 ```bat
-cd aulas\aula01
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe scripts\arquitetura_cpu_gpu.py
+python 1_hardware.py
+python 2_benchmark.py
 ```
+
+> Detalhes em [`laboratorio_windows/README.md`](laboratorio_windows/README.md).
 
 ---
 

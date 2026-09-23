@@ -17,29 +17,31 @@ Sem esse conhecimento, o treinamento distribuído simplesmente não funciona.
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula05.html`](apresentacao_aula05.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula05_redes.ipynb`](aula05_redes.ipynb) | Notebook do **Google Colab** (TCP/UDP, telemetria, IPv4/IPv6) |
+| [`apresentacao_aula05.html`](apresentacao_aula05.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com rede real** (`iniciar.bat`) |
 | [`atividade.md`](atividade.md) | Atividade guiada (netcat/Wireshark, SSH/scp/rsync) + discussão |
-| `scripts/` | Scripts comentados + referência de comandos de rede |
 
-### Scripts
+### Estrutura da aula
 
-| Script | O que faz |
-| :--- | :--- |
-| [`demo_tcp_udp.py`](scripts/demo_tcp_udp.py) | TCP vs. UDP no loopback (confiabilidade × velocidade) |
-| [`telemetria_tcp.py`](scripts/telemetria_tcp.py) | Servidor TCP que recebe métricas de GPU (JSON) |
-| [`ipv4_ipv6.py`](scripts/ipv4_ipv6.py) | IPv4 vs. IPv6: famílias de socket e resolução de nomes |
-| [`comandos_rede.sh`](scripts/comandos_rede.sh) | **Referência** comentada: `ip`, `ss`, `netcat`, `ssh`, `rsync`, netplan, ufw |
+```
+aula05/
+  apresentacao_aula05.html
+  README.md
+  notebook_colab/aula05_redes.ipynb
+  laboratorio_windows/          # 1_demo_tcp_udp.py, 2_telemetria_tcp.py, 3_ipv4_ipv6.py, comandos_rede.sh
+  atividade.md
+```
 
 ---
 
 ## 🚀 Como rodar
 
-### No Google Colab (recomendado)
+### No Google Colab (notebook + 5 exercícios)
 
-1. Abra `aula05_redes.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula05_redes.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. Rode as células na ordem. Tudo funciona **offline** no loopback.
 
@@ -47,28 +49,20 @@ Sem esse conhecimento, o treinamento distribuído simplesmente não funciona.
 > **Google Cloud Shell** (o Wireshark não roda no Windows com capture de loopback fácil, mas
 > dá para instalá-lo para estudo).
 
-### No Windows do laboratório
+### No Windows do laboratório (rede real)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual (`.venv`),
-instala as dependências de [`requirements.txt`](requirements.txt) e abre um **menu**:
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
 ```
-[1] demo_tcp_udp.py     - TCP vs. UDP (confiabilidade x velocidade)
-[2] telemetria_tcp.py   - servidor TCP que recebe metricas de GPU
-[3] ipv4_ipv6.py        - IPv4 vs. IPv6 na pratica
+[1] 1_demo_tcp_udp.py    - TCP vs. UDP (confiabilidade x velocidade)
+[2] 2_telemetria_tcp.py  - servidor TCP que recebe metricas de GPU
+[3] 3_ipv4_ipv6.py       - IPv4 vs. IPv6 na pratica
+[4] comandos_rede.sh     - referencia de comandos (Git Bash)
 [0] Sair
 ```
 
-Quem preferir o terminal:
-
-```bat
-cd aulas\aula05
-python -m venv .venv
-.venv\Scripts\python.exe scripts\demo_tcp_udp.py
-```
-
 > Os scripts usam apenas a **biblioteca padrão** (`socket`, `threading`, `json`) — nada extra
-> para instalar.
+> para instalar. Detalhes em [`laboratorio_windows/README.md`](laboratorio_windows/README.md).
 
 ---
 

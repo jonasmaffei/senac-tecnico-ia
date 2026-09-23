@@ -18,14 +18,29 @@ acessos à VRAM e atingir o desempenho esperado.
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula08.html`](apresentacao_aula08.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula08_tiling.ipynb`](aula08_tiling.ipynb) | Notebook do **Google Colab** (coalescing, global × tiling, profiling) |
+| [`apresentacao_aula08.html`](apresentacao_aula08.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
 | [`atividade.md`](atividade.md) | Atividade de pesquisa (engenharia + negócios) e discussão |
-| `scripts/` | Scripts comentados (coalescing, matmul, profiling, estresse) |
+| `scripts/` | Scripts comentados (coalescing, matmul, profiling, estresse) — **referência** |
 
-### Scripts
+> ℹ️ **Esta aula não tem `laboratorio_windows/`**: o laboratório não possui GPU **NVIDIA**, então
+> não há hardware real de CUDA para experimentar. O notebook (Colab) + `scripts/` cobrem o
+> conteúdo, com **modo de referência** quando não há GPU.
+
+### Estrutura da aula
+
+```
+aula08/
+  apresentacao_aula08.html
+  README.md
+  notebook_colab/aula08_tiling.ipynb
+  scripts/                      # lib_cuda.py, coalescing.py, matmul_global.py, matmul_tiling.py, profiling_ocupacao.py, stress_nvtop.py
+  atividade.md
+```
+
+### `scripts/` (referência)
 
 | Script | O que faz |
 | :--- | :--- |
@@ -42,26 +57,19 @@ acessos à VRAM e atingir o desempenho esperado.
 
 ### No Google Colab (recomendado — **exige GPU NVIDIA**)
 
-1. Abra `aula08_tiling.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula08_tiling.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. *Runtime ➔ Change runtime type ➔ **T4 GPU*** ➔ *Save*.
 3. Rode as células na ordem.
 
 > ⚠️ **Sem GPU NVIDIA?** O notebook detecta e mostra o conceito e os números de referência.
 
-### No Windows do laboratório
+### Scripts de referência (terminal)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual (`.venv`),
-instala as dependências de [`requirements.txt`](requirements.txt) e abre um **menu**:
-
-```
-[1] coalescing.py         - acessos coalescidos vs. nao-coalescidos
-[2] matmul_global.py      - matmul ingenua (memoria global)
-[3] matmul_tiling.py      - matmul com tiling (memoria compartilhada)
-[4] profiling_ocupacao.py - medir kernel + metricas do Nsight
-[5] stress_nvtop.py       - teste de estresse da GPU
-[6] lib_cuda.py           - detectar se ha CUDA disponivel
-[0] Sair
+```bat
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe scripts\matmul_tiling.py
 ```
 
 > Na máquina do laboratório (**GPU AMD**), o CUDA não está disponível: os scripts mostram o

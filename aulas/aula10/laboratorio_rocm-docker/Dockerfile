@@ -8,8 +8,9 @@ WORKDIR /workspace
 
 # Copia o benchmark a partir do contexto de build (a raiz da aula10).
 # Veja o docker-compose.yml: o contexto é ".." (pasta aulas/aula10).
-COPY scripts/rocm_pytorch_benchmark.py ./rocm_pytorch_benchmark.py
-COPY scripts/lib_rocm.py ./lib_rocm.py
+# Os scripts ficam em laboratorio_windows/ (compartilhados com o lab local).
+COPY laboratorio_windows/1_rocm_pytorch_benchmark.py ./rocm_pytorch_benchmark.py
+COPY laboratorio_windows/lib_rocm.py ./lib_rocm.py
 
 # Comando padrão: roda o diagnóstico + benchmark
 CMD ["python3", "rocm_pytorch_benchmark.py"]

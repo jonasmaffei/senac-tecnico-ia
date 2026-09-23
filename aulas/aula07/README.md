@@ -18,14 +18,29 @@ alcançar latência abaixo de **100 ms**.
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula07.html`](apresentacao_aula07.html) | Slides teóricos (abra no navegador, navegue com ← →) |
-| [`aula07_cuda.ipynb`](aula07_cuda.ipynb) | Notebook do **Google Colab** (índice global, primeiros kernels, FFT) |
+| [`apresentacao_aula07.html`](apresentacao_aula07.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
 | [`atividade.md`](atividade.md) | Atividade guiada (kernels) + discussão em grupo |
-| `scripts/` | Scripts comentados (detecção de CUDA, kernels, FFT) |
+| `scripts/` | Scripts comentados (detecção de CUDA, kernels, FFT) — **referência** (não exigem GPU para explicar) |
 
-### Scripts
+> ℹ️ **Esta aula não tem `laboratorio_windows/`**: o laboratório não possui GPU **NVIDIA**, então
+> não há hardware real de CUDA para experimentar. O notebook (Colab) + `scripts/` cobrem o
+> conteúdo, com **modo de referência** quando não há GPU.
+
+### Estrutura da aula
+
+```
+aula07/
+  apresentacao_aula07.html
+  README.md
+  notebook_colab/aula07_cuda.ipynb
+  scripts/                      # lib_cuda.py, indice_global.py, primeiro_kernel.py, fft_benchmark.py
+  atividade.md
+```
+
+### `scripts/` (referência)
 
 | Script | O que faz |
 | :--- | :--- |
@@ -40,7 +55,7 @@ alcançar latência abaixo de **100 ms**.
 
 ### No Google Colab (recomendado — **exige GPU NVIDIA**)
 
-1. Abra `aula07_cuda.ipynb` pelo **GitHub** no Colab
+1. Abra `notebook_colab/aula07_cuda.ipynb` pelo **GitHub** no Colab
    (`https://github.com/jonasmaffei/senac-tecnico-ia`).
 2. *Runtime ➔ Change runtime type ➔ **T4 GPU*** ➔ *Save*.
 3. Rode as células na ordem.
@@ -48,17 +63,12 @@ alcançar latência abaixo de **100 ms**.
 > ⚠️ **Sem GPU NVIDIA?** O notebook detecta e mostra o conceito e os números de referência —
 > a aula roda do começo ao fim. Para medir de verdade, é preciso uma GPU NVIDIA (CUDA).
 
-### No Windows do laboratório
+### Scripts de referência (terminal)
 
-Dê **duplo clique** em [`iniciar.bat`](iniciar.bat). Ele cria o ambiente virtual (`.venv`),
-instala as dependências de [`requirements.txt`](requirements.txt) e abre um **menu**:
-
-```
-[1] indice_global.py    - hierarquia CUDA e o indice global
-[2] primeiro_kernel.py  - fluxo host -> device -> host
-[3] fft_benchmark.py    - FFT: CPU (NumPy) vs. GPU (CuPy)
-[4] lib_cuda.py         - detectar se ha CUDA disponivel
-[0] Sair
+```bat
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe scripts\indice_global.py
 ```
 
 > Na máquina do laboratório (**GPU AMD**), o CUDA não está disponível: os scripts mostram o
