@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 16 — Agentes de Código, Harness, RAG e Skills (Antigravity CLI)</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .big { font-size: 1.75rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+  }
+  pre code {
+    background: none; border: none; padding: 0; color: #dbe1ff;
+    font-size: .8rem; line-height: 1.55; white-space: pre; display: block;
+  }
+  pre.scroll { max-height: 340px; overflow-y: auto; }
+
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge {
+    position: absolute; top: 8px; left: 10px; font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
+    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .code-wrap pre { padding-top: 30px; }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  .terminal {
+    background: #05070f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto;
+  }
+  .terminal .bad { color: #ff8080; }
+  .terminal .warn { color: #ffd27a; }
+  .terminal .dim { color: #5c6a97; }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide .big-badge { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 18px; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 3 · Automação</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 16 · Prática</div>
+    <h1>Agentes de Código: Harness, RAG, Skills e Vibe Coding</h1>
+    <p class="lead">Como as ferramentas <strong>“agent-first”</strong> (Antigravity CLI, opencode,
+      Claude Code) funcionam por dentro — e como usá-las com critério no dia a dia do
+      desenvolvimento.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Ferramenta</div><div class="v">Google Antigravity CLI (<code>agy</code>)</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
+        <p>A startup precisa acelerar o time de desenvolvimento. Você vai usar um <strong>agente de
+          código no terminal</strong> para criar algo real — e precisa entender <strong>o que ele
+          é</strong>, <strong>o que ele sabe</strong> e <strong>o que ele pode fazer</strong>.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🧭</span> O que vamos entender</h3>
+        <p><strong>Harness</strong>, <strong>agente</strong>, <strong>skills</strong>,
+          <strong>RAG</strong> e <strong>vibe coding</strong> — com <strong>prática na CLI</strong>
+          <code>agy</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Roteiro -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> reconhecer os componentes de um <strong>agente de código</strong>
+      (harness, contexto, skills, RAG) e aplicar a <strong>Antigravity CLI</strong> numa prática,
+      com postura crítica sobre <strong>vibe coding</strong>.</p>
+    <div class="note">
+      <span class="ico">📌</span>
+      <span>Esta aula <strong>não</strong> ensina a programar código do zero: o foco é
+        <strong>operar e entender</strong> um agente que escreve código. O agente é a ferramenta;
+        o <strong>raciocínio do engenheiro</strong> continua sendo seu.</span>
+    </div>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: a era “agent-first”</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: Harness</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: Agente, tools e loop</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: Skills e RAG</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Prática: Antigravity CLI (<code>agy</code>)</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Vibe coding: riscos e limites</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão e síntese</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Harness · loop agêntico · tools · contexto · <em>context window</em> · skills ·
+            RAG · <em>grounding</em> · vibe coding · verificação</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Material da aula</h3>
+          <p>Apresentação + roteiro prático da CLI em <code>aula16/</code>. O agente escreve o
+            código; você revisa.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Era agent-first -->
+  <section class="slide">
+    <div class="kicker">Contexto</div>
+    <h2><span class="num">1.</span>A era “agent-first”</h2>
+    <p>Ferramentas de linha de comando com <strong>agentes de IA</strong> mudaram o jeito de
+      programar. Elas rodam no terminal onde o desenvolvedor já trabalha.</p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">🅰️</span> Antigravity</h3>
+        <p>Google. CLI <code>agy</code>, IDE e SDK — todos sobre o mesmo <em>harness</em>.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🟢</span> opencode</h3>
+        <p>Agente de código <em>open source</em> no terminal; mesmo padrão de interação.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🟠</span> Claude Code</h3>
+        <p>Anthropic. Agente no terminal com foco em edição de código.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">🧩</span>
+      <span>Todos compartilham a mesma ideia: um <strong>agente</strong> que lê o projeto,
+        <strong>planeja</strong>, usa <strong>ferramentas</strong> (ler/escrever arquivos, rodar
+        comandos) e <strong>verifica</strong> o resultado.</span>
+    </div>
+  </section>
+
+  <!-- 04 — Harness -->
+  <section class="slide">
+    <div class="kicker">Teoria · Harness</div>
+    <h2><span class="num">2.</span>O que é um <em>harness</em>?</h2>
+    <p>O <strong>harness</strong> é a “armação” que transforma um modelo de linguagem em um
+      agente que age no mundo: ele gerencia o <strong>loop</strong>, as <strong>ferramentas</strong>,
+      o <strong>contexto</strong> e as <strong>permissões</strong>.</p>
+    <div class="grid cols-2">
+      <div>
+        <div class="pipeline" style="flex-direction:column; gap:8px">
+          <div class="pipe-step" style="text-align:left"><span class="step-title">🧠 Modelo (LLM)</span><span class="step-sub">raciocina e decide o próximo passo</span></div>
+          <div class="pipe-step" style="text-align:left"><span class="step-title">🔁 Loop agêntico</span><span class="step-sub">pensar → agir → observar → repetir</span></div>
+          <div class="pipe-step" style="text-align:left"><span class="step-title">🧰 Ferramentas (tools)</span><span class="step-sub">ler/escrever arquivos, rodar comandos, buscar na web</span></div>
+          <div class="pipe-step" style="text-align:left"><span class="step-title">📦 Contexto</span><span class="step-sub">o que o agente “vê” a cada passo</span></div>
+          <div class="pipe-step" style="text-align:left"><span class="step-title">🔒 Permissões</span><span class="step-sub">o que ele pode fazer sem pedir aprovação</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="note">
+          <span class="ico">🔧</span>
+          <span><strong>Analogia:</strong> o modelo é o <em>motor</em>; o harness é o
+            <em>chassi</em> com volante, freio e air-bag. Sem harness, o modelo “fala”; com
+            harness, ele <strong>dirige</strong>.</span>
+        </div>
+        <div class="note">
+          <span class="ico">🍎</span>
+          <span><strong>Caso real:</strong> Google chama de “shared agent harness” o núcleo que a
+            CLI e a IDE da Antigravity compartilham — mesma capacidade, superfícies diferentes.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — Agente + loop -->
+  <section class="slide">
+    <div class="kicker">Teoria · Agente</div>
+    <h2><span class="num">3.</span>O agente e o loop agêntico</h2>
+    <p>Um <strong>agente</strong> não responde uma pergunta: ele <strong>persegue um objetivo</strong>
+      em vários passos, decidindo quando usar cada ferramenta.</p>
+    <div class="pipeline" style="margin:14px 0">
+      <div class="pipe-step"><span class="step-ico">👁️</span><span class="step-title">Observar</span><span class="step-sub">ler o projeto e o pedido</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">🗺️</span><span class="step-title">Planejar</span><span class="step-sub">listar arquivos e passos</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">⚙️</span><span class="step-title">Agir</span><span class="step-sub">editar, rodar, testar</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">✅</span><span class="step-title">Verificar</span><span class="step-sub">rodar testes e corrigir</span></div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧰</span> Ferramentas típicas</h3>
+        <p>Ler/editar arquivos, executar comandos no terminal, buscar no código, consultar a web,
+          e — nas CLI modernas — <strong>subagentes</strong> em paralelo.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">📏</span> Limite de contexto</h3>
+        <p>A “janela” do agente é finita. Contexto demais vira ruído; de menos, ele chuta. Por
+          isso existem <strong>skills</strong> e <strong>RAG</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 — Skills -->
+  <section class="slide">
+    <div class="kicker">Teoria · Skills</div>
+    <h2><span class="num">4.</span>Skills: conhecimento empacotado</h2>
+    <p>Uma <strong>skill</strong> é uma <strong>pasta com instruções</strong> que ensina o agente
+      a fazer uma tarefa <em>do seu jeito</em> — um padrão reutilizável.</p>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">Como funciona</h3>
+        <ul class="clean">
+          <li><strong>Descoberta:</strong> o agente vê a lista de skills disponíveis</li>
+          <li><strong>Ativação:</strong> se for relevante, ele lê as instruções completas</li>
+          <li><strong>Execução:</strong> segue o passo a passo da skill</li>
+        </ul>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Cada skill vive em <code>.agents/skills/&lt;nome&gt;/SKILL.md</code>
+            (convenção aberta, usada pela Antigravity).</span>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Estrutura de uma skill</h3>
+        <div class="terminal">
+my-skill/
+├── SKILL.md   <span class="dim"># instruções + descrição</span>
+├── scripts/   <span class="dim"># opcional</span>
+├── examples/  <span class="dim"># opcional</span>
+└── resources/ <span class="dim"># opcional</span>
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">💡</span>
+          <span>Boas skills fazem <strong>uma coisa bem</strong> e têm descrição clara — é a
+            descrição que o agente lê para decidir usá-la.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 — RAG -->
+  <section class="slide">
+    <div class="kicker">Teoria · RAG</div>
+    <h2><span class="num">5.</span>RAG: dar conhecimento ao agente</h2>
+    <p><strong>RAG</strong> (<em>Retrieval-Augmented Generation</em>) = <strong>buscar</strong> a
+      informação certa e <strong>injetar</strong> no contexto antes de o modelo responder. Em vez
+      de “decorar tudo”, o agente <strong>consulta na hora</strong>.</p>
+    <div class="pipeline" style="margin:14px 0">
+      <div class="pipe-step"><span class="step-ico">❓</span><span class="step-title">Pergunta</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">🔎</span><span class="step-title">Buscar</span><span class="step-sub">no código, docs, base</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">📄</span><span class="step-title">Trechos relevantes</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">💬</span><span class="step-title">Resposta</span><span class="step-sub">com base no que achou</span></div>
+    </div>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">✅</span> Por que ajuda</h3>
+        <p>Reduz “invenção” (<em>alucinação</em>), usa dados <strong>atualizados</strong> e cita
+          <strong>a fonte</strong> (o trecho recuperado).</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">⚠️</span> Cuidado</h3>
+        <p>Se a busca traz o trecho errado, a resposta sai errada. Recuperar bem é metade do
+          trabalho.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">🔗</span>
+      <span>No agente de código, “RAG” muitas vezes é a <strong>busca no próprio
+        repositório</strong> — por isso ele “sabe” onde as coisas estão no seu projeto.</span>
+    </div>
+  </section>
+
+  <!-- 08 — Vibe coding -->
+  <section class="slide">
+    <div class="kicker">Prática crítica · Vibe Coding</div>
+    <h2><span class="num">6.</span>Vibe coding: o que é e onde escorrega</h2>
+    <p><strong>Vibe coding</strong> é deixar o agente gerar o código a partir de instruções em
+      linguagem natural, iterando pelo “feeling”. É rápido para prototipar — e perigoso sem
+      <strong>verificação</strong>.</p>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">👍</span> Quando brilha</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li>Protótipos e provas de conceito</li>
+          <li>Tarefas repetitivas e “cola”</li>
+          <li>Explorar uma ideia rapidamente</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">👎</span> Onde escorrega</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li>Código que “parece” certo mas falha nas bordas</li>
+          <li>Faltam <strong>testes</strong> e revisão humana</li>
+          <li>Segurança, dados sensíveis e segredos</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">🧭</span>
+      <span><strong>Regra de ouro:</strong> sem <strong>verificação</strong> (testes, build,
+        leitura do diff), vibe coding vira dívida técnica. O agente acelera; <strong>você
+        responde</strong> pelo resultado.</span>
+    </div>
+  </section>
+
+  <!-- 09 — Antigravity CLI -->
+  <section class="slide">
+    <div class="kicker">Prática · Ferramenta</div>
+    <h2><span class="num">7.</span>Antigravity CLI (<code>agy</code>)</h2>
+    <p>A CLI da Google é a superfície <strong>no terminal</strong> para trabalhar com agentes.
+      Leve, rápida e feita para quem vive no shell.</p>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">Começando</h3>
+        <div class="terminal">
+<span class="dim"># instala o cliente (Windows/PowerShell)</span>
+irm https://antigravity.google/cli/install.ps1 | iex
+
+<span class="dim"># entra na pasta do projeto e abre a TUI</span>
+agy
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Ao abrir, o agente indexa o projeto e propõe um plano antes de editar.</span>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Recursos que vamos ver</h3>
+        <ul class="clean">
+          <li><strong>Subagentes:</strong> tarefas em paralelo (<code>/agents</code>)</li>
+          <li><strong>Slash commands:</strong> <code>/skills</code>, <code>/diff</code>, <code>/rewind</code></li>
+          <li><strong>Permissões:</strong> revisar antes de escrever/rodar</li>
+          <li><strong>Verificação:</strong> <code>/diff</code> para revisar cada mudança</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 — Boas práticas -->
+  <section class="slide">
+    <div class="kicker">Prática · Boas práticas</div>
+    <h2><span class="num">8.</span>Como trabalhar bem com um agente</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Explore → Planeje → Execute:</strong> peça o plano antes do código</li>
+          <li><strong>Loop de verificação:</strong> tenha testes e mande o agente rodá-los</li>
+          <li><strong>Contexto enxuto:</strong> aponte os arquivos certos (<code>@arquivo</code>)</li>
+          <li><strong>Regras do projeto:</strong> um <code>AGENTS.md</code> na raiz</li>
+          <li><strong>Interrompa cedo:</strong> <code>esc</code> quando ele se perder</li>
+          <li><strong>Volte atrás:</strong> <code>/rewind</code> para um ponto estável</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📄</span> Regras do projeto</h3>
+          <p>Um arquivo <code>AGENTS.md</code> (ou equivalente) na raiz descreve padrões, comandos
+            de teste e avisos — o agente lê isso <strong>antes</strong> de sugerir mudanças.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔒</span> Permissões</h3>
+          <p>Comece no modo mais cauteloso (revisar antes de executar) e só depois afrouxe —
+            nunca dê <em>“sempre pode tudo”</em> no primeiro contato.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 — Discussão -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">9.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>Onde o <strong>harness</strong> termina e a
+      <strong>responsabilidade do engenheiro</strong> começa? Quem responde por um bug gerado
+      pelo agente?</p></div>
+    <div class="debate"><div class="q">2</div><p>Em que situações o <strong>RAG</strong> resolve
+      mais que “decorar” os dados no modelo? Dê um exemplo do seu setor.</p></div>
+    <div class="debate"><div class="q">3</div><p>Uma <strong>skill</strong> bem escrita é como um
+      manual: o que ela deveria conter para o agente acertar de primeira?</p></div>
+    <div class="debate"><div class="q">4</div><p><strong>Vibe coding</strong> sem testes é aceitável
+      num projeto real? Como você convenceria um colega a mudar de prática?</p></div>
+  </section>
+
+  <!-- 12 — Síntese -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Harness</strong> — a “armação” (loop, tools, contexto, permissões) que faz o
+            modelo <em>agir</em></li>
+          <li><strong>Agente</strong> — persegue um objetivo em passos: observar → planejar →
+            agir → verificar</li>
+          <li><strong>Skills</strong> — pastas de instruções reutilizáveis (uma coisa bem feita)</li>
+          <li><strong>RAG</strong> — buscar e injetar conhecimento antes de responder</li>
+          <li><strong>Vibe coding</strong> — rápido para prototipar, <strong>arriscado sem
+            verificação</strong></li>
+          <li><strong>agy</strong> — CLI da Antigravity: agente no terminal, com subagentes e
+            permissões</li>
+        </ul>
+        <p style="margin-top:12px">Próximo passo: <strong>praticar</strong> na CLI e revisar cada
+          mudança com <code>/diff</code>.</p>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa (opcional)</h3>
+          <ul class="clean" style="margin-top:6px">
+            <li>Escreva <strong>uma skill</strong> (pasta + <code>SKILL.md</code>) para uma tarefa
+              sua</li>
+            <li>Explique, num parágrafo, como um <strong>RAG</strong> ajudaria no seu projeto</li>
+            <li>Liste <strong>2 riscos</strong> do vibe coding e como mitigá-los</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔧</span> Recursos de apoio</h3>
+          <p>Documentação da <strong>Antigravity</strong> (CLI, Skills, Best Practices) e o
+            padrão aberto de <strong>Agent Skills</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 12</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

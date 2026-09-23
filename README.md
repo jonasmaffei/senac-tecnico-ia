@@ -94,6 +94,7 @@ pip install -r requirements.txt
 | :---: | :--- | :--- |
 | **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/aula14/notebook_colab/aula14_automacao_gpu_bash.ipynb), [Apresentação](aulas/aula14/apresentacao_aula14.html), [Atividade](aulas/aula14/atividade.md), [Scripts Linux](aulas/aula14/scripts_linux/) ([`monitor_gpu.sh`](aulas/aula14/scripts_linux/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/aula14/scripts_linux/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/aula14/scripts_linux/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/aula14/scripts_linux/enviar_para_sheets.py)), [Laboratório Windows (AMD)](aulas/aula14/laboratorio_windows/README.md), [Realtime Docker](aulas/aula14/laboratorio_realtime-docker/README.md), [Realtime Windows](aulas/aula14/laboratorio_realtime-windows/README.md), [Guia da Aula](aulas/aula14/README.md) |
 | **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/aula15/notebook_colab/aula15_processos_fila.ipynb), [Apresentação](aulas/aula15/apresentacao_aula15.html), [Atividade](aulas/aula15/atividade.md), [Laboratório Windows](aulas/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/aula15/README.md) |
+| **16** | Agentes de Código: Harness, RAG, Skills e Vibe Coding (Antigravity CLI) | [Apresentação](aulas/aula16/apresentacao_aula16.html), [Atividade](aulas/aula16/atividade.md), [Guia da Aula](aulas/aula16/README.md) |
 
 ---
 
@@ -219,6 +220,10 @@ senac-tecnico-ia/
 │   │   ├── notebook_colab/aula15_processos_fila.ipynb
 │   │   ├── atividade.md
 │   │   └── laboratorio_windows/            → fila de GPU com lock/prioridade (Git Bash + AMD)
+│   ├── aula16/
+│   │   ├── apresentacao_aula16.html
+│   │   ├── atividade.md                    → roteiro prático da Antigravity CLI (agy)
+│   │   └── README.md
 │   └── projeto-integrador/
 │       └── README.md
 ├── questionarios/

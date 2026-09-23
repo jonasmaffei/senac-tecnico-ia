@@ -19,6 +19,7 @@ A6 ─> A7 Kernels CUDA ─> A8 Tiling & Coalescing ─> A9 OpenCL (multi-vendor
 
 BLOCO 3 — AUTOMAÇÃO (a operação contínua)
 A13 ─> A14 Monitoramento 24/7 (cron, dashboard) ─> A15 Fila e concorrência na GPU
+   ─> A16 Agentes de código (harness, RAG, skills, vibe coding)
 
 Legenda: cada seta (─>) representa a resolução do gargalo que a aula anterior
 deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
@@ -122,6 +123,12 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **Conexão com o Bloco 2:** O código paralelo (A7–A13) e o monitoramento contínuo (A14) agora rodam de forma **justa e segura** quando vários usuários compartilham a mesma placa; a solução é feita só com Bash, sem Slurm/Kubernetes.
 * **O problema que fica em aberto:** Garantir uso justo da GPU resolve a concorrência; como reduzir o **consumo de energia** da operação contínua?
 
+### Aula 16: Agentes de Código — Harness, RAG, Skills e Vibe Coding (Bloco 3 — Automação)
+* **Conceito/Fundamento:** A era *agent-first*: ferramentas de terminal (Antigravity CLI/`agy`, opencode, Claude Code) que rodam agentes de código sobre um **harness** compartilhado — o *loop* agêntico (observar → planejar → agir → verificar), as *tools* (ler/editar arquivos, rodar comandos), o contexto e as permissões.
+* **O que se aprende:** O que é um **harness**; o papel das **skills** (pastas de instruções reutilizáveis, `.agents/skills/<nome>/SKILL.md`); o que é **RAG** (buscar e injetar conhecimento antes de responder) e seu risco; e a postura crítica diante do **vibe coding** (rápido para prototipar, arriscado sem verificação).
+* **Conexão com o Bloco 3:** A automação saiu das GPUs (A14–A15) e chegou ao **próprio trabalho de desenvolvimento** — o agente lê o repositório versionado com Git (`docs/03_git.md`) e usa RAG para achar contexto.
+* **O problema que fica em aberto:** Se o agente escreve cada vez mais código, como garantir **qualidade, segurança e responsabilidade** sobre o que é entregue?
+
 ---
 
 ## Matriz de Domínio por Elo da Corrente
@@ -136,4 +143,5 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A10-A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs. ROCm) adotar?" | ROCm/HIP + Docker (A10) e treino de CNN comparando throughput FP32×FP16 e custo (A11). |
 | **A12-A13** | "Onde o speedup da GPU compensa de fato (e quando não)?" | Lab interativo no Colab (A12) + benchmark de 4 implementações, curva de speedup e mini-relatório (A13). |
 | **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` via `cron`, dashboard e envio ao Google Sheets. |
-| **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |
+| **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |
+| **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
