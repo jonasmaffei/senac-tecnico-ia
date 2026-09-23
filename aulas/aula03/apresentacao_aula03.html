@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 03 — Estrutura de Memória em GPUs</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .big { font-size: 1.75rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+  }
+  pre code {
+    background: none; border: none; padding: 0; color: #dbe1ff;
+    font-size: .8rem; line-height: 1.55; white-space: pre; display: block;
+  }
+  pre.scroll { max-height: 340px; overflow-y: auto; }
+
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge {
+    position: absolute; top: 8px; left: 10px; font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
+    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .code-wrap pre { padding-top: 30px; }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  .terminal {
+    background: #05070f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto;
+  }
+  .terminal .bad { color: #ff8080; }
+  .terminal .warn { color: #ffd27a; }
+  .terminal .dim { color: #5c6a97; }
+
+  /* Pirâmide de memória (barras) */
+  .piramide { display: flex; flex-direction: column; gap: 7px; }
+  .nivel { display: flex; align-items: center; gap: 12px; }
+  .nivel .barra {
+    height: 30px; border-radius: 7px; display: flex; align-items: center;
+    padding: 0 12px; font-size: .82rem; font-weight: 600; color: #08101f; white-space: nowrap;
+  }
+  .nivel .lado { font-size: .76rem; color: var(--muted); white-space: nowrap; }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide .big-badge { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 18px; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 1 · Fundamentos</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título + situação -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 03</div>
+    <h1>Estrutura de Memória em GPUs</h1>
+    <p class="lead">Onde os dados ficam e por que a <strong>memória</strong> — não o cálculo —
+      costuma ser o gargalo da IA. Entender a hierarquia é o primeiro passo para
+      <strong>aumentar a utilização da GPU</strong>.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">1 — Fundamentos</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Execução</div><div class="v">Google Colab + Windows/AMD</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
+        <p>O modelo de IA da startup treina com a <strong>GPU ocupada só 40% do tempo</strong>,
+          mesmo com dados de sobra. A suspeita é <strong>uso ineficiente da memória</strong>.
+          Diagnosticar e propor melhorias.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧭</span> O que precisamos</h3>
+        <p>Entender <strong>como a memória é organizada</strong> (registradores → shared →
+          cache → VRAM → RAM) e onde está o <strong>gargalo do PCIe</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Objetivo + cronograma -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> interpretar a <strong>hierarquia de memória</strong> nas GPUs
+      e identificar como ela impacta o desempenho de aplicações de IA, permitindo otimizações
+      eficazes no uso de registradores, memória compartilhada e global.</p>
+    <div class="note">
+      <span class="ico">📌</span>
+      <span>Indicador da UC: <strong>reconhece modelos aplicados em arquitetura de
+        computadores e GPU</strong>. Revisão da Aula 2: SIMD/MIMD, RISC/CISC.</span>
+    </div>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura e contextualização</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Teoria: hierarquia de memória em GPUs</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: RAM vs. VRAM — diferenças e latências</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Demonstração: nvidia-smi e nvtop</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Atividade prática: benchmark RAM vs. VRAM</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão: diagnóstico do gargalo</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Síntese e tarefa de casa</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Hierarquia de memória · registradores · shared (SRAM) · cache L1/L2 ·
+            VRAM global · RAM · barramento PCIe · coalescência · largura de banda</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Material da aula</h3>
+          <p>Notebook <code>aula03_memoria_gpu.ipynb</code> e os scripts em
+            <code>scripts/</code> (rodam no Colab e no Windows com GPU AMD).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Hierarquia -->
+  <section class="slide">
+    <div class="kicker">Teoria · Hierarquia de Memória</div>
+    <h2><span class="num">1.</span>Os níveis de memória da GPU</h2>
+    <p>Cada nível troca <strong>velocidade</strong> por <strong>tamanho</strong>: quanto mais
+      perto do processador, mais rápida e menor.</p>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">⚡</span> Registradores</h3>
+        <p>~1 ciclo · ~256 KB por SM · escopo <strong>thread</strong>. A memória mais rápida;
+          uso automático pelo compilador.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🤝</span> Shared (SRAM)</h3>
+        <p>~1–5 ciclos · ~48–164 KB por bloco · escopo <strong>bloco</strong>. O programador
+          controla: é a chave da otimização.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">📦</span> Cache L1 / L2</h3>
+        <p>~20–50 ciclos · L1 ~128 KB, L2 ~6 MB · automático. Reduz os acessos à memória
+          global.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🐢</span> VRAM Global</h3>
+        <p>~400–800 ciclos · 8–80 GB · <strong>toda a GPU</strong>. Grande, mas lenta; exige
+          <strong>acesso coalescente</strong>.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">🖥️</span>
+      <span><strong>RAM do host:</strong> a maior de todas (16–512 GB), mas acessada pela CPU.
+        A cópia para a GPU passa pelo <strong>PCIe</strong> — o gargalo crítico.</span>
+    </div>
+  </section>
+
+  <!-- 04 — Pirâmide -->
+  <section class="slide">
+    <div class="kicker">Teoria · Pirâmide de Latência</div>
+    <h2><span class="num">2.</span>Velocidade vs. tamanho</h2>
+    <p>A largura da barra representa a <strong>velocidade</strong>: menor e mais rápido em cima;
+      maior e mais lento embaixo.</p>
+    <div class="piramide" style="max-width:760px;margin-top:6px">
+      <div class="nivel"><div class="barra" style="width:26%;background:linear-gradient(90deg,#6ee7b7,#10b981)">Registradores</div><div class="lado">~1 ciclo</div></div>
+      <div class="nivel"><div class="barra" style="width:38%;background:linear-gradient(90deg,#34d399,#059669)">Shared (SRAM)</div><div class="lado">~1–5 ciclos</div></div>
+      <div class="nivel"><div class="barra" style="width:58%;background:linear-gradient(90deg,#fbbf24,#f97316)">Cache L1 / L2</div><div class="lado">~20–50 ciclos</div></div>
+      <div class="nivel"><div class="barra" style="width:80%;background:linear-gradient(90deg,#fb7185,#ef4444)">VRAM Global</div><div class="lado">~400–800 ciclos</div></div>
+      <div class="nivel"><div class="barra" style="width:100%;background:linear-gradient(90deg,#a78bfa,#7e22ce)">RAM do sistema</div><div class="lado">milhares de ciclos</div></div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">🎯</span>
+      <span><strong>Regra 90/10:</strong> ~90% do tempo de processamento em IA é gasto
+        <strong>esperando memória</strong>, não calculando. Otimizar memória vale mais que
+        otimizar contas.</span>
+    </div>
+  </section>
+
+  <!-- 05 — RAM vs VRAM -->
+  <section class="slide">
+    <div class="kicker">Teoria · RAM vs. VRAM</div>
+    <h2><span class="num">3.</span>Diferenças fundamentais</h2>
+    <table style="max-width:900px">
+      <thead><tr><th>Característica</th><th>RAM (DDR5)</th><th>VRAM (HBM / GDDR6)</th></tr></thead>
+      <tbody>
+        <tr><td>Largura de banda</td><td class="no">~80 GB/s</td><td class="yes">~3.35 TB/s (HBM3)</td></tr>
+        <tr><td>Latência típica</td><td>~60–80 ns</td><td class="mid">~100–200 ns (compensada pelo throughput)</td></tr>
+        <tr><td>Capacidade típica</td><td>16–512 GB</td><td>4–80 GB</td></tr>
+        <tr><td>Tecnologia</td><td>DDR4 / DDR5</td><td class="yes">GDDR6X / HBM2e / HBM3</td></tr>
+        <tr><td>Controlador</td><td>CPU</td><td>GPU</td></tr>
+        <tr><td>Transferência CPU↔GPU</td><td colspan="2" class="mid">via PCIe (~32 GB/s) — muito mais lento</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">💡</span>
+      <span>A VRAM é <strong>~40× mais rápida</strong> que a RAM em largura de banda. O segredo
+        da GPU é <strong>mover dados em massa</strong>, não acessá-los um a um.</span>
+    </div>
+  </section>
+
+  <!-- 06 — Gargalo PCIe -->
+  <section class="slide">
+    <div class="kicker">Teoria · O Gargalo</div>
+    <h2><span class="num">4.</span>O barramento PCIe</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>O PCIe 4.0 x16 oferece ~<strong>32 GB/s</strong> bidirecionais. Isso é
+          <strong>~100× mais lento</strong> que a largura de banda interna da VRAM.</p>
+        <div class="note">
+          <span class="ico">🚧</span>
+          <span>Por isso, <strong>copiar dados</strong> da RAM para a GPU pode custar mais caro
+            que o próprio cálculo. A otimização nº 1 é <strong>minimizar o tráfego PCIe</strong>.</span>
+        </div>
+      </div>
+      <div>
+        <div class="terminal">
+<span class="dim"># Caminho de um dado até a GPU</span>
+RAM (host)
+  │  ← cópia via PCIe (~32 GB/s)  <span class="warn">← GARGALO</span>
+  ▼
+VRAM (global)
+  │  ← cache L1/L2 (automático)
+  ▼
+Shared (SRAM)  ← controlada pelo programador
+  ▼
+Registradores  <span class="bad">~1 ciclo</span>
+        </div>
+        <ul class="clean" style="margin-top:12px">
+          <li>Mantenha os <strong>batches na VRAM</strong> e só traga o resultado no fim.</li>
+          <li>Use <strong>memória fixada</strong> (*pinned*) para acelerar cópias.</li>
+          <li>Evite idas e voltas CPU↔GPU a cada passo do treino.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 — Demonstração nvidia-smi -->
+  <section class="slide">
+    <div class="kicker">Demonstração · Medir antes de otimizar</div>
+    <h2><span class="num">5.</span>Monitorar a memória da GPU</h2>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">No terminal (Linux/Colab)</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>watch -n 1 nvidia-smi        # painel ao vivo
+nvidia-smi --query-gpu=memory.used,memory.total \
+           --format=csv</code></pre>
+        </div>
+        <p><code>nvtop</code> é a versão interativa com gráficos — ótima para ver a
+          <strong>utilização</strong> caindo quando a GPU espera dados.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Via Python (pynvml)</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>info = pynvml.nvmlDeviceGetMemoryInfo(h)
+print(info.used / 1024**3, "GB usados")</code></pre>
+        </div>
+        <div class="note">
+          <span class="ico">📄</span>
+          <span>Veja <code>scripts/monitor_memoria.py</code> (comentado linha a linha).</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — Atividade benchmark -->
+  <section class="slide">
+    <div class="kicker">Atividade Prática · Benchmark</div>
+    <h2><span class="num">6.</span>RAM vs. VRAM na prática</h2>
+    <p>A <strong>mesma soma de vetores</strong>, medida na RAM (CPU) e na VRAM (GPU) — mais o
+      custo da <strong>cópia PCIe</strong>.</p>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">A ideia</h3>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>c_cpu = a_cpu + b_cpu        # RAM, CPU
+c_gpu = a_gpu + b_gpu        # VRAM, GPU
+a_gpu = a_cpu.cuda()         # cópia via PCIe (medir!)</code></pre>
+        </div>
+        <p>Sem <code>torch.cuda.synchronize()</code> você mediria só o <strong>lançamento</strong>
+          do kernel, não a execução.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">O que o script faz</h3>
+        <ul class="clean">
+          <li>Mede a soma na <strong>RAM</strong> e na <strong>VRAM</strong> e o <strong>speedup</strong>.</li>
+          <li>Mede a <strong>transferência RAM→VRAM</strong> (o gargalo).</li>
+          <li>Sem GPU, mostra a hierarquia pela própria <strong>RAM da CPU</strong>.</li>
+        </ul>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Rode <code>scripts/benchmark_ram_vram.py</code> e
+            <code>scripts/hierarquia_memoria.py</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 — Global vs Shared -->
+  <section class="slide">
+    <div class="kicker">Exercício Extra · CUDA</div>
+    <h2><span class="num">7.</span>Memória global vs. compartilhada</h2>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🐢</span> Global (VRAM)</h3>
+        <p>Cada thread lê direto da VRAM (~500 ciclos). Simples, porém lento quando o mesmo dado
+          é lido várias vezes.</p>
+        <div class="code-wrap" style="margin-top:10px">
+          <span class="badge">conceito</span>
+          <pre><code>c[idx] = a[idx] + b[idx]   # lê da VRAM</code></pre>
+        </div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">⚡</span> Compartilhada (SRAM)</h3>
+        <p>Carrega uma vez para a SRAM do bloco (~5 ciclos) e reutiliza. É a base do
+          <em>tiling</em> (Aula 8).</p>
+        <div class="code-wrap" style="margin-top:10px">
+          <span class="badge">conceito</span>
+          <pre><code>sh[tid] = a[idx]           # global -> SRAM
+cuda.syncthreads()         # sincroniza</code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">📄</span>
+      <span>Requer GPU NVIDIA (Numba/CUDA). Comentado linha a linha no notebook
+        <code>aula03_memoria_gpu.ipynb</code>.</span>
+    </div>
+  </section>
+
+  <!-- 10 — Discussão -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">8.</span>Diagnóstico do gargalo — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>Se a GPU está ociosa <strong>60% do tempo</strong>
+      no treino, qual é a causa mais provável? (Dica: pense no PCIe e na transferência
+      CPU→GPU.)</p></div>
+    <div class="debate"><div class="q">2</div><p>Qual memória priorizar numa
+      <strong>multiplicação de matrizes 4096×4096</strong>: registradores, compartilhada ou
+      global?</p></div>
+    <div class="debate"><div class="q">3</div><p>Um <strong>LLM de 70B</strong> parâmetros precisa
+      de ~140 GB em FP32. Como resolver a <strong>VRAM insuficiente</strong>?</p></div>
+    <div class="debate"><div class="q">4</div><p>Quando faz sentido usar memória
+      <strong>compartilhada</strong> em vez de apenas a global?</p></div>
+  </section>
+
+  <!-- 11 — Síntese + tarefa -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Registradores</strong> — ~1 ciclo, por thread, automáticos</li>
+          <li><strong>Shared (SRAM)</strong> — ~1–5 ciclos, por bloco, controlada por você</li>
+          <li><strong>Cache L1/L2</strong> — automático, reduz a latência da global</li>
+          <li><strong>VRAM Global</strong> — ~500 ciclos, toda a GPU, exige coalescência</li>
+          <li><strong>PCIe</strong> — ~32 GB/s, o gargalo: minimize o tráfego</li>
+        </ul>
+        <p style="margin-top:12px">Recursos: notebook <code>aula03_memoria_gpu.ipynb</code> e
+          <code>scripts/</code> — todos comentados.</p>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa (opcional)</h3>
+          <p>Pesquise <strong>quantização</strong> (FP32 → FP16 → INT8) e explique como ela reduz
+            o uso de VRAM:</p>
+          <ul class="clean" style="margin-top:6px">
+            <li>Quantos parâmetros cabem em 16 GB em FP16 vs. FP32?</li>
+            <li>O que é <em>mixed precision training</em> (<code>torch.cuda.amp</code>)?</li>
+            <li>Qual o impacto na acurácia?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔧</span> Recursos de apoio</h3>
+          <p><strong>NVIDIA Nsight Compute</strong> (profiling de kernels), <strong>nvtop</strong>
+            (monitor no terminal), <strong>nvidia-ml-py3</strong> (monitor via Python) e
+            <strong>Google Colab</strong> (GPU gratuita + PyTorch/Numba).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 11</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

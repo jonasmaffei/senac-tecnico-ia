@@ -21,8 +21,11 @@
 * **GPU = SIMD + MIMD:** dentro de um *warp* (32 threads) a instrução é a mesma (SIMD); vários blocos/SMs processam pedaços diferentes ao mesmo tempo (MIMD).
 
 #### Aula 3: Estrutura de Memória em GPUs
-* **Hierarquia:** Registradores (mais rápidos, por thread) -> Memória Compartilhada / SRAM (cache manual por bloco) -> Cache L1/L2 -> Memória Global / VRAM (alta capacidade, latência alta).
-* **O Gargalo do Barramento:** Transferências CPU <-> GPU via PCIe são o gargalo principal e devem ser minimizadas.
+* **Hierarquia:** Registradores (~1 ciclo, por thread) -> Memória Compartilhada / SRAM (~1–5 ciclos, controlada pelo programador, por bloco) -> Cache L1/L2 (~20–50 ciclos, automático) -> Memória Global / VRAM (~400–800 ciclos, 8–80 GB) -> RAM do host (milhares de ciclos, via PCIe).
+* **Regra 90/10:** ~90% do tempo de processamento em IA é gasto esperando memória, não calculando — otimizar memória vale mais que otimizar contas.
+* **RAM vs. VRAM:** RAM (DDR5) ~80 GB/s; VRAM (HBM3/GDDR6) ~3.35 TB/s. A VRAM é ~40× mais rápida em largura de banda, mas muito menor.
+* **O Gargalo do Barramento:** Transferências CPU <-> GPU via PCIe 4.0 x16 (~32 GB/s) são ~100× mais lentas que a VRAM interna — copiar pode custar mais que calcular. Minimize o tráfego mantendo os batches na VRAM.
+* **Prática (Colab/Windows):** `nvidia-smi`/`pynvml` monitoram VRAM e utilização; o benchmark mede a mesma soma na RAM (CPU) e na VRAM (GPU) mais o custo da cópia PCIe; a `hierarquia_memoria.py` mostra o degrau de largura de banda entre cache e RAM. O kernel CUDA (Numba) contrasta memória global vs. compartilhada (`cuda.shared.array` + `syncthreads`).
 
 #### Aula 4: Fundamentos de Processos e Threads
 * **Processos vs. Threads:** Processos isolam memória (contornam o GIL do Python); Threads compartilham memória (leves, mas limitadas pelo GIL em tarefas CPU-bound).

@@ -1,0 +1,6 @@
+# Dependências da Aula 03 — Estrutura de Memória em GPUs.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# NumPy é obrigatório; torch/cupy são opcionais (só usados se houver GPU)
+# e psutil é opcional (mostra a RAM do host no monitor_memoria.py).
+numpy>=1.24.0
+psutil>=5.9.0

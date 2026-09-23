@@ -71,7 +71,7 @@ pip install -r requirements.txt
 | :---: | :--- | :--- |
 | **01** | Introdução às Arquiteturas de Computadores e GPUs (Von Neumann/Harvard, CPU vs GPU) | [`aula01_arquiteturas_cpu_gpu.ipynb`](aulas/aula01/aula01_arquiteturas_cpu_gpu.ipynb), [Apresentação](aulas/aula01/apresentacao_aula01.html), [Atividade](aulas/aula01/atividade.md), [`scripts/arquitetura_cpu_gpu.py`](aulas/aula01/scripts/arquitetura_cpu_gpu.py), [Guia da Aula](aulas/aula01/README.md) |
 | **02** | Modelos de Processamento (SIMD/MIMD, RISC/CISC) | [`aula02_modelos_processamento.ipynb`](aulas/aula02/aula02_modelos_processamento.ipynb), [Apresentação](aulas/aula02/apresentacao_aula02.html), [Atividade](aulas/aula02/atividade.md), [`scripts/`](aulas/aula02/scripts) ([`benchmark_simd.py`](aulas/aula02/scripts/benchmark_simd.py), [`estudo_imagem.py`](aulas/aula02/scripts/estudo_imagem.py), [`lib_backend.py`](aulas/aula02/scripts/lib_backend.py)), [Guia da Aula](aulas/aula02/README.md) |
-| **03** | Hierarquia de Memória (RAM vs VRAM, PCIe) | [`benchmark_ram_vram.py`](aulas/aula03/benchmark_ram_vram.py) |
+| **03** | Estrutura de Memória em GPUs (Hierarquia, RAM vs VRAM, PCIe) | [`aula03_memoria_gpu.ipynb`](aulas/aula03/aula03_memoria_gpu.ipynb), [Apresentação](aulas/aula03/apresentacao_aula03.html), [Atividade](aulas/aula03/atividade.md), [`scripts/`](aulas/aula03/scripts) ([`benchmark_ram_vram.py`](aulas/aula03/scripts/benchmark_ram_vram.py), [`hierarquia_memoria.py`](aulas/aula03/scripts/hierarquia_memoria.py), [`monitor_memoria.py`](aulas/aula03/scripts/monitor_memoria.py), [`lib_backend.py`](aulas/aula03/scripts/lib_backend.py)), [Guia da Aula](aulas/aula03/README.md) |
 | **04** | Processos e Threads (GIL, Multiprocessing) | [`processos_threads.py`](aulas/aula04/processos_threads.py) |
 | **05** | Redes e Transferência de Dados (TCP/UDP, SSH, rsync) | [`demo_tcp_udp.py`](aulas/aula05/demo_tcp_udp.py), [`comandos_transferencia.sh`](aulas/aula05/comandos_transferencia.sh) |
 | **06** | Linux e GPUs (/proc, /sys, tmux, cron) | [`monitoramento_linux.py`](aulas/aula06/monitoramento_linux.py), [`gpu_status.sh`](aulas/aula06/gpu_status.sh) |
@@ -141,7 +141,11 @@ senac-tecnico-ia/
 │   │   ├── scripts/                         → lib_backend.py, benchmark_simd.py, estudo_imagem.py
 │   │   └── README.md
 │   ├── aula03/
-│   │   └── benchmark_ram_vram.py
+│   │   ├── aula03_memoria_gpu.ipynb
+│   │   ├── apresentacao_aula03.html
+│   │   ├── atividade.md
+│   │   ├── scripts/                         → lib_backend.py, benchmark_ram_vram.py, hierarquia_memoria.py, monitor_memoria.py
+│   │   └── README.md
 │   ├── aula04/
 │   │   └── processos_threads.py
 │   ├── aula05/
