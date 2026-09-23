@@ -103,6 +103,7 @@ pip install -r requirements.txt
 | :---: | :--- | :--- |
 | **01** | [`01_timeline-engenharia.md`](docs/01_timeline-engenharia.md) | Blueprint causal de engenharia: por que cada aula existe e como se conectam |
 | **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 15) |
+| **03** | [`03_git.md`](docs/03_git.md) | Guia de Git (somente leitura): clonar o repositório e atualizar com `pull` |
 | **05** | [`05_materiais-complementares.md`](docs/05_materiais-complementares.md) | Curadoria de links, playlists e cursos externos |
 | **06** | [`06_tutorial-instalacao-wsl.md`](docs/06_tutorial-instalacao-wsl.md) | Guia de instalação e configuração do WSL 2 no Windows 10 e 11 |
 | **07** | [`07_tutorial-instalacao-docker-wsl.md`](docs/07_tutorial-instalacao-docker-wsl.md) | Guia de instalação e uso do Docker Engine nativo no WSL 2 (Ubuntu) |
@@ -228,6 +229,7 @@ senac-tecnico-ia/
 └── docs/
     ├── 01_timeline-engenharia.md            → Blueprint causal do curso
     ├── 02_resumos.md                        → Resumos teóricos consolidados
+    ├── 03_git.md                            → Guia de clonar o repo e atualizar com pull
     ├── 05_materiais-complementares.md       → Links e leituras recomendadas
     ├── 06_tutorial-instalacao-wsl.md        → Guia de instalação do WSL no Windows 10/11
     └── 07_tutorial-instalacao-docker-wsl.md → Guia de instalação do Docker no WSL 2 Ubuntu
