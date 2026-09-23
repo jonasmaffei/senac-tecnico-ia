@@ -92,8 +92,8 @@ pip install -r requirements.txt
 
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
-| **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [`aula14_automacao_gpu_bash.ipynb`](aulas/aula14/aula14_automacao_gpu_bash.ipynb), [Scripts Linux](aulas/aula14/scripts_linux/) ([`monitor_gpu.sh`](aulas/aula14/scripts_linux/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/aula14/scripts_linux/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/aula14/scripts_linux/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/aula14/scripts_linux/enviar_para_sheets.py)), [Laboratório Windows (AMD)](aulas/aula14/laboratorio_windows/README.md), [Realtime Docker](aulas/aula14/laboratorio_realtime-docker/README.md), [Realtime Windows](aulas/aula14/laboratorio_realtime-windows/README.md), [Apresentação](aulas/aula14/apresentacao_aula14.html), [Guia Colab](aulas/aula14/README.md) |
-| **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Apresentação](aulas/aula15/apresentacao_aula15.html), [Laboratório Windows](aulas/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/aula15/README.md) |
+| **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/aula14/notebook_colab/aula14_automacao_gpu_bash.ipynb), [Apresentação](aulas/aula14/apresentacao_aula14.html), [Atividade](aulas/aula14/atividade.md), [Scripts Linux](aulas/aula14/scripts_linux/) ([`monitor_gpu.sh`](aulas/aula14/scripts_linux/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/aula14/scripts_linux/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/aula14/scripts_linux/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/aula14/scripts_linux/enviar_para_sheets.py)), [Laboratório Windows (AMD)](aulas/aula14/laboratorio_windows/README.md), [Realtime Docker](aulas/aula14/laboratorio_realtime-docker/README.md), [Realtime Windows](aulas/aula14/laboratorio_realtime-windows/README.md), [Guia da Aula](aulas/aula14/README.md) |
+| **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/aula15/notebook_colab/aula15_processos_fila.ipynb), [Apresentação](aulas/aula15/apresentacao_aula15.html), [Atividade](aulas/aula15/atividade.md), [Laboratório Windows](aulas/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/aula15/README.md) |
 
 ---
 
@@ -204,17 +204,20 @@ senac-tecnico-ia/
 │   │   ├── aula13_implementacao_modelo_paralelo.ipynb
 │   │   └── README.md
 │   ├── aula14/
-│   │   ├── aula14_automacao_gpu_bash.ipynb
 │   │   ├── apresentacao_aula14.html
+│   │   ├── README.md
+│   │   ├── notebook_colab/aula14_automacao_gpu_bash.ipynb
+│   │   ├── atividade.md
 │   │   ├── scripts_linux/                  → monitor_gpu.sh, alerta_gpu.sh, gerar_graficos.sh, enviar_para_sheets.py
 │   │   ├── laboratorio_windows/            → versão Windows/Git Bash (AMD e NVIDIA)
 │   │   ├── laboratorio_realtime-docker/    → webservice Python (Flask + SSE) em Docker
-│   │   ├── laboratorio_realtime-windows/   → webservice Python nativo no Windows
-│   │   └── README.md
+│   │   └── laboratorio_realtime-windows/   → webservice Python nativo no Windows
 │   ├── aula15/
 │   │   ├── apresentacao_aula15.html
-│   │   ├── laboratorio_windows/            → fila de GPU com lock/prioridade (Git Bash + AMD)
-│   │   └── README.md
+│   │   ├── README.md
+│   │   ├── notebook_colab/aula15_processos_fila.ipynb
+│   │   ├── atividade.md
+│   │   └── laboratorio_windows/            → fila de GPU com lock/prioridade (Git Bash + AMD)
 │   └── projeto-integrador/
 │       └── README.md
 ├── questionarios/

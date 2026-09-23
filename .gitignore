@@ -44,6 +44,12 @@ models/
 checkpoints/
 .context.md
 
+# === Contexto e material de trabalho (NÃO é entregável do curso) ===
+# Arquivo de teste vazio / ruído
+TESTE.TXT
+# POCs e material de trabalho fora do currículo (simulador CUDA em Docker)
+aulas/labs/
+
 # === Saídas geradas pela Aula 14 (monitoramento de GPU) ===
 gpu_log*.csv
 alertas.log

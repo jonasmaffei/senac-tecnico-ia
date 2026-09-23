@@ -27,10 +27,37 @@ de exclusão mútua.
 
 ## 🗂️ Conteúdo
 
-| Arquivo | O que é |
+| Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula15.html`](apresentacao_aula15.html) | Slides teóricos da aula (abra no navegador, navegue com ← →) |
-| [`laboratorio_windows/README.md`](laboratorio_windows/README.md) | Laboratório prático em **Windows + Git Bash** (adaptado à GPU AMD) |
+| [`apresentacao_aula15.html`](apresentacao_aula15.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | Laboratório prático em **Windows + Git Bash** (adaptado à GPU AMD) |
+| [`atividade.md`](atividade.md) | Atividade de pesquisa e discussão (tarefa de casa) |
+
+### Estrutura da aula
+
+```
+aula15/
+  apresentacao_aula15.html
+  README.md
+  notebook_colab/aula15_processos_fila.ipynb
+  laboratorio_windows/          # teste_fila.sh, fila_gpu.sh, flock_gpu.sh, monitor_gpu_proc.sh, ...
+  atividade.md
+```
+
+---
+
+## 🚀 Como rodar
+
+### No Google Colab (notebook + 5 exercícios)
+
+Abra `notebook_colab/aula15_processos_fila.ipynb` pelo **GitHub** no Colab. Como o Colab não
+tem `flock`/`systemd`, os conceitos de **lock** e **fila** são **simulados em Python** com o
+mesmo comportamento.
+
+### No laboratório (Windows + Git Bash)
+
+Siga a seção abaixo.
 
 ---
 

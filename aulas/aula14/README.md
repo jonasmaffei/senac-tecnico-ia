@@ -1,17 +1,44 @@
-# 📖 Guia Passo a Passo: Como Abrir e Rodar a Aula 14 no Google Colab
+# 🛠️ Aula 14 — Introdução à Automação de GPUs com Bash
 
-**Aula 14 — Introdução à Automação de GPUs com Bash**
+**Objetivo:** operar GPUs de forma **contínua e supervisionada** com Bash — extrair métricas
+estruturadas do `nvidia-smi`, escrever scripts de coleta e alerta, agendar com `cron`/systemd,
+gerar dashboards e integrar com o Google Sheets.
 
 ---
 
-## 🖥️ Apresentação da Aula
+## 🎯 Situação de aprendizagem
 
-O arquivo [`apresentacao_aula14.html`](apresentacao_aula14.html) contém os 9 slides teóricos da aula.
-Abra com duplo clique no navegador (funciona offline) e navegue com `←` / `→`.
+Um servidor de GPUs fica ligado 24h/7d. Sem monitoramento, a placa pode **superaquecer**,
+**travar silenciosamente** ou ficar **ociosa** — queimando orçamento de nuvem sem ninguém
+perceber. A missão é automatizar a **coleta, o alerta e o dashboard** das métricas.
 
-> 💡 **Todo bloco de código dos slides é copiável e executável no Colab.** Clique em
-> **📋 Copiar** no canto do bloco e cole direto em uma célula (os blocos trazem `%%bash` ou Python
-> completo, com detecção de GPU e modo simulado embutidos).
+---
+
+## 🗂️ Conteúdo
+
+| Item | O que é |
+| :--- | :--- |
+| [`apresentacao_aula14.html`](apresentacao_aula14.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos com hardware real** (Git Bash / AMD) |
+| [`scripts_linux/`](scripts_linux) | Scripts para **servidor Linux** (monitor, alerta, gráficos, Sheets) |
+| [`laboratorio_realtime-docker/`](laboratorio_realtime-docker/README.md) | Desafio extra: webservice Flask + SSE em Docker |
+| [`laboratorio_realtime-windows/`](laboratorio_realtime-windows/README.md) | Desafio extra: mesmo webservice, nativo no Windows |
+| [`atividade.md`](atividade.md) | Atividade de pesquisa e discussão (tarefa de casa) |
+
+### Estrutura da aula
+
+```
+aula14/
+  apresentacao_aula14.html
+  README.md
+  notebook_colab/aula14_automacao_gpu_bash.ipynb
+  laboratorio_windows/          # 1_monitorar.sh, 2_alertar.sh, 3_dashboard.sh, 4_agendar.sh
+  scripts_linux/                # monitor_gpu.sh, alerta_gpu.sh, gerar_graficos.sh, enviar_para_sheets.py
+  laboratorio_realtime-docker/  # webservice em Docker (SSE)
+  laboratorio_realtime-windows/ # webservice nativo no Windows
+  atividade.md
+```
 
 ---
 
@@ -25,7 +52,7 @@ Abra com duplo clique no navegador (funciona offline) e navegue com `←` / `→
    https://github.com/jonasmaffei/senac-tecnico-ia
    ```
 5. O Colab irá listar os arquivos do repositório. Clique em:
-   `aulas/aula14/aula14_automacao_gpu_bash.ipynb`
+   `aulas/aula14/notebook_colab/aula14_automacao_gpu_bash.ipynb`
 6. Pronto! O notebook abrirá na sua tela.
 
 ---
@@ -69,7 +96,7 @@ Por padrão, o Colab roda apenas com **CPU**. Para coletar métricas reais com `
 
 ## 🟢 Conteúdo do Notebook da Aula 14
 
-No notebook `aula14_automacao_gpu_bash.ipynb`, você encontrará:
+No notebook `notebook_colab/aula14_automacao_gpu_bash.ipynb`, você encontrará:
 
 1. **Verificação do Ambiente** (detecção de GPU e `nvidia-smi`).
 2. **Teoria: `nvidia-smi`** — queries, formatos e campos úteis.
@@ -77,22 +104,20 @@ No notebook `aula14_automacao_gpu_bash.ipynb`, você encontrará:
 4. **Teoria: `cron` e `systemd timers`** — agendamento e comparativo.
 5. **Alertas** — `alerta_gpu.sh` com verificação de limites e notificação.
 6. **Atividade: Dashboard** — 4 gráficos (temperatura, utilização, VRAM, potência).
-7. **Integração com Google Sheets** — template via service account.
-8. **Discussão em grupo**, **síntese** e **tarefa de casa**.
+7. **Integração com o Google Sheets** — template via service account.
+8. **Discussão em grupo**, **Exercícios (5)** e **síntese**.
 
 ---
 
-## 📂 Arquivos Auxiliares da Aula
+## 📂 Scripts para servidor Linux (`scripts_linux/`)
 
-Em [`aulas/aula14/`](.) também estão os materiais de apoio:
+Scripts prontos para servidores Linux reais:
 
-- [`apresentacao_aula14.html`](apresentacao_aula14.html) — slides teóricos da aula.
-- [`scripts_linux/`](scripts_linux/) — scripts prontos para servidores Linux reais:
-  - [`monitor_gpu.sh`](scripts_linux/monitor_gpu.sh) — coleta métricas de GPU em CSV.
-  - [`alerta_gpu.sh`](scripts_linux/alerta_gpu.sh) — verifica limites e notifica (Slack/e-mail).
-  - [`gerar_graficos.sh`](scripts_linux/gerar_graficos.sh) — dashboard de 4 gráficos com gnuplot.
-  - [`enviar_para_sheets.py`](scripts_linux/enviar_para_sheets.py) — publica o CSV no Google
-    Sheets (sem credenciais, apenas valida e avisa, sem falhar).
+- [`monitor_gpu.sh`](scripts_linux/monitor_gpu.sh) — coleta métricas de GPU em CSV.
+- [`alerta_gpu.sh`](scripts_linux/alerta_gpu.sh) — verifica limites e notifica (Slack/e-mail).
+- [`gerar_graficos.sh`](scripts_linux/gerar_graficos.sh) — dashboard de 4 gráficos com gnuplot.
+- [`enviar_para_sheets.py`](scripts_linux/enviar_para_sheets.py) — publica o CSV no Google
+  Sheets (sem credenciais, apenas valida e avisa, sem falhar).
 
 ---
 

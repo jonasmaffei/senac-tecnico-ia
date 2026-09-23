@@ -144,7 +144,7 @@
 * **Agendamento:** `cron` (sintaxe `* * * * * comando`, `crontab -e`) é o agendador clássico e simples; `systemd timer` é a alternativa moderna com logging via `journald`, dependências (`After=`) e execução após boot (`Persistent=true`).
 * **Visualização:** `gnuplot` gera dashboard de 4 painéis (temperatura, utilização, VRAM, potência) direto de um CSV, sem Python; no Colab, `pandas + matplotlib` produz o equivalente.
 * **Integração com Google Sheets:** Via Service Account (`google-auth` + `google-api-python-client`), o CSV é anexado a uma planilha (`values().append`), permitindo acompanhar as GPUs sem SSH. Credenciais ficam em variáveis de ambiente e fora do repositório.
-* **Operação em Colab:** O notebook detecta `nvidia-smi` e, sem GPU, gera métricas simuladas com o mesmo schema do CSV real; cron/systemd não existem no Colab e são simulados com loop Python.
+* **Operação em Colab:** O notebook detecta `nvidia-smi` e, sem GPU, gera métricas simuladas com o mesmo schema do CSV real; cron/systemd não existem no Colab e são simulados com loop Python. Fecha com a seção **Exercícios (5)**.
 
 #### Aula 15: Gestão de Processos e Carga de Trabalho (Bloco 3 — Automação)
 * **Race condition em GPU:** Quando vários jobs usam a mesma placa, competem por VRAM e capacidade de processamento → `CUDA OOM`, *crashes* silenciosos e resultados corrompidos. A correção é garantir **um job por vez** (exclusão mútua) + **fila com prioridade**.
@@ -154,3 +154,4 @@
 * **Prioridade de processo:** `nice`/`renice` ajustam a prioridade de CPU e `ionice` a de I/O (`ionice -c 3` = *idle*).
 * **`systemd` (produção):** Units `gpu-job@.service` dão isolamento com `MemoryMax`, `CPUWeight`, `IOWeight`, *restart* automático (`Restart=on-failure`) e logging via `journald`. `flock` é para laboratório/scripts ad-hoc; `systemd` é para produção multiusuário.
 * **Starvation e aging:** Jobs de baixa prioridade podem nunca executar se os de alta ocuparem a GPU continuamente; a solução clássica é *aging* — aumentar a prioridade conforme o tempo de espera.
+* **Prática (Colab/Windows):** no notebook do Colab, o **lock por diretório** e a **fila por prioridade** são simulados em Python (o Colab não tem `flock`/`systemd`); no **laboratório Windows** (`laboratorio_windows/`), `teste_fila.sh` lança 4 jobs e serializa por prioridade, `fila_gpu.sh` enfileira um job e `monitor_gpu_proc.sh` acompanha GPU/processos/fila. Fecha com a seção **Exercícios (5)**.
