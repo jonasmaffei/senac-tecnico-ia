@@ -80,8 +80,8 @@ pip install -r requirements.txt
 
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
-| **07** | Introdução ao CUDA (Kernels, CuPy FFT) | [`fft_benchmark.py`](aulas/aula07/fft_benchmark.py) |
-| **08** | Tiling e Otimização de Memória (Shared Memory) | [`tiling_benchmark.py`](aulas/aula08/tiling_benchmark.py), [`stress_nvtop.py`](aulas/aula08/stress_nvtop.py), [`atividade.md`](aulas/aula08/atividade.md) |
+| **07** | Introdução ao Modelo CUDA (Kernels, índice global, CuPy FFT) | [`aula07_cuda.ipynb`](aulas/aula07/aula07_cuda.ipynb), [Apresentação](aulas/aula07/apresentacao_aula07.html), [Atividade](aulas/aula07/atividade.md), [`scripts/`](aulas/aula07/scripts) ([`indice_global.py`](aulas/aula07/scripts/indice_global.py), [`primeiro_kernel.py`](aulas/aula07/scripts/primeiro_kernel.py), [`fft_benchmark.py`](aulas/aula07/scripts/fft_benchmark.py), [`lib_cuda.py`](aulas/aula07/scripts/lib_cuda.py)), [Guia da Aula](aulas/aula07/README.md) |
+| **08** | Manipulação de Memória em CUDA (Tiling, Coalescing, Profiling) | [`aula08_tiling.ipynb`](aulas/aula08/aula08_tiling.ipynb), [Apresentação](aulas/aula08/apresentacao_aula08.html), [Atividade](aulas/aula08/atividade.md), [`scripts/`](aulas/aula08/scripts) ([`matmul_tiling.py`](aulas/aula08/scripts/matmul_tiling.py), [`matmul_global.py`](aulas/aula08/scripts/matmul_global.py), [`coalescing.py`](aulas/aula08/scripts/coalescing.py), [`profiling_ocupacao.py`](aulas/aula08/scripts/profiling_ocupacao.py), [`stress_nvtop.py`](aulas/aula08/scripts/stress_nvtop.py)), [Guia da Aula](aulas/aula08/README.md) |
 | **09** | Alternativas ao CUDA (OpenCL) + LLMs Locais | [`atividades.md`](aulas/aula09/atividades.md), [Tutorial Ollama](aulas/aula09/hands-on-ollama.md), [Tutorial Open WebUI](aulas/aula09/hands-on-frontend-ollama.md) |
 | **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [`rocm_pytorch_benchmark.py`](aulas/aula10/rocm_pytorch_benchmark.py), [`Atividades.md`](aulas/aula10/Atividades.md), [`verificar-gpu-container/`](aulas/aula10/verificar-gpu-container), [`stressar-gpu-container/`](aulas/aula10/stressar-gpu-container) |
 | **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (ResNet, W&B, AMP) | [`atividade_aula11.py`](aulas/aula11/atividade_aula11.py), [Guia da Aula](aulas/aula11/README.md) |
@@ -165,11 +165,17 @@ senac-tecnico-ia/
 │   │   ├── scripts/                         → gpu_status.sh, monitoramento_linux.py, cron_exemplos.sh, gpu-monitor.service
 │   │   └── README.md
 │   ├── aula07/
-│   │   └── fft_benchmark.py
-│   ├── aula08/
+│   │   ├── aula07_cuda.ipynb
+│   │   ├── apresentacao_aula07.html
 │   │   ├── atividade.md
-│   │   ├── stress_nvtop.py
-│   │   └── tiling_benchmark.py
+│   │   ├── scripts/                         → lib_cuda.py, indice_global.py, primeiro_kernel.py, fft_benchmark.py
+│   │   └── README.md
+│   ├── aula08/
+│   │   ├── aula08_tiling.ipynb
+│   │   ├── apresentacao_aula08.html
+│   │   ├── atividade.md
+│   │   ├── scripts/                         → lib_cuda.py, coalescing.py, matmul_global.py, matmul_tiling.py, profiling_ocupacao.py, stress_nvtop.py
+│   │   └── README.md
 │   ├── aula09/
 │   │   ├── atividades.md
 │   │   ├── hands-on-frontend-ollama.md

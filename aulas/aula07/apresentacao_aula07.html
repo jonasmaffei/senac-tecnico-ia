@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 07 — Introdução ao Modelo CUDA</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+  #progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease; }
+  #topbar { position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none; }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2); }
+  #deck { position: relative; height: 100%; width: 100%; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto; }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  .kicker { display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px; }
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li { position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch; }
+  ul.clean > li::before { content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .card { background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow); }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+  code { font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px; }
+  pre { background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35); }
+  pre code { background: none; border: none; padding: 0; color: #dbe1ff;
+    font-size: .8rem; line-height: 1.55; white-space: pre; display: block; }
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge { position: absolute; top: 8px; left: 10px; font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
+    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none; }
+  .code-wrap pre { padding-top: 30px; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+  .debate { display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px; }
+  .debate .q { flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem; }
+  .debate p { margin: 0; font-size: .95rem; }
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item { display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px; }
+  .tl-item .tl-time { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px; }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+  .terminal { background: #05070f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto; }
+  .terminal .bad { color: #ff8080; } .terminal .warn { color: #ffd27a; } .terminal .dim { color: #5c6a97; }
+  .flow { display: flex; flex-direction: column; gap: 8px; max-width: 640px; }
+  .flow .passo { display: flex; gap: 12px; align-items: center; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--panel); padding: 9px 14px; }
+  .flow .passo .n { flex: 0 0 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .8rem; }
+  .flow .passo .t { font-size: .9rem; color: var(--muted); }
+  .flow .passo .t strong { color: var(--text); }
+  #bottombar { position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92)); }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button { background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s; }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 { background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+  .note { display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start; }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 2 · Programação e Otimização</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 07 · Bloco 2</div>
+    <h1>Introdução ao Modelo CUDA</h1>
+    <p class="lead">Kernels, threads, blocos e grades — como escrever código que roda em
+      <strong>milhares de threads na GPU</strong> e medir o speedup real contra a CPU.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">2 — Programação e Otimização</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Execução</div><div class="v">Google Colab (T4 GPU)</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
+        <p>O pré-processamento de áudio da startup calcula a <strong>FFT</strong> de milhões de
+          amostras. A versão CPU leva <strong>~8 s</strong> por batch — inaceitável. Reescreva
+          com <strong>CUDA</strong> e busque latência abaixo de <strong>100 ms</strong>.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧭</span> O que precisamos</h3>
+        <p>Entender o <strong>modelo de programação CUDA</strong>: o que é um kernel, como
+          calcular o <strong>índice global</strong> e como configurar grade e blocos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> compreender a estrutura de programação paralela do CUDA —
+      kernels, threads, blocos e grades — e aplicá-la para acelerar cálculos matemáticos
+      intensivos em IA, medindo o speedup real vs. CPU.</p>
+    <div class="note">
+      <span class="ico">📌</span>
+      <span>Indicador da UC: <strong>reconhece e aplica modelos de programação paralela em
+        GPU</strong>. Início do Bloco 2: CUDA, OpenCL e ROCm.</span>
+    </div>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura e contextualização</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Teoria: modelo de programação CUDA</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: grade, blocos e threads</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Demo: primeiro kernel com numba</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Atividade: FFT CPU vs. GPU</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão em grupo</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Síntese e tarefa de casa</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Kernel · host/device · threadIdx · blockIdx · blockDim · gridDim · índice global ·
+            <code>to_device</code>/<code>copy_to_host</code> · <code>synchronize</code> · warp · FFT</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Material da aula</h3>
+          <p>Notebook <code>aula07_cuda.ipynb</code> e os scripts em <code>scripts/</code>
+            (indice_global, primeiro_kernel, fft_benchmark).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="slide">
+    <div class="kicker">Contexto</div>
+    <h2><span class="num">1.</span>Por que CUDA domina a IA?</h2>
+    <div class="grid cols-4" style="max-width:900px">
+      <div class="card"><h3><span class="ico">📅</span> 2006</h3><p>NVIDIA lança o CUDA — a primeira GPU programável para cálculo geral.</p></div>
+      <div class="card"><h3><span class="ico">🔥</span> 2012</h3><p>AlexNet treina em CUDA e inicia a revolução do deep learning.</p></div>
+      <div class="card"><h3><span class="ico">🤖</span> 2023</h3><p>GPT-4, Gemini e LLaMA — todos treinados com CUDA.</p></div>
+      <div class="card"><h3><span class="ico">⚙️</span> hoje</h3><p>cuDNN + CUDA são o backbone de PyTorch, TensorFlow e JAX.</p></div>
+    </div>
+    <div class="note" style="margin-top:18px">
+      <span class="ico">📌</span>
+      <span>Escrever kernels dá <strong>controle direto</strong> sobre o hardware — o caminho
+        para acelerar operações específicas muito além do Python puro.</span>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Modelo de programação</div>
+    <h2><span class="num">2.</span>Host e Device</h2>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🖥️</span> Host (CPU)</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li>Código C/Python que roda na CPU</li>
+          <li>Aloca memória na VRAM</li>
+          <li>Transfere dados CPU ↔ GPU</li>
+          <li><strong>Lança kernels</strong> na GPU</li>
+          <li>Coleta os resultados</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎮</span> Device (GPU)</h3>
+        <ul class="clean" style="margin-top:4px">
+          <li><strong>Kernel:</strong> função que roda na GPU</li>
+          <li>Executado por <strong>N threads</strong> em paralelo</li>
+          <li>Cada thread tem um <strong>ID único</strong> (threadIdx)</li>
+          <li>Threads agrupadas em <strong>blocos</strong></li>
+          <li>Blocos agrupados em <strong>grade</strong></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Fluxo</div>
+    <h2><span class="num">3.</span>O fluxo típico de um programa CUDA</h2>
+    <div class="flow">
+      <div class="passo"><div class="n">1</div><div class="t">CPU aloca arrays na VRAM — <strong>cuda.to_device()</strong></div></div>
+      <div class="passo"><div class="n">2</div><div class="t">CPU lança o kernel — <strong>kernel[blocos, threads](...)</strong></div></div>
+      <div class="passo"><div class="n">3</div><div class="t">GPU executa N threads em paralelo</div></div>
+      <div class="passo"><div class="n">4</div><div class="t">CPU aguarda — <strong>cuda.synchronize()</strong></div></div>
+      <div class="passo"><div class="n">5</div><div class="t">CPU copia o resultado de volta — <strong>copy_to_host()</strong></div></div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">💡</span>
+      <span>O kernel é <strong>assíncrono</strong>: o host lança e segue. Sem
+        <code>synchronize()</code>, você pode copiar um resultado <strong>incompleto</strong>.</span>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Hierarquia</div>
+    <h2><span class="num">4.</span>threadIdx, blockIdx, blockDim, gridDim</h2>
+    <table style="max-width:820px">
+      <thead><tr><th>Identificador</th><th>Significa</th><th>Exemplo</th></tr></thead>
+      <tbody>
+        <tr><td><code>threadIdx</code></td><td>Índice local da thread no bloco</td><td><code>.x = 0..255</code></td></tr>
+        <tr><td><code>blockIdx</code></td><td>Índice do bloco na grade</td><td><code>.x = 0..N_blocos</code></td></tr>
+        <tr><td><code>blockDim</code></td><td>Nº de threads por bloco</td><td><code>.x = 256</code></td></tr>
+        <tr><td><code>gridDim</code></td><td>Nº de blocos na grade</td><td><code>.x = 3907</code></td></tr>
+      </tbody>
+    </table>
+    <div class="code-wrap" style="margin-top:14px;max-width:640px">
+      <span class="badge">fórmula do índice global (1D)</span>
+      <pre><code>idx = blockIdx.x * blockDim.x + threadIdx.x
+# atalho: idx = cuda.grid(1)</code></pre>
+    </div>
+    <div class="note" style="margin-top:10px">
+      <span class="ico">🧭</span>
+      <span>Em 2D (imagens): <code>col, row = cuda.grid(2)</code> — x é coluna, y é linha.</span>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="slide">
+    <div class="kicker">Demo · Primeiro kernel</div>
+    <h2><span class="num">5.</span>Numba: CUDA em Python</h2>
+    <div class="grid cols-2">
+      <div>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code>@cuda.jit
+def soma(a, b, c):
+    idx = cuda.grid(1)
+    if idx < c.shape[0]:
+        c[idx] = a[idx] + b[idx]</code></pre>
+        </div>
+        <p>O <code>@cuda.jit</code> compila a função para rodar na GPU. Cada thread calcula
+          <strong>uma posição</strong> do vetor.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Saída esperada</h3>
+        <div class="terminal">
+N = 10,000,000 elementos
+Threads por bloco : 256
+Blocos na grade   : 39,063
+Threads totais    : 10,000,128
+Resultado[0..4] = [3. 3. 3. 3. 3.]
+<span class="dim">✓ Esperado: [3. 3. 3. 3. 3.]</span>
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Rode <code>scripts/primeiro_kernel.py</code> e
+            <code>scripts/indice_global.py</code>.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="slide">
+    <div class="kicker">Atividade · O problema da startup</div>
+    <h2><span class="num">6.</span>FFT: CPU vs. GPU</h2>
+    <div class="grid cols-2">
+      <div>
+        <div class="code-wrap">
+          <span class="badge">conceito</span>
+          <pre><code># CPU
+np.fft.fft(sinal)
+
+# GPU (mesma API!)
+cp.fft.fft(cp.asarray(sinal))</code></pre>
+        </div>
+        <p>A FFT é a operação central do <strong>pré-processamento de áudio</strong>. O CuPy
+          entrega a mesma API do NumPy, mas executando na VRAM.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Speedup (T4, 4M pontos)</h3>
+        <table>
+          <thead><tr><th>Versão</th><th>Tempo</th></tr></thead>
+          <tbody>
+            <tr><td>CPU (NumPy)</td><td class="no">~1200 ms</td></tr>
+            <tr><td>GPU (CuPy)</td><td class="yes">~18 ms</td></tr>
+            <tr><td><strong>Speedup</strong></td><td class="yes"><strong>~66×</strong></td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Rode <code>scripts/fft_benchmark.py</code> (comentado linha a linha).</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section class="slide">
+    <div class="kicker">Teoria · Escolha do bloco</div>
+    <h2><span class="num">7.</span>Quantos threads por bloco?</h2>
+    <table style="max-width:640px">
+      <thead><tr><th>threads/bloco</th><th>blocos (N=1M)</th><th>threads totais</th></tr></thead>
+      <tbody>
+        <tr><td>32</td><td>31.250</td><td>1.000.000</td></tr>
+        <tr><td>128</td><td>7.813</td><td>1.000.064</td></tr>
+        <tr><td><strong>256</strong></td><td>3.907</td><td><strong>1.000.192 ← ótimo</strong></td></tr>
+        <tr><td>1024</td><td>977</td><td>1.000.448</td></tr>
+      </tbody>
+    </table>
+    <ul class="clean check" style="margin-top:14px">
+      <li>Use sempre <strong>múltiplos de 32</strong> (tamanho do warp).</li>
+      <li><strong>128–256 threads/bloco</strong> costuma ser o ponto ótimo.</li>
+      <li>Nunca passe de <strong>1024</strong> (limite por bloco).</li>
+    </ul>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">8.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>10 milhões de amostras com 256 threads/bloco:
+      quantos blocos? O que acontece com as threads <strong>"extras"</strong>?</p></div>
+    <div class="debate"><div class="q">2</div><p>Por que é necessário chamar
+      <code>cuda.synchronize()</code> antes de copiar o resultado de volta?</p></div>
+    <div class="debate"><div class="q">3</div><p>Em que situações um kernel CUDA simples
+      <strong>não</strong> teria speedup vs. a CPU? (Pense em overhead e tamanho dos dados.)</p></div>
+    <div class="debate"><div class="q">4</div><p>O CuPy dá 66× na FFT. Como você usaria isso no
+      pipeline de áudio da startup?</p></div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Kernel</strong> — função executada por N threads na GPU</li>
+          <li><strong>threadIdx/blockIdx</strong> — IDs únicos para calcular o índice global</li>
+          <li><strong>Grade → Bloco → Thread</strong> — grade = problema inteiro</li>
+          <li><strong>to_device/copy_to_host</strong> — trânsito RAM ↔ VRAM</li>
+          <li><strong>synchronize()</strong> — espera os threads antes de prosseguir</li>
+          <li><strong>256 threads/bloco</strong> — ótimo na maioria dos casos</li>
+        </ul>
+        <p style="margin-top:12px">Recursos: notebook <code>aula07_cuda.ipynb</code> e
+          <code>scripts/</code> — todos comentados.</p>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Tarefa de casa (opcional)</h3>
+          <p>Implemente um kernel CUDA para o <strong>produto escalar</strong> de dois vetores
+            de 1M elementos e compare com o NumPy:</p>
+          <ul class="clean" style="margin-top:6px">
+            <li>Kernel com <code>numba.cuda</code> + versão CPU</li>
+            <li>Speedup para N = 1K, 10K, 100K, 1M, 10M</li>
+            <li>Gráfico speedup × N com Matplotlib</li>
+            <li>Onde a GPU começa a superar a CPU?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔧</span> Recursos de apoio</h3>
+          <p><strong>Google Colab</strong> (GPU gratuita), <strong>numba.cuda</strong>
+            (kernels em Python), <strong>CuPy</strong> (NumPy na GPU) e a
+            <strong>documentação oficial CUDA</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 11</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next; render();
+    }
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index; render();
+    }
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") { e.preventDefault(); goTo(0); }
+      else if (e.key === "End") { e.preventDefault(); goTo(slides.length - 1); }
+    });
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

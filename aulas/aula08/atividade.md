@@ -1,31 +1,94 @@
-# Atividade de Pesquisa: Otimização de Memória e Custos em I.A.
-## Aula 8: Manipulação de Memória em CUDA e Tiling
+# Atividade Guiada: Aula 8 — Manipulação de Memória em CUDA (Tiling)
 
-> **Objetivo:** Investigar como o gerenciamento de largura de banda e memória em hardware de alto desempenho afeta a eficiência energética, o tempo de processamento e a fatura de infraestrutura de grandes empresas de Inteligência Artificial.
+## Parte 1 — Atividade guiada: otimizando um kernel
+
+O objetivo é **medir antes de otimizar** e entender o impacto da memória. Rode no **Google
+Colab** com GPU habilitada (*Runtime ➔ Change runtime type ➔ T4 GPU*).
+
+### Passo 1 — Coalescing
+
+```bash
+python scripts/coalescing.py
+```
+
+Compare o tempo do acesso **coalescido** com o **strided (×32)**. Anote quantas vezes mais
+lento ficou.
+
+### Passo 2 — Matmul ingênua (memória global)
+
+```bash
+python scripts/matmul_global.py
+```
+
+Guarde o tempo e confira que o erro vs. NumPy é ~0 (a resposta está certa, só é lenta).
+
+### Passo 3 — Matmul com tiling (memória compartilhada)
+
+```bash
+python scripts/matmul_tiling.py
+```
+
+Compare com o passo 2 e calcule o speedup. Depois rode o mesmo no **Nsight Compute**:
+
+```bash
+ncu --set full python scripts/matmul_tiling.py
+# no Colab: instale o ncu ou use o Nsight Systems do Google Colab
+```
+
+### Passo 4 — Medindo com eventos CUDA
+
+```bash
+python scripts/profiling_ocupacao.py
+```
+
+Observe que `cuda.event` mede o tempo **na GPU**, não na CPU.
+
+### Exercício de fixação
+
+1. Quantas transações de barramento um acesso não-coalescido gera no **pior caso**?
+2. Por que a versão com tiling lê cada elemento da VRAM **~TILE vezes menos**?
+3. O que aconteceria se você removesse **um** dos `cuda.syncthreads()`?
+4. Por que `cuda.event` é mais preciso que `time.time()` para medir um kernel?
 
 ---
 
-### Parte 1: Investigação Técnica (Hardware e Arquitetura)
+## Parte 2 — Discussão em grupo (3 a 4 pessoas)
 
-1. **O Impacto do Coalescing:**
-   * Pesquise o que acontece a nível de hardware em uma GPU NVIDIA quando threads de um mesmo warp fazem acessos **coalescidos** à memória global versus acessos **desalinhados/espalhados**.
-   * *Pergunta para entrega:* Quantas transações de barramento a memória precisa realizar no pior cenário e qual é a perda estimada de desempenho?
+No cenário do kernel lento:
 
-2. **Memória Compartilhada (SRAM) vs. Cache L1:**
-   * A Memória Compartilhada do CUDA é controlada explicitamente pelo programador (cache manual), enquanto o Cache L1 é gerenciado de forma automática pelo hardware.
-   * *Pergunta para entrega:* Em termos de engenharia de software, quais são as vantagens e desvantagens de ter que gerenciar manualmente o cache (Tiling) em vez de confiar 100% no cache automático do processador?
-
----
-
-### Parte 2: Visão de Negócios e Infraestrutura em Nuvem
-
-3. **O Custo do Minuto de GPU na Nuvem:**
-   * Pesquise o custo médio de locação de instâncias de nuvem equipadas com GPUs de alta performance (como a NVIDIA A100 ou H100).
-   * *Pergunta para entrega:* Se um algoritmo de treinamento de redes neurais otimizado com Tiling reduz o tempo de processamento de uma época de 10 horas para 2 horas, qual é a economia financeira estimada para uma empresa que roda esse treinamento diariamente?
-
-4. **Eficiência Energética (Green AI):**
-   * O consumo de energia de data centers de IA é um dos maiores desafios globais da atualidade.
-   * *Pergunta para entrega:* Explique como a redução de acessos desnecessários à Memória Global (VRAM lenta) impacta diretamente o consumo de Watts (energia) de uma placa de vídeo durante uma carga de trabalho pesada.
+1. Com tile **16×16** (256 threads), quantas vezes cada elemento de A e B é lido da
+   **memória global** vs. da **memória compartilhada**?
+2. Por que é obrigatório chamar `cuda.syncthreads()` **duas vezes** no kernel de tiling? O que
+   acontece se você remover uma delas?
+3. A memória compartilhada tem ~**48 KB por SM**. Com `TILE=32`, qual o tamanho dos dois tiles
+   juntos? Cabe na shared memory?
+4. Em que situações usar memória compartilhada **não** vale a pena? (Pense em kernels onde
+   cada dado é lido apenas uma vez.)
 
 ---
-> **Dica:** Lembre-se de que o melhor engenheiro de I.A. não é apenas quem domina a matemática dos modelos, mas quem compreende a física do hardware e sabe otimizar o uso da memória para garantir escala e viabilidade financeira.
+
+## Parte 3 — Pesquisa (tarefa de casa, opcional)
+
+### Engenharia e hardware
+
+- **Coalescing:** pesquise o que acontece a nível de hardware quando threads de um warp fazem
+  acessos coalescidos vs. espalhados. Quantas transações no pior caso e qual a perda estimada?
+- **Shared vs. cache L1:** quais as vantagens e desvantagens de gerenciar **manualmente** o
+  cache (tiling) em vez de confiar 100% no cache automático?
+
+### Visão de negócios e infraestrutura
+
+- **Custo do minuto de GPU:** pesquise o custo médio de instâncias com A100/H100. Se o tiling
+  reduz uma época de **10 h para 2 h**, qual a economia diária para uma empresa que treina
+  todo dia?
+- **Eficiência energética (Green AI):** explique como reduzir acessos à VRAM lenta impacta
+  diretamente o consumo de **watts** durante uma carga pesada.
+
+### Prática extra
+
+- Otimize a **transposta de matriz** com shared memory, adicionando **`+1`** à dimensão interna
+  do tile. Explique por que isso elimina *bank conflicts*.
+- Meça com `cuda.event` para N = 256, 512, 1024, 2048 e plote o **speedup × N**.
+
+> **Dica:** o melhor engenheiro de IA não domina só a matemática dos modelos — entende a
+> **física do hardware** e otimiza memória para garantir escala e viabilidade financeira.

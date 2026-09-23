@@ -51,14 +51,18 @@
 ### Bloco 2: Programação e Otimização
 
 #### Aula 7: Introdução ao Modelo CUDA
-* **Kernels:** Funções executadas em paralelo por milhares de threads diretamente na VRAM.
-* **Índices Globais:** Combinação de `blockIdx`, `blockDim` e `threadIdx` para mapear dados unicamente.
-* **Sincronização:** `cuda.synchronize()` garante a conclusão dos cálculos na GPU antes de retornar os dados para a CPU.
+* **Kernels:** Funções executadas em paralelo por milhares de threads diretamente na VRAM; o host (CPU) aloca, transfere (`to_device`), lança (`kernel[blocos, threads]`), sincroniza e copia de volta (`copy_to_host`).
+* **Índices Globais:** `idx = blockIdx.x * blockDim.x + threadIdx.x` (atalho `cuda.grid(1)`) garante um índice único por thread; em 2D usa-se `cuda.grid(2)` (coluna, linha).
+* **Sincronização:** `cuda.synchronize()` garante a conclusão dos cálculos na GPU antes de retornar os dados para a CPU. 128–256 threads/bloco (múltiplo de 32) costuma ser o ótimo.
+* **Prática (Colab):** primeiros kernels com numba; FFT CPU (NumPy) vs. GPU (CuPy) mostra ~66× no caso de áudio (~1200 ms → ~18 ms). Sem GPU, os scripts mostram o conceito e números de referência.
 
 #### Aula 8: Manipulação de Memória em CUDA (Tiling)
+* **Hierarquia de memória:** Registradores (~1 ciclo, por thread) → Shared/SRAM (~5 ciclos, por bloco, cache manual) → Cache L1/L2 (~30) → Global/VRAM (~500 ciclos).
 * **Regra 90/10:** 90% do tempo de processamento em I.A. é gasto em acessos à memória.
-* **Tiling:** Técnica de carregar pedaços de dados da VRAM para a Memória Compartilhada rápida, permitindo reutilização e eliminando o gargalo de largura de banda.
-* **Coalescing:** Acessos consecutivos à memória unificados em transações eficientes.
+* **Tiling:** Carregar pedaços (tiles) da VRAM para a Memória Compartilhada rápida e reutilizá-los no bloco, reduzindo os acessos à global por um fator ~TILE. Exige **dois `cuda.syncthreads()`** (barreira antes e depois do uso).
+* **Coalescing:** Threads consecutivas acessando endereços consecutivos são unificadas em **1 transação de 128B**; acessos espalhados (stride) geram até ~32 transações separadas.
+* **Profiling:** `cuda.event` mede o kernel na GPU; **Nsight Systems** (`nsys`, macro) e **Nsight Compute** (`ncu`, micro: `sm__warps_active`, `dram__bytes`, roofline).
+* **Prática (Colab):** matmul global (~120 ms) vs. tiling (~18 ms, ~6.7×) para N=512; `stress_nvtop.py` gera carga para observar no nvtop.
 
 #### Aula 9: Alternativas ao CUDA: OpenCL
 ##### 1. Contextualização e Suporte
