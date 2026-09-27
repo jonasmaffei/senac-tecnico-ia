@@ -1,16 +1,12 @@
-# 🤖 Aula 16 — Agentes de Código: Harness, RAG, Skills e Vibe Coding
+# 🤖 Aula 16 — Agentes de Código, GitHub, Contexto, AGENTS.md e Monitoramento Web
 
-**Objetivo:** reconhecer os componentes de um **agente de código** (harness, contexto, skills,
-RAG) e aplicar a **Google Antigravity CLI** (`agy`) numa prática, com postura crítica sobre
-**vibe coding**.
+**Objetivo:** reconhecer os componentes de um **agente de código** (harness, contexto, skills, RAG, `AGENTS.md`), aplicar o **GitHub** como controle de versão e rede de segurança, e utilizar a **Google Antigravity CLI** (`agy`) para criar uma aplicação de monitoramento web em Python guiada por um arquivo `AGENTS.md`.
 
 ---
 
-## 🎯 Situação de aprendizagem
+## 🎯 Situação de Aprendizagem
 
-A startup precisa **acelerar o time de desenvolvimento**. Você vai usar um **agente de código no
-terminal** para criar algo real — e precisa entender **o que ele é**, **o que ele sabe** e
-**o que ele pode fazer** antes de confiar no resultado.
+A startup precisa **acelerar o time de desenvolvimento** mantendo controle de qualidade. Você vai usar um **agente de código no terminal** para criar uma **aplicação de monitoramento de sistema em Python acessível via web**, guiando o agente através de um arquivo de diretrizes (`AGENTS.md`) e salvando o progresso de forma segura no **GitHub**.
 
 ---
 
@@ -19,7 +15,8 @@ terminal** para criar algo real — e precisa entender **o que ele é**, **o que
 | Item | O que é |
 | :--- | :--- |
 | [`apresentacao_aula16.html`](apresentacao_aula16.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
-| [`atividade.md`](atividade.md) | Roteiro prático da CLI (`agy`) + discussão + tarefa de casa |
+| [`atividade.md`](atividade.md) | Tutorial completo de GitHub, guia de Contexto e `AGENTS.md` + Roteiro prático da CLI (`agy`) |
+| [`laboratorio_monitoramento/`](laboratorio_monitoramento/) | Laboratório prático com `AGENTS.md` para construção do monitor web em Python |
 
 ### Estrutura da aula
 
@@ -28,70 +25,58 @@ aula16/
   apresentacao_aula16.html
   README.md
   atividade.md
+  laboratorio_monitoramento/
+    AGENTS.md
+    README.md
 ```
 
 ---
 
-## 🚀 Como usar
+## 🚀 Como Usar
 
 ### 1. Assistir à apresentação
+Abra [`apresentacao_aula16.html`](apresentacao_aula16.html) com duplo clique no navegador e navegue com `←` / `→`.
 
-Abra [`apresentacao_aula16.html`](apresentacao_aula16.html) com duplo clique no navegador e
-navegue com `←` / `→`.
-
-### 2. Praticar com a CLI
-
-Siga o roteiro em [`atividade.md`](atividade.md). Você vai instalar a **Antigravity CLI**,
-abrir um projeto e pedir ao agente uma tarefa simples — **revisando cada mudança** com `/diff`.
+### 2. Seguir o roteiro prático
+Abra [`atividade.md`](atividade.md) para:
+1. Aprender e praticar os comandos básicos de **GitHub** (`clone`, `add`, `commit`, `push`).
+2. Entender como a **Janela de Contexto** afeta o desempenho do agente de IA.
+3. Entender a estrutura e importância do arquivo **`AGENTS.md`**.
+4. Usar a **Antigravity CLI** (`agy`) dentro de `laboratorio_monitoramento/` para construir a aplicação de monitoramento web em Python.
 
 ---
 
 ## 🔑 Conceitos-chave
 
-- **Harness** — a “armação” que faz o modelo **agir**: loop, ferramentas, contexto e permissões.
-- **Agente** — persegue um objetivo em passos: **observar → planejar → agir → verificar**.
-- **Ferramentas (tools)** — ler/editar arquivos, rodar comandos, buscar no código/web.
+- **GitHub para Iniciantes** — repositório remoto, versionamento e rede de segurança contra erros de geração de código.
+- **Harness** — a “armação” que faz o modelo **agir**: loop agêntico, ferramentas, contexto e permissões.
+- **Contexto & Janela de Contexto** — o volume de dados (prompts, arquivos, histórico) processado pela IA a cada turno.
+- **AGENTS.md** — arquivo de memória persistente na raiz do repositório que orienta agentes de IA sobre regras, estrutura e testes.
 - **Skills** — pastas de **instruções reutilizáveis** (`.agents/skills/<nome>/SKILL.md`).
 - **RAG** — **buscar** o conhecimento certo e **injetar** no contexto antes de responder.
-- **Vibe coding** — gerar código por linguagem natural; rápido para prototipar, **arriscado sem
-  verificação**.
-
-> **Regra de ouro:** o agente **acelera**, mas **você responde** pelo resultado. Sem
-> verificação (testes, build, leitura do diff), não vale.
+- **Vibe coding** — gerar código por linguagem natural; rápido para prototipar, **arriscado sem verificação humana e Git**.
 
 ---
 
-## 💬 Discussão em grupo
+## 💬 Discussão em Grupo
 
 Em grupos de 3–4:
 
-1. Onde o **harness** termina e a **responsabilidade do engenheiro** começa?
-2. Quando o **RAG** resolve mais que “decorar” os dados no modelo? Exemplo do seu setor.
-3. O que uma boa **skill** deveria conter para o agente acertar de primeira?
-4. **Vibe coding** sem testes é aceitável num projeto real?
+1. Como o arquivo `AGENTS.md` ajuda a padronizar o trabalho de múltiplos agentes ou desenvolvedores no mesmo projeto?
+2. Por que o versionamento com **GitHub** é indispensável para evitar desastres em sessões de *vibe coding*?
+3. Qual é o impacto do excesso de contexto na qualidade do código gerado por uma IA?
 
 ---
 
-## 📌 Tarefa de casa (opcional)
+## 🔗 Relação com o Curso
 
-- Escreva **uma skill** (pasta + `SKILL.md`) para uma tarefa sua.
-- Explique, num parágrafo, como um **RAG** ajudaria no seu projeto.
-- Liste **2 riscos** do vibe coding e como mitigá-los.
-
----
-
-## 🔗 Relação com o curso
-
-- **Bloco 3 (Automação)** tratou de operar GPU com Bash (`cron`, filas, monitoramento). Esta aula
-  sobe um nível: **automatizar o próprio trabalho de desenvolvimento** com agentes.
-- Conecta com toda a trilha: o agente **lê o repositório** (o mesmo que você versiona com Git em
-  [`docs/03_git.md`](../../docs/03_git.md)) e **busca contexto** (RAG) para trabalhar.
+- Conecta os blocos de **Automação** e **Versionamento**: integra a prática de Git em [`docs/03_git.md`](../../docs/03_git.md) com o uso de agentes no terminal.
+- Mostra como automatizar a criação de scripts de telemetria em Python (vistos na Aula 14) utilizando **instruções declarativas** via `AGENTS.md`.
 
 ---
 
-## 🔧 Recursos de apoio
+## 🔧 Recursos de Apoio
 
-- Documentação da **Antigravity**: CLI, [Agent Skills](https://antigravity.google/docs/skills) e
-  [Best Practices](https://antigravity.google/docs/cli/best-practices).
+- Documentação da **Antigravity**: CLI, [Agent Skills](https://antigravity.google/docs/skills) e [Best Practices](https://antigravity.google/docs/cli/best-practices).
 - Padrão aberto de **Agent Skills**: <https://agentskills.io/home>.
 - `AGENTS.md` do repositório do curso — exemplo real de arquivo de regras para agentes.

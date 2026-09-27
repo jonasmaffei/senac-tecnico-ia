@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aula 16 — Agentes de Código, Harness, RAG e Skills (Antigravity CLI)</title>
+<title>Aula 16 — Agentes de Código, GitHub, Contexto e AGENTS.md (Antigravity CLI)</title>
 <style>
   :root {
     --bg: #0b1020;
@@ -126,14 +126,6 @@
   }
   pre.scroll { max-height: 340px; overflow-y: auto; }
 
-  .code-wrap { position: relative; margin: 0 0 12px; }
-  .code-wrap .badge {
-    position: absolute; top: 8px; left: 10px; font-size: .64rem;
-    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
-    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none;
-  }
-  .code-wrap pre { padding-top: 30px; }
-
   .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
   .pipe-step {
     flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
@@ -149,9 +141,6 @@
   th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
   td { color: var(--muted); }
   tr:last-child td { border-bottom: none; }
-  .yes { color: var(--accent-2); font-weight: 600; }
-  .no  { color: var(--accent-4); font-weight: 600; }
-  .mid { color: var(--accent-3); font-weight: 600; }
 
   .debate {
     display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
@@ -180,8 +169,6 @@
     padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
     font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto;
   }
-  .terminal .bad { color: #ff8080; }
-  .terminal .warn { color: #ffd27a; }
   .terminal .dim { color: #5c6a97; }
 
   #bottombar {
@@ -202,7 +189,6 @@
   .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
 
   .title-slide { align-items: flex-start; }
-  .title-slide .big-badge { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 18px; }
   .title-slide h1 {
     background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
@@ -217,7 +203,6 @@
     margin-bottom: 14px; align-self: flex-start;
   }
   .note .ico { font-size: 1.05rem; }
-  .note code { font-size: .82em; }
 
   @media (max-width: 900px) {
     .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
@@ -231,6 +216,8 @@
 </head>
 <body>
 
+<div id="progress"></div>
+
 <div id="topbar">
   <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
   <div>Bloco 3 · Automação</div>
@@ -241,27 +228,21 @@
   <!-- 01 — Título -->
   <section class="slide title-slide active">
     <div class="kicker">Aula 16 · Prática</div>
-    <h1>Agentes de Código: Harness, RAG, Skills e Vibe Coding</h1>
-    <p class="lead">Como as ferramentas <strong>“agent-first”</strong> (Antigravity CLI, opencode,
-      Claude Code) funcionam por dentro — e como usá-las com critério no dia a dia do
-      desenvolvimento.</p>
+    <h1>Agentes de Código: GitHub, Contexto, AGENTS.md e Harness</h1>
+    <p class="lead">Como usar o <strong>GitHub</strong> como rede de segurança, entender o <strong>Contexto</strong> do modelo e utilizar o <strong>AGENTS.md</strong> para orientar ferramentas agent-first (Antigravity CLI <code>agy</code>).</p>
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
       <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
-      <div class="meta"><div class="k">Ferramenta</div><div class="v">Google Antigravity CLI (<code>agy</code>)</div></div>
+      <div class="meta"><div class="k">Ferramenta</div><div class="v">Google Antigravity CLI (<code>agy</code>) & GitHub</div></div>
     </div>
     <div class="grid cols-2" style="margin-top:26px">
       <div class="card" style="border-top:3px solid var(--accent-2)">
         <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
-        <p>A startup precisa acelerar o time de desenvolvimento. Você vai usar um <strong>agente de
-          código no terminal</strong> para criar algo real — e precisa entender <strong>o que ele
-          é</strong>, <strong>o que ele sabe</strong> e <strong>o que ele pode fazer</strong>.</p>
+        <p>A startup precisa acelerar o desenvolvimento de um <strong>programa de monitoramento web em Python</strong>. Você usará o <code>agy</code> com diretrizes via <code>AGENTS.md</code> e salvando tudo no <strong>GitHub</strong>.</p>
       </div>
       <div class="card" style="border-top:3px solid var(--accent)">
         <h3><span class="ico">🧭</span> O que vamos entender</h3>
-        <p><strong>Harness</strong>, <strong>agente</strong>, <strong>skills</strong>,
-          <strong>RAG</strong> e <strong>vibe coding</strong> — com <strong>prática na CLI</strong>
-          <code>agy</code>.</p>
+        <p><strong>GitHub para Iniciantes</strong>, <strong>Contexto & Context Window</strong>, <strong>AGENTS.md</strong>, <strong>Harness</strong> e <strong>Vibe Coding responsável</strong>.</p>
       </div>
     </div>
   </section>
@@ -270,352 +251,170 @@
   <section class="slide">
     <div class="kicker">Visão Geral</div>
     <h2>Objetivo e roteiro da aula</h2>
-    <p><strong>Objetivo:</strong> reconhecer os componentes de um <strong>agente de código</strong>
-      (harness, contexto, skills, RAG) e aplicar a <strong>Antigravity CLI</strong> numa prática,
-      com postura crítica sobre <strong>vibe coding</strong>.</p>
-    <div class="note">
-      <span class="ico">📌</span>
-      <span>Esta aula <strong>não</strong> ensina a programar código do zero: o foco é
-        <strong>operar e entender</strong> um agente que escreve código. O agente é a ferramenta;
-        o <strong>raciocínio do engenheiro</strong> continua sendo seu.</span>
-    </div>
+    <p><strong>Objetivo:</strong> dominar o ciclo de versionamento com **GitHub**, compreender o papel do **Contexto** e do **AGENTS.md** na automação agêntica e construir uma aplicação web de monitoramento.</p>
     <div class="grid cols-2" style="align-items:start">
       <div>
         <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
         <div class="timeline">
-          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: a era “agent-first”</span></div>
-          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: Harness</span></div>
-          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: Agente, tools e loop</span></div>
-          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: Skills e RAG</span></div>
-          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Prática: Antigravity CLI (<code>agy</code>)</span></div>
-          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Vibe coding: riscos e limites</span></div>
-          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão e síntese</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">GitHub para Iniciantes & Versionamento</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: O que é Contexto & Context Window</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: AGENTS.md como Memória do Projeto</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: Harness e Loop Agêntico</span></div>
+          <div class="tl-item"><span class="tl-time">40 min</span><span class="tl-txt">Prática: Monitoramento Web com <code>agy</code> + <code>AGENTS.md</code></span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão e Envio para GitHub</span></div>
         </div>
       </div>
       <div>
         <div class="card" style="margin-bottom:12px">
           <h3><span class="ico">🔑</span> Conceitos-chave</h3>
-          <p>Harness · loop agêntico · tools · contexto · <em>context window</em> · skills ·
-            RAG · <em>grounding</em> · vibe coding · verificação</p>
+          <p>GitHub · <code>git add/commit/push</code> · Context Window · Token Limit · AGENTS.md · Harness · Loop Agêntico · Diffs</p>
         </div>
         <div class="card">
           <h3><span class="ico">📄</span> Material da aula</h3>
-          <p>Apresentação + roteiro prático da CLI em <code>aula16/</code>. O agente escreve o
-            código; você revisa.</p>
+          <p>Apresentação + <code>atividade.md</code> (tutorial GitHub + guia Contexto) + <code>laboratorio_monitoramento/AGENTS.md</code>.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 03 — Era agent-first -->
+  <!-- 03 — GitHub como Rede de Segurança -->
   <section class="slide">
-    <div class="kicker">Contexto</div>
-    <h2><span class="num">1.</span>A era “agent-first”</h2>
-    <p>Ferramentas de linha de comando com <strong>agentes de IA</strong> mudaram o jeito de
-      programar. Elas rodam no terminal onde o desenvolvedor já trabalha.</p>
+    <div class="kicker">Versionamento</div>
+    <h2><span class="num">1.</span>GitHub: A Rede de Segurança da IA</h2>
+    <p>Ao usar agentes de IA que editam arquivos automaticamente, o <strong>GitHub/Git</strong> é a sua proteção contra erros e perda de código.</p>
     <div class="grid cols-3">
       <div class="card">
-        <h3><span class="ico">🅰️</span> Antigravity</h3>
-        <p>Google. CLI <code>agy</code>, IDE e SDK — todos sobre o mesmo <em>harness</em>.</p>
+        <h3><span class="ico">📜</span> Histórico Infalível</h3>
+        <p>Cada alteração aceita vira um <code>commit</code>. Se a IA gerar um bug, basta dar <code>git reset</code> ou restaurar o estado anterior.</p>
       </div>
       <div class="card">
-        <h3><span class="ico">🟢</span> opencode</h3>
-        <p>Agente de código <em>open source</em> no terminal; mesmo padrão de interação.</p>
+        <h3><span class="ico">🔍</span> Transparência em Diffs</h3>
+        <p>Com <code>git diff</code> ou o comando <code>/diff</code> no agente, você revisa linha por linha antes de aprovar.</p>
       </div>
       <div class="card">
-        <h3><span class="ico">🟠</span> Claude Code</h3>
-        <p>Anthropic. Agente no terminal com foco em edição de código.</p>
+        <h3><span class="ico">☁️</span> Nuvem e Colaboração</h3>
+        <p>Com <code>git push</code>, seu projeto fica seguro no GitHub, acessível e pronto para trabalho em equipe via Pull Requests.</p>
       </div>
-    </div>
-    <div class="note" style="margin-top:16px">
-      <span class="ico">🧩</span>
-      <span>Todos compartilham a mesma ideia: um <strong>agente</strong> que lê o projeto,
-        <strong>planeja</strong>, usa <strong>ferramentas</strong> (ler/escrever arquivos, rodar
-        comandos) e <strong>verifica</strong> o resultado.</span>
     </div>
   </section>
 
-  <!-- 04 — Harness -->
+  <!-- 04 — O que é Contexto -->
+  <section class="slide">
+    <div class="kicker">Teoria · Contexto</div>
+    <h2><span class="num">2.</span>O que é Contexto e Janela de Contexto?</h2>
+    <p>O <strong>contexto</strong> é a quantidade total de dados que a IA consegue processar simultaneamente em sua "memória de trabalho".</p>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">Componentes do Contexto</h3>
+        <ul class="clean">
+          <li><strong>Instrução do Usuário:</strong> O prompt enviado no terminal</li>
+          <li><strong>Diretrizes do Projeto:</strong> O arquivo <code>AGENTS.md</code></li>
+          <li><strong>Arquivos Lidos:</strong> Código lido via ferramentas (tools)</li>
+          <li><strong>Histórico da Conversa:</strong> Diffs e respostas anteriores</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="border-top:3px solid var(--accent-4)">
+          <h3><span class="ico">⚠️</span> Degradação de Contexto (Context Rot)</h3>
+          <p>Contexto demais polui a memória da IA. Informações irrelevantes fazem o agente esquecer regras ou hallucinar. Mantenha o contexto limpo!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — O que é AGENTS.md -->
+  <section class="slide">
+    <div class="kicker">Teoria · Diretrizes</div>
+    <h2><span class="num">3.</span>AGENTS.md: A Memória Persistente do Projeto</h2>
+    <p>O <code>AGENTS.md</code> é um arquivo markdown na raiz do repositório lido **automaticamente** por agentes de IA (`agy`, Claude Code, Cursor).</p>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">O que colocar no AGENTS.md</h3>
+        <ul class="clean">
+          <li><strong>Objetivo & Arquitetura:</strong> O que o projeto faz e sua estrutura</li>
+          <li><strong>Convenções de Código:</strong> Idioma, tratamento de erros, estilos</li>
+          <li><strong>Comandos de Execução:</strong> Como rodar o servidor e testes</li>
+        </ul>
+      </div>
+      <div>
+        <div class="note">
+          <span class="ico">💡</span>
+          <span>Em vez de repetir instruções a cada prompt, você escreve o <code>AGENTS.md</code> uma vez. Toda IA que abrir o repositório seguirá as mesmas regras.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 — Harness -->
   <section class="slide">
     <div class="kicker">Teoria · Harness</div>
-    <h2><span class="num">2.</span>O que é um <em>harness</em>?</h2>
-    <p>O <strong>harness</strong> é a “armação” que transforma um modelo de linguagem em um
-      agente que age no mundo: ele gerencia o <strong>loop</strong>, as <strong>ferramentas</strong>,
-      o <strong>contexto</strong> e as <strong>permissões</strong>.</p>
-    <div class="grid cols-2">
-      <div>
-        <div class="pipeline" style="flex-direction:column; gap:8px">
-          <div class="pipe-step" style="text-align:left"><span class="step-title">🧠 Modelo (LLM)</span><span class="step-sub">raciocina e decide o próximo passo</span></div>
-          <div class="pipe-step" style="text-align:left"><span class="step-title">🔁 Loop agêntico</span><span class="step-sub">pensar → agir → observar → repetir</span></div>
-          <div class="pipe-step" style="text-align:left"><span class="step-title">🧰 Ferramentas (tools)</span><span class="step-sub">ler/escrever arquivos, rodar comandos, buscar na web</span></div>
-          <div class="pipe-step" style="text-align:left"><span class="step-title">📦 Contexto</span><span class="step-sub">o que o agente “vê” a cada passo</span></div>
-          <div class="pipe-step" style="text-align:left"><span class="step-title">🔒 Permissões</span><span class="step-sub">o que ele pode fazer sem pedir aprovação</span></div>
-        </div>
-      </div>
-      <div>
-        <div class="note">
-          <span class="ico">🔧</span>
-          <span><strong>Analogia:</strong> o modelo é o <em>motor</em>; o harness é o
-            <em>chassi</em> com volante, freio e air-bag. Sem harness, o modelo “fala”; com
-            harness, ele <strong>dirige</strong>.</span>
-        </div>
-        <div class="note">
-          <span class="ico">🍎</span>
-          <span><strong>Caso real:</strong> Google chama de “shared agent harness” o núcleo que a
-            CLI e a IDE da Antigravity compartilham — mesma capacidade, superfícies diferentes.</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 05 — Agente + loop -->
-  <section class="slide">
-    <div class="kicker">Teoria · Agente</div>
-    <h2><span class="num">3.</span>O agente e o loop agêntico</h2>
-    <p>Um <strong>agente</strong> não responde uma pergunta: ele <strong>persegue um objetivo</strong>
-      em vários passos, decidindo quando usar cada ferramenta.</p>
+    <h2><span class="num">4.</span>O Harness e o Loop Agêntico</h2>
+    <p>O <strong>Harness</strong> conecta o modelo de IA ao seu computador: gerencia o loop, executa comandos e lê arquivos.</p>
     <div class="pipeline" style="margin:14px 0">
-      <div class="pipe-step"><span class="step-ico">👁️</span><span class="step-title">Observar</span><span class="step-sub">ler o projeto e o pedido</span></div>
+      <div class="pipe-step"><span class="step-ico">👁️</span><span class="step-title">Observar</span><span class="step-sub">Lê AGENTS.md e projeto</span></div>
       <div class="pipe-arrow">→</div>
-      <div class="pipe-step"><span class="step-ico">🗺️</span><span class="step-title">Planejar</span><span class="step-sub">listar arquivos e passos</span></div>
+      <div class="pipe-step"><span class="step-ico">🗺️</span><span class="step-title">Planejar</span><span class="step-sub">Lista arquivos a criar</span></div>
       <div class="pipe-arrow">→</div>
-      <div class="pipe-step"><span class="step-ico">⚙️</span><span class="step-title">Agir</span><span class="step-sub">editar, rodar, testar</span></div>
+      <div class="pipe-step"><span class="step-ico">⚙️</span><span class="step-title">Agir</span><span class="step-sub">Cria app.py, HTML/CSS</span></div>
       <div class="pipe-arrow">→</div>
-      <div class="pipe-step"><span class="step-ico">✅</span><span class="step-title">Verificar</span><span class="step-sub">rodar testes e corrigir</span></div>
-    </div>
-    <div class="grid cols-2">
-      <div class="card" style="border-top:3px solid var(--accent-2)">
-        <h3><span class="ico">🧰</span> Ferramentas típicas</h3>
-        <p>Ler/editar arquivos, executar comandos no terminal, buscar no código, consultar a web,
-          e — nas CLI modernas — <strong>subagentes</strong> em paralelo.</p>
-      </div>
-      <div class="card" style="border-top:3px solid var(--accent-3)">
-        <h3><span class="ico">📏</span> Limite de contexto</h3>
-        <p>A “janela” do agente é finita. Contexto demais vira ruído; de menos, ele chuta. Por
-          isso existem <strong>skills</strong> e <strong>RAG</strong>.</p>
-      </div>
+      <div class="pipe-step"><span class="step-ico">✅</span><span class="step-title">Verificar</span><span class="step-sub">Testa a aplicação web</span></div>
     </div>
   </section>
 
-  <!-- 06 — Skills -->
+  <!-- 07 — Prática Monitoramento Web -->
   <section class="slide">
-    <div class="kicker">Teoria · Skills</div>
-    <h2><span class="num">4.</span>Skills: conhecimento empacotado</h2>
-    <p>Uma <strong>skill</strong> é uma <strong>pasta com instruções</strong> que ensina o agente
-      a fazer uma tarefa <em>do seu jeito</em> — um padrão reutilizável.</p>
+    <div class="kicker">Prática · Laboratório</div>
+    <h2><span class="num">5.</span>Prática: Monitoramento Web em Python</h2>
+    <p>Criaremos uma aplicação web de monitoramento de sistema (CPU, RAM, Disco) com Flask + psutil guiados pelo <code>AGENTS.md</code>.</p>
     <div class="grid cols-2">
       <div>
-        <h3 style="margin-bottom:10px">Como funciona</h3>
-        <ul class="clean">
-          <li><strong>Descoberta:</strong> o agente vê a lista de skills disponíveis</li>
-          <li><strong>Ativação:</strong> se for relevante, ele lê as instruções completas</li>
-          <li><strong>Execução:</strong> segue o passo a passo da skill</li>
-        </ul>
-        <div class="note" style="margin-top:12px">
-          <span class="ico">📄</span>
-          <span>Cada skill vive em <code>.agents/skills/&lt;nome&gt;/SKILL.md</code>
-            (convenção aberta, usada pela Antigravity).</span>
-        </div>
-      </div>
-      <div>
-        <h3 style="margin-bottom:10px">Estrutura de uma skill</h3>
+        <h3 style="margin-bottom:10px">Comando no <code>agy</code></h3>
         <div class="terminal">
-my-skill/
-├── SKILL.md   <span class="dim"># instruções + descrição</span>
-├── scripts/   <span class="dim"># opcional</span>
-├── examples/  <span class="dim"># opcional</span>
-└── resources/ <span class="dim"># opcional</span>
-        </div>
-        <div class="note" style="margin-top:12px">
-          <span class="ico">💡</span>
-          <span>Boas skills fazem <strong>uma coisa bem</strong> e têm descrição clara — é a
-            descrição que o agente lê para decidir usá-la.</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 07 — RAG -->
-  <section class="slide">
-    <div class="kicker">Teoria · RAG</div>
-    <h2><span class="num">5.</span>RAG: dar conhecimento ao agente</h2>
-    <p><strong>RAG</strong> (<em>Retrieval-Augmented Generation</em>) = <strong>buscar</strong> a
-      informação certa e <strong>injetar</strong> no contexto antes de o modelo responder. Em vez
-      de “decorar tudo”, o agente <strong>consulta na hora</strong>.</p>
-    <div class="pipeline" style="margin:14px 0">
-      <div class="pipe-step"><span class="step-ico">❓</span><span class="step-title">Pergunta</span></div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step"><span class="step-ico">🔎</span><span class="step-title">Buscar</span><span class="step-sub">no código, docs, base</span></div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step"><span class="step-ico">📄</span><span class="step-title">Trechos relevantes</span></div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step"><span class="step-ico">💬</span><span class="step-title">Resposta</span><span class="step-sub">com base no que achou</span></div>
-    </div>
-    <div class="grid cols-2">
-      <div class="card" style="border-top:3px solid var(--accent-2)">
-        <h3><span class="ico">✅</span> Por que ajuda</h3>
-        <p>Reduz “invenção” (<em>alucinação</em>), usa dados <strong>atualizados</strong> e cita
-          <strong>a fonte</strong> (o trecho recuperado).</p>
-      </div>
-      <div class="card" style="border-top:3px solid var(--accent-4)">
-        <h3><span class="ico">⚠️</span> Cuidado</h3>
-        <p>Se a busca traz o trecho errado, a resposta sai errada. Recuperar bem é metade do
-          trabalho.</p>
-      </div>
-    </div>
-    <div class="note" style="margin-top:14px">
-      <span class="ico">🔗</span>
-      <span>No agente de código, “RAG” muitas vezes é a <strong>busca no próprio
-        repositório</strong> — por isso ele “sabe” onde as coisas estão no seu projeto.</span>
-    </div>
-  </section>
-
-  <!-- 08 — Vibe coding -->
-  <section class="slide">
-    <div class="kicker">Prática crítica · Vibe Coding</div>
-    <h2><span class="num">6.</span>Vibe coding: o que é e onde escorrega</h2>
-    <p><strong>Vibe coding</strong> é deixar o agente gerar o código a partir de instruções em
-      linguagem natural, iterando pelo “feeling”. É rápido para prototipar — e perigoso sem
-      <strong>verificação</strong>.</p>
-    <div class="grid cols-2">
-      <div class="card" style="border-top:3px solid var(--accent-2)">
-        <h3><span class="ico">👍</span> Quando brilha</h3>
-        <ul class="clean" style="margin-top:4px">
-          <li>Protótipos e provas de conceito</li>
-          <li>Tarefas repetitivas e “cola”</li>
-          <li>Explorar uma ideia rapidamente</li>
-        </ul>
-      </div>
-      <div class="card" style="border-top:3px solid var(--accent-4)">
-        <h3><span class="ico">👎</span> Onde escorrega</h3>
-        <ul class="clean" style="margin-top:4px">
-          <li>Código que “parece” certo mas falha nas bordas</li>
-          <li>Faltam <strong>testes</strong> e revisão humana</li>
-          <li>Segurança, dados sensíveis e segredos</li>
-        </ul>
-      </div>
-    </div>
-    <div class="note" style="margin-top:14px">
-      <span class="ico">🧭</span>
-      <span><strong>Regra de ouro:</strong> sem <strong>verificação</strong> (testes, build,
-        leitura do diff), vibe coding vira dívida técnica. O agente acelera; <strong>você
-        responde</strong> pelo resultado.</span>
-    </div>
-  </section>
-
-  <!-- 09 — Antigravity CLI -->
-  <section class="slide">
-    <div class="kicker">Prática · Ferramenta</div>
-    <h2><span class="num">7.</span>Antigravity CLI (<code>agy</code>)</h2>
-    <p>A CLI da Google é a superfície <strong>no terminal</strong> para trabalhar com agentes.
-      Leve, rápida e feita para quem vive no shell.</p>
-    <div class="grid cols-2">
-      <div>
-        <h3 style="margin-bottom:10px">Começando</h3>
-        <div class="terminal">
-<span class="dim"># instala o cliente (Windows/PowerShell)</span>
-irm https://antigravity.google/cli/install.ps1 | iex
-
-<span class="dim"># entra na pasta do projeto e abre a TUI</span>
+<span class="dim"># Dentro de laboratorio_monitoramento/</span>
 agy
-        </div>
-        <div class="note" style="margin-top:12px">
-          <span class="ico">📄</span>
-          <span>Ao abrir, o agente indexa o projeto e propõe um plano antes de editar.</span>
+
+<span class="dim"># Prompt no agente:</span>
+"Leia o arquivo AGENTS.md desta pasta e crie a aplicação de monitoramento web em Python."
         </div>
       </div>
       <div>
-        <h3 style="margin-bottom:10px">Recursos que vamos ver</h3>
+        <h3 style="margin-bottom:10px">Componentes a Gerar</h3>
         <ul class="clean">
-          <li><strong>Subagentes:</strong> tarefas em paralelo (<code>/agents</code>)</li>
-          <li><strong>Slash commands:</strong> <code>/skills</code>, <code>/diff</code>, <code>/rewind</code></li>
-          <li><strong>Permissões:</strong> revisar antes de escrever/rodar</li>
-          <li><strong>Verificação:</strong> <code>/diff</code> para revisar cada mudança</li>
+          <li><code>app.py</code> — Servidor Flask e API JSON</li>
+          <li><code>coletor.py</code> — Leitura de hardware com <code>psutil</code></li>
+          <li><code>templates/index.html</code> — Dashboard Dark Mode</li>
+          <li><code>iniciar.bat</code> — Script de execução no Windows</li>
         </ul>
       </div>
     </div>
   </section>
 
-  <!-- 10 — Boas práticas -->
-  <section class="slide">
-    <div class="kicker">Prática · Boas práticas</div>
-    <h2><span class="num">8.</span>Como trabalhar bem com um agente</h2>
-    <div class="grid cols-2">
-      <div>
-        <ul class="clean check">
-          <li><strong>Explore → Planeje → Execute:</strong> peça o plano antes do código</li>
-          <li><strong>Loop de verificação:</strong> tenha testes e mande o agente rodá-los</li>
-          <li><strong>Contexto enxuto:</strong> aponte os arquivos certos (<code>@arquivo</code>)</li>
-          <li><strong>Regras do projeto:</strong> um <code>AGENTS.md</code> na raiz</li>
-          <li><strong>Interrompa cedo:</strong> <code>esc</code> quando ele se perder</li>
-          <li><strong>Volte atrás:</strong> <code>/rewind</code> para um ponto estável</li>
-        </ul>
-      </div>
-      <div>
-        <div class="card" style="margin-bottom:12px">
-          <h3><span class="ico">📄</span> Regras do projeto</h3>
-          <p>Um arquivo <code>AGENTS.md</code> (ou equivalente) na raiz descreve padrões, comandos
-            de teste e avisos — o agente lê isso <strong>antes</strong> de sugerir mudanças.</p>
-        </div>
-        <div class="card">
-          <h3><span class="ico">🔒</span> Permissões</h3>
-          <p>Comece no modo mais cauteloso (revisar antes de executar) e só depois afrouxe —
-            nunca dê <em>“sempre pode tudo”</em> no primeiro contato.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 11 — Discussão -->
+  <!-- 08 — Debate -->
   <section class="slide">
     <div class="kicker">Discussão em Grupo</div>
-    <h2><span class="num">9.</span>Debate — grupos de 3 a 4</h2>
-    <div class="debate"><div class="q">1</div><p>Onde o <strong>harness</strong> termina e a
-      <strong>responsabilidade do engenheiro</strong> começa? Quem responde por um bug gerado
-      pelo agente?</p></div>
-    <div class="debate"><div class="q">2</div><p>Em que situações o <strong>RAG</strong> resolve
-      mais que “decorar” os dados no modelo? Dê um exemplo do seu setor.</p></div>
-    <div class="debate"><div class="q">3</div><p>Uma <strong>skill</strong> bem escrita é como um
-      manual: o que ela deveria conter para o agente acertar de primeira?</p></div>
-    <div class="debate"><div class="q">4</div><p><strong>Vibe coding</strong> sem testes é aceitável
-      num projeto real? Como você convenceria um colega a mudar de prática?</p></div>
+    <h2><span class="num">6.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>De que forma o <strong>GitHub</strong> atua como salvaguarda quando uma IA faz um *commit* ou gera código com bugs?</p></div>
+    <div class="debate"><div class="q">2</div><p>Por que a **Janela de Contexto** limpa e um `AGENTS.md` bem estruturado evitam que o agente hallucine?</p></div>
+    <div class="debate"><div class="q">3</div><p>Qual a diferença entre *Vibe Coding* irresponsável e o desenvolvimento orientado a agentes com verificação de diffs?</p></div>
   </section>
 
-  <!-- 12 — Síntese -->
+  <!-- 09 — Síntese -->
   <section class="slide">
-    <div class="kicker">Síntese e Tarefa de Casa</div>
+    <div class="kicker">Síntese</div>
     <h2>O que levar desta aula</h2>
     <div class="grid cols-2">
       <div>
         <ul class="clean check">
-          <li><strong>Harness</strong> — a “armação” (loop, tools, contexto, permissões) que faz o
-            modelo <em>agir</em></li>
-          <li><strong>Agente</strong> — persegue um objetivo em passos: observar → planejar →
-            agir → verificar</li>
-          <li><strong>Skills</strong> — pastas de instruções reutilizáveis (uma coisa bem feita)</li>
-          <li><strong>RAG</strong> — buscar e injetar conhecimento antes de responder</li>
-          <li><strong>Vibe coding</strong> — rápido para prototipar, <strong>arriscado sem
-            verificação</strong></li>
-          <li><strong>agy</strong> — CLI da Antigravity: agente no terminal, com subagentes e
-            permissões</li>
+          <li><strong>GitHub:</strong> Sempre salvar o progresso com <code>git add</code>, <code>commit</code> e <code>push</code>.</li>
+          <li><strong>Contexto:</strong> Informação enxuta gera respostas melhores da IA.</li>
+          <li><strong>AGENTS.md:</strong> Defina regras estáticas do projeto para qualquer agente seguir.</li>
+          <li><strong>Verificação:</strong> Use <code>/diff</code> antes de aprovar código gerado por IA.</li>
         </ul>
-        <p style="margin-top:12px">Próximo passo: <strong>praticar</strong> na CLI e revisar cada
-          mudança com <code>/diff</code>.</p>
       </div>
       <div>
-        <div class="card" style="margin-bottom:12px">
-          <h3><span class="ico">📌</span> Tarefa de casa (opcional)</h3>
-          <ul class="clean" style="margin-top:6px">
-            <li>Escreva <strong>uma skill</strong> (pasta + <code>SKILL.md</code>) para uma tarefa
-              sua</li>
-            <li>Explique, num parágrafo, como um <strong>RAG</strong> ajudaria no seu projeto</li>
-            <li>Liste <strong>2 riscos</strong> do vibe coding e como mitigá-los</li>
-          </ul>
-        </div>
         <div class="card">
-          <h3><span class="ico">🔧</span> Recursos de apoio</h3>
-          <p>Documentação da <strong>Antigravity</strong> (CLI, Skills, Best Practices) e o
-            padrão aberto de <strong>Agent Skills</strong>.</p>
+          <h3><span class="ico">📌</span> Próximos Passos</h3>
+          <p>Complete a prática no arquivo <code>atividade.md</code> e envie seu repositório de monitoramento para o GitHub!</p>
         </div>
       </div>
     </div>
@@ -624,7 +423,7 @@ agy
 </main>
 
 <div id="bottombar">
-  <div id="counter">01 / 12</div>
+  <div id="counter">01 / 09</div>
   <div class="hint">← → · espaço · Home/End</div>
   <div class="nav-buttons">
     <button id="prev" aria-label="Slide anterior">← Anterior</button>
