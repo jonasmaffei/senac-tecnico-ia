@@ -110,8 +110,10 @@ pip install -r requirements.txt
 | **05** | [`05_materiais-complementares.md`](docs/05_materiais-complementares.md) | Curadoria de links, playlists e cursos externos |
 | **06** | [`06_tutorial-instalacao-wsl.md`](docs/06_tutorial-instalacao-wsl.md) | Guia de instalação e configuração do WSL 2 no Windows 10 e 11 |
 | **07** | [`07_tutorial-instalacao-docker-wsl.md`](docs/07_tutorial-instalacao-docker-wsl.md) | Guia de instalação e uso do Docker Engine nativo no WSL 2 (Ubuntu) |
+| **08** | [`08_tutorial-google-sheets-api-gpu.md`](docs/08_tutorial-google-sheets-api-gpu.md) | Guia de configuração da Google Sheets API e Service Account para telemetria de GPU |
 
 ---
+
 
 ## 📝 Questionários
 
@@ -248,5 +250,7 @@ senac-tecnico-ia/
     ├── 03_git.md                            → Guia de clonar o repo e atualizar com pull
     ├── 05_materiais-complementares.md       → Links e leituras recomendadas
     ├── 06_tutorial-instalacao-wsl.md        → Guia de instalação do WSL no Windows 10/11
-    └── 07_tutorial-instalacao-docker-wsl.md → Guia de instalação do Docker no WSL 2 Ubuntu
+    ├── 07_tutorial-instalacao-docker-wsl.md → Guia de instalação do Docker no WSL 2 Ubuntu
+    └── 08_tutorial-google-sheets-api-gpu.md → Guia de configuração da Google Sheets API e Service Account
 ```
+
