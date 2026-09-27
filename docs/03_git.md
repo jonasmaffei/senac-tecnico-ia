@@ -1,157 +1,170 @@
-# 🐙 Guia Básico de Git — Clonar e Atualizar (somente leitura)
+# 🐙 Guia Completo de Git e GitHub — Do Básico ao Primeiro Projeto
 
-Este guia cobre o **essencial do Git** para acompanhar o repositório do curso: **baixar o
-projeto uma vez** (clonar) e **atualizá-lo** sempre que o professor publicar novidades
-(`pull`). O repositório é de **somente leitura** para os alunos — você **não** envia arquivos,
-apenas baixa e atualiza.
+Este guia cobre o tutorial **passo a passo do básico ao avançado no Git e GitHub**: desde a configuração inicial no terminal shell, a organização de pastas no seu computador, até a criação de repositórios na interface gráfica (UI) do GitHub e o envio do seu primeiro projeto.
 
-> 💡 **O que é Git?** É um sistema que guarda o **histórico** de um projeto. Em vez de baixar
-> arquivos soltos (e perder as atualizações), você **clona** o repositório uma vez e depois só
-> executa **`git pull`** para ficar com a versão mais recente.
+---
 
-**Ferramentas usadas na aula:**
+## 🗂️ Organização das Pastas no Seu Computador
 
-| Ferramenta | Para quê |
-| :--- | :--- |
-| **Git Bash** | Terminal onde você roda os comandos `git` (vem com o Git for Windows) |
-| **VS Code** | Editor para abrir e ler os arquivos do projeto (tem terminal integrado) |
+Para manter seus trabalhos organizados, adotamos o seguinte padrão de pastas dentro da sua pasta **Documentos**:
+
+```text
+Documentos/
+├── projetos/      # Para seus rascunhos, experimentos e arquivos de teste locais
+└── repositorios/  # Para onde você faz o 'git clone' dos seus repositórios do GitHub
+```
+
+- **`Documentos/projetos`**: Onde você cria e desenvolve seus scripts ou protótipos locais iniciais.
+- **`Documentos/repositorios`**: Onde você clona seus repositórios oficiais vinculados ao GitHub.
 
 ---
 
 ## 📋 Pré-requisitos
 
-| Item | Onde obter |
+| Item | Descrição / Onde Obter |
 | :--- | :--- |
-| **Git for Windows** (inclui o **Git Bash**) | [git-scm.com/download/win](https://git-scm.com/download/win) |
-| **Visual Studio Code** | [code.visualstudio.com](https://code.visualstudio.com) |
+| **Conta no GitHub** | Cadastre-se gratuitamente em [github.com](https://github.com) |
+| **Git for Windows** (inclui o **Git Bash**) | Baixe e instale via [git-scm.com/download/win](https://git-scm.com/download/win) |
+| **Visual Studio Code** | Editor de código recomendado em [code.visualstudio.com](https://code.visualstudio.com) |
 
-Verifique se o Git está instalado — abra o **Git Bash** e digite:
-
+Para confirmar se o Git está instalado, abra o **Git Bash** e digite:
 ```bash
 git --version
 ```
 
-Se aparecer algo como `git version 2.x.x`, está pronto.
+---
+
+## ⚙️ 1. Configuração de Usuário e E-mail via Shell
+
+Antes de realizar commits, você precisa configurar sua identidade global no Git. Abra o **Git Bash** e execute:
+
+```bash
+# Configurar seu nome completo
+git config --global user.name "Seu Nome Completo"
+
+# Configurar seu e-mail (use o mesmo e-mail cadastrado no GitHub)
+git config --global user.email "seu.email@exemplo.com"
+```
+
+Para verificar se a configuração foi gravada com sucesso:
+```bash
+git config --list
+```
 
 ---
 
-## 📥 1. Clonar o repositório (só na primeira vez)
+## 🌐 2. Criar o Repositório na UI do GitHub
 
-Clonar é **baixar uma cópia completa** do projeto para a sua máquina, já com o histórico e o
-vínculo com o repositório remoto. Faça isso **uma vez**; depois, use apenas `pull`.
+1. Acesse **[github.com](https://github.com)** e faça login.
+2. No canto superior direito, clique no ícone **`+`** e selecione **New repository** (Novo repositório).
+3. Preencha as informações:
+   - **Repository name:** `meu-primeiro-projeto` (ou o nome da sua aplicação).
+   - **Description:** *(Opcional)* Breve descrição do projeto.
+   - **Visibilidade:** Escolha **Public** (Público) ou **Private** (Privado).
+   - **Add a README file:** Marque esta opção para criar o repositório já com o arquivo de apresentação inicial.
+4. Clique no botão verde **Create repository** (Criar repositório).
 
-Abra o **Git Bash** e rode:
+---
+
+## 📥 3. Clonar o Repositório na pasta `Documentos/repositorios`
+
+Com o repositório criado na UI do GitHub, vamos cloná-lo para a pasta **`repositorios`** na sua máquina.
+
+1. No GitHub, clique no botão verde **Code** e copie a URL em **HTTPS** (ex.: `https://github.com/seu-usuario/meu-primeiro-projeto.git`).
+2. Abra o **Git Bash** e navegue até a pasta de repositórios:
 
 ```bash
-# Entre na pasta onde quer guardar o projeto (ex.: Documentos/repos)
-cd Documentos/repos
+# 1. Garantir que as pastas existam
+mkdir -p ~/Documentos/projetos
+mkdir -p ~/Documentos/repositorios
 
-# Clone o repositório do curso
-git clone https://github.com/jonasmaffei/senac-tecnico-ia
+# 2. Entrar na pasta repositorios
+cd ~/Documentos/repositorios
 
-# Entre na pasta criada
-cd senac-tecnico-ia
+# 3. Clonar o repositório criado na UI do GitHub
+git clone https://github.com/seu-usuario/meu-primeiro-projeto.git
+
+# 4. Entrar na pasta do projeto clonado
+cd meu-primeiro-projeto
 ```
 
-### Abrir no VS Code
-
-Ainda no Git Bash, dentro da pasta do projeto:
-
+3. Abra a pasta no VS Code:
 ```bash
 code .
 ```
 
-> 💡 O `code .` abre a **pasta atual** no VS Code. Se o comando não funcionar, abra o VS Code
-> manualmente e use **Arquivo ➔ Abrir Pasta…** e selecione a pasta `senac-tecnico-ia`.
->
-> **De onde vem a URL?** No GitHub, clique no botão verde **Code** e copie o endereço em
-> **HTTPS**.
+---
+
+## 🚀 4. Criar e Enviar o Primeiro Projeto (`add`, `commit`, `push`)
+
+Agora você pode copiar seus códigos desenvolvidos na pasta `projetos` para a pasta do repositório clonado em `repositorios/meu-primeiro-projeto`, ou criar novos arquivos diretamente no VS Code.
+
+### O Ciclo de Envio das 3 Etapas:
+
+```
+ [ Arquivos Editados ] ───( git add . )───> [ Área de Staging ] ───( git commit )───> [ Histórico Local ] ───( git push )───> [ GitHub (Nuvem) ]
+```
+
+#### Passo 4.1: Verificar alterações
+No terminal do Git Bash (dentro da pasta do projeto):
+```bash
+git status
+```
+
+#### Passo 4.2: Adicionar arquivos para envio (`add`)
+```bash
+git add .
+```
+
+#### Passo 4.3: Gravar a alteração no histórico local (`commit`)
+```bash
+git commit -m "feat: primeiro envio do meu projeto"
+```
+
+#### Passo 4.4: Enviar para a nuvem no GitHub (`push`)
+```bash
+git push origin main
+```
 
 ---
 
-## 🔄 2. Atualizar o repositório (`pull`) — o comando do dia a dia
+## 🔄 5. Atualizar Repositórios Existentes (`pull`)
 
-Sempre que o professor **publicar novidades** (novas aulas, correções), atualize a sua cópia
-com **um único comando**. Rode **dentro da pasta do projeto**:
+Quando o professor atualizar o repositório do curso ou um colega enviar alterações, navegue até a pasta do projeto em `Documentos/repositorios` e execute:
 
 ```bash
+cd ~/Documentos/repositorios/senac-tecnico-ia
 git pull
 ```
 
-Pronto — sua pasta fica igual à do professor.
-
-> ⚠️ **Importante:** o `pull` deve ser rodado **dentro da pasta do projeto**
-> (`senac-tecnico-ia`), não na pasta de cima. Para conferir onde você está: `pwd`.
-
-### Rotina recomendada — toda aula
-
-Abra o **Git Bash**, entre no projeto e atualize:
-
-```bash
-cd Documentos/repos/senac-tecnico-ia   # entra no projeto
-git pull                               # baixa as novidades
-```
-
-> 💡 **No VS Code:** você pode usar o **terminal integrado** (*Terminal ➔ Novo Terminal*, ou
-> `Ctrl + '`). Ele já abre na pasta do projeto — basta digitar `git pull`.
-
 ---
 
-## 🔍 3. Ver o que mudou (`status` e `log`)
+## 🔧 Solução de Problemas Comuns
 
-Alguns comandos de leitura ajudam a entender o estado do projeto:
-
-```bash
-git status              # mostra o que mudou na sua cópia
-git log --oneline -5    # mostra os 5 últimos commits (histórico resumido)
-git branch              # mostra em qual "linha" (branch) você está (normalmente main)
-```
-
-Exemplo de saída do `git status` logo após um `pull`:
-
-```
-On branch main
-Your branch is up to date with 'origin/main'.
-nothing to commit, working tree clean
-```
-
-`working tree clean` significa que sua cópia está **igual à do repositório** — nada pendente.
-
-> 💡 Como o repositório é **somente leitura**, o esperado é você **nunca modificar** os arquivos
-> originais. Se quiser testar algo, faça uma **cópia** do arquivo (ex.: `aula05_redes_COPIA.ipynb`).
-
----
-
-## 🗂️ 4. Fluxo completo (resumo visual)
-
-```
-Primeira vez:   git clone <URL>   ->  cd senac-tecnico-ia  ->  code .
-Toda aula:      git pull          ->  pronto para usar
-```
-
----
-
-## 🔧 Solução de problemas
-
-| Problema | Causa provável | Solução |
+| Problema | Causa Provável | Solução |
 | :--- | :--- | :--- |
-| `not a git repository` | Você rodou o comando fora da pasta do projeto | `cd senac-tecnico-ia` e tente de novo |
-| `git: command not found` | Git não instalado / fora do PATH | Instale o [Git for Windows](https://git-scm.com/download/win) e reabra o **Git Bash** |
-| `code .` não funciona | VS Code não está no PATH | Abra o VS Code e use **Arquivo ➔ Abrir Pasta…** |
-| `pull` reclama de arquivos alterados | Você editou um arquivo original | Desfaça a alteração (`git checkout -- .`) ou salve sua versão com outro nome; peça orientação ao professor |
-| Pediu **usuário e senha** | Autenticação do GitHub | Como é só leitura, normalmente não pede; se pedir, use um **Personal Access Token** no lugar da senha |
-| Clonou na pasta errada | `cd` antes do `clone` | Apague a pasta criada e clone novamente no lugar certo |
-
-> 💡 **Dica:** rode `git status` sempre que estiver em dúvida — ele diz exatamente o que está
-> acontecendo e sugere o próximo comando.
+| `fatal: not a git repository` | Você rodou o comando fora da pasta do projeto. | Use `cd ~/Documentos/repositorios/nome-do-projeto` antes de rodar comandos git. |
+| `Please tell me who you are` | Nome/e-mail não configurados no shell. | Execute os comandos `git config --global user.name` e `user.email`. |
+| `Permission denied (publickey)` | Falta de autenticação HTTPS/SSH. | Use a URL em HTTPS e informe um **Personal Access Token** se solicitado. |
+| `code .` não abre o VS Code | VS Code não está no PATH do sistema. | Abra o VS Code manualmente e vá em **Arquivo ➔ Abrir Pasta...**. |
 
 ---
 
-## 🔗 Relação com o curso
+## 📌 Resumo Visual dos Comandos
 
-- O repositório é a **fonte da verdade** das aulas: rode `git pull` **antes de cada aula** para
-  garantir que está com a versão mais recente.
-- As aulas com **laboratório Windows** rodam no **Git Bash** a partir da sua cópia clonada; os
-  **notebooks** podem ser abertos no **Colab** direto pelo GitHub.
-- Tutoriais complementares: [WSL](06_tutorial-instalacao-wsl.md) e
-  [Docker no WSL](07_tutorial-instalacao-docker-wsl.md).
+```bash
+# Configuração inicial (só 1 vez)
+git config --global user.name "Seu Nome"
+git config --global user.email "seu@email.com"
+
+# Entrar na pasta de repositórios e clonar
+cd ~/Documentos/repositorios
+git clone <URL_DO_GITHUB>
+cd <NOME_DO_PROJETO>
+
+# Enviar alterações (dia a dia)
+git status
+git add .
+git commit -m "mensagem explicativa"
+git push origin main
+```
