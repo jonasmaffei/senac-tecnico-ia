@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 17 — Introdução à Automação de GPUs com Bash</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 7px 16px; font-size: .84rem; cursor: pointer;
+    border-color: var(--border);
+  }
+  .nav-buttons button:hover { border-color: var(--accent); background: var(--panel-2); }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 3 · Automação</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 17 · Conceitos</div>
+    <h1>Introdução à Automação de GPUs com Bash</h1>
+    <p class="lead">Como automatizar o monitoramento 24h/7d de servidores de aceleração usando <code>nvidia-smi</code>, agendamento via <strong>cron/systemd</strong>, dashboards e integração remota.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Ferramenta</div><div class="v">Bash, nvidia-smi, cron, gnuplot, Google Sheets</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎯</span> Situação de Aprendizagem</h3>
+        <p>O job de IA falhou silenciosamente às 3h da manhã devido a superaquecimento (95°C). Precisamos de um sistema automatizado para monitorar temperatura, uso de VRAM e energia sem intervenção manual.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🧭</span> O que vamos entender</h3>
+        <p>Queries do <code>nvidia-smi</code>, automação Bash com salvamento em CSV, alertas de temperatura, agendamento de tarefas e geração de relatórios visuais.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Roteiro -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> automatizar o monitoramento de GPUs em produção garantindo operação contínua 24h/7d com alertas prévios e relatórios de telemetria.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: Automação no Bloco 3</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: nvidia-smi & queries estruturadas</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Demo: Coleta de métricas e alertas em CSV</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: cron e systemd timers</span></div>
+          <div class="tl-item"><span class="tl-time">35 min</span><span class="tl-txt">Atividade: Dashboards com gnuplot / Python</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: Integração com Google Sheets API</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Discussão e Síntese</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>nvidia-smi · <code>--query-gpu</code> · telemetria CSV · thresholds de temperatura · cron · systemd timers · gnuplot · Google Sheets API</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Materiais da aula</h3>
+          <p>Apresentação + <code>notebook_colab/</code> com 5 exercícios + <code>laboratorio_windows/</code> para teste em host local.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Pipeline de Automação -->
+  <section class="slide">
+    <div class="kicker">Arquitetura</div>
+    <h2><span class="num">1.</span>Pipeline de Automação de Telemetria</h2>
+    <p>O fluxo de trabalho opera de maneira autônoma no servidor Linux/Windows para coletar, filtrar, alertar e reportar a saúde do hardware.</p>
+    <div class="pipeline" style="margin:16px 0">
+      <div class="pipe-step"><span class="step-ico">🔍</span><span class="step-title">coleta</span><span class="step-sub">nvidia-smi --query-gpu</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">⚡</span><span class="step-title">processamento</span><span class="step-sub">monitor_gpu.sh & alertas</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">armazenamento</span><span class="step-sub">gpu_log.csv</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">⏰</span><span class="step-title">agendamento</span><span class="step-sub">cron / systemd timer</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">📈</span><span class="step-title">visualização</span><span class="step-sub">gnuplot / Google Sheets</span></div>
+    </div>
+    <div class="note">
+      <span class="ico">💡</span>
+      <span>Toda a cadeia funciona sem depender da sessão do usuário estar aberta. Se o terminal fechar, o serviço agendado continua operando.</span>
+    </div>
+  </section>
+
+  <!-- 04 — Teoria nvidia-smi -->
+  <section class="slide">
+    <div class="kicker">Teoria · CLI</div>
+    <h2><span class="num">2.</span>Métricas Estruturadas com <code>nvidia-smi</code></h2>
+    <p>O <code>nvidia-smi</code> permite extrair métricas exatas via argumento <code>--query-gpu</code> no formato CSV limpo, sem unidades de texto soltas.</p>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🌡️</span> Térmico e Energia</h3>
+        <ul class="clean">
+          <li><strong>temperature.gpu:</strong> Temperatura atual do chip em °C</li>
+          <li><strong>power.draw:</strong> Consumo instantâneo em Watts</li>
+          <li><strong>power.limit:</strong> Limite máximo de potência permitido</li>
+          <li><strong>fan.speed:</strong> Velocidade do cooler (% da rotação máxima)</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">⚡</span> Processamento e Memória</h3>
+        <ul class="clean">
+          <li><strong>utilization.gpu:</strong> % de uso dos Núcleos CUDA / SM</li>
+          <li><strong>utilization.memory:</strong> % de uso do barramento de VRAM</li>
+          <li><strong>memory.used / memory.total:</strong> MB alocados vs MB total da GPU</li>
+          <li><strong>clocks.current.graphics:</strong> Frequência do clock (MHz)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — Agendadores: cron vs systemd -->
+  <section class="slide">
+    <div class="kicker">Teoria · Agendamento</div>
+    <h2><span class="num">3.</span>Agendadores: <code>cron</code> vs <code>systemd timers</code></h2>
+    <p>Servidores Linux oferecem duas abordagens principais para agendar tarefas recorrentes no sistema.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Característica</th>
+          <th><code>cron</code> (Clássico)</th>
+          <th><code>systemd timer</code> (Moderno)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Configuração</strong></td>
+          <td>Tabela simples (<code>crontab -e</code>)</td>
+          <td>Arquivos <code>.service</code> + <code>.timer</code></td>
+        </tr>
+        <tr>
+          <td><strong>Logs automáticos</strong></td>
+          <td>Não (exige redirecionamento de saída)</td>
+          <td>Sim (integrado com <code>journalctl</code>)</td>
+        </tr>
+        <tr>
+          <td><strong>Dependências</strong></td>
+          <td>Não suporta ordem de boot</td>
+          <td>Suporta <code>After=network.target</code></td>
+        </tr>
+        <tr>
+          <td><strong>Reteste pós-boot</strong></td>
+          <td>Execução perdida se máquina desligada</td>
+          <td><code>Persistent=true</code> recupera jobs perdidos</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 06 — Visualização de Dados -->
+  <section class="slide">
+    <div class="kicker">Prática · Visualização</div>
+    <h2><span class="num">4.</span>Geração de Dashboards Automáticos</h2>
+    <p>Transformar a série temporal de métricas salvas em CSV em relatórios visuais mult gráfico.</p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">📉</span> 1. Temperatura</h3>
+        <p>Curva de graus °C ao longo do tempo com linha de alerta em vermelho (ex: 80°C).</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">📊</span> 2. Utilização</h3>
+        <p>Comparativo entre porcentagem de uso de GPU (% SM) e uso do barramento de memória.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">💾</span> 3. VRAM & Power</h3>
+        <p>Área preenchida de memória consumida (MB) e curva de consumo elétrico (Watts).</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">🛠️</span>
+      <span>Usamos <strong>gnuplot</strong> para renderizar direto pelo terminal via script Bash ou <strong>matplotlib (Python)</strong> como alternativa multiplataforma.</span>
+    </div>
+  </section>
+
+  <!-- 07 — Integração Google Sheets -->
+  <section class="slide">
+    <div class="kicker">Integração Remota</div>
+    <h2><span class="num">5.</span>Integração Remota via Google Sheets API</h2>
+    <p>Publicar métricas na nuvem permite que gerentes e engenheiros visualizem a saúde dos clusters pelo celular ou navegador sem precisar de acesso SSH.</p>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:10px">Componentes de Segurança</h3>
+        <ul class="clean">
+          <li><strong>Service Account (SA):</strong> Conta de serviço bot no Google Cloud</li>
+          <li><strong>Arquivo de Chave JSON:</strong> Armazenado fora do repositório público</li>
+          <li><strong>Variáveis de Ambiente:</strong> <code>SHEETS_ID</code> e <code>GOOGLE_CREDS</code></li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="border-top:3px solid var(--accent-3)">
+          <h3><span class="ico">🌐</span> Benefícios da Integração</h3>
+          <p>Zero necessidade de abrir portas de firewall de entrada no servidor. O servidor envia dados para a API do Google através de requisições HTTPS de saída.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — Debate em Grupo -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">6.</span>Debate — Arquitetura de Produção</h2>
+    <div class="debate"><div class="q">1</div><p>Se o disco do servidor encher durante o treinamento, o script de monitoramento para. Como tornar o sistema resiliente?</p></div>
+    <div class="debate"><div class="q">2</div><p>O <code>cron</code> funciona bem em 1 servidor. Como monitorar um cluster com 50 nós com GPUs? (Conceito de Prometheus + Grafana + DCGM).</p></div>
+    <div class="debate"><div class="q">3</div><p>O alerta está configurado em 80°C, mas a GPU suporta 95°C. Qual o limiar ideal para prevenir acionamento prematuro de <em>thermal throttling</em>?</p></div>
+  </section>
+
+  <!-- 09 — Síntese -->
+  <section class="slide">
+    <div class="kicker">Síntese</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>nvidia-smi --query-gpu:</strong> Padrão da indústria para extrair métricas de GPU em CSV.</li>
+          <li><strong>Loops Bash:</strong> Automação leve com timestamp e validações de thresholds.</li>
+          <li><strong>Agendadores (cron/systemd):</strong> Garantem execução contínua 24h/7d sem intervenção humana.</li>
+          <li><strong>Relatórios Visuais:</strong> Dashboards PNG com gnuplot / matplotlib e integração remota no Google Sheets.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card">
+          <h3><span class="ico">📌</span> Próximos Passos</h3>
+          <p>Abra o <code>notebook_colab/aula17_automacao_gpu_bash.ipynb</code> ou rode o menu do <code>laboratorio_windows/iniciar.bat</code> para resolver os 5 exercícios práticos!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 09</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

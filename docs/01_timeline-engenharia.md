@@ -127,7 +127,12 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **Conceito/Fundamento:** A era *agent-first*: ferramentas de terminal (Antigravity CLI/`agy`, opencode, Claude Code) que rodam agentes de código sobre um **harness** compartilhado — o *loop* agêntico (observar → planejar → agir → verificar), as *tools* (ler/editar arquivos, rodar comandos), o contexto e as permissões.
 * **O que se aprende:** O que é um **harness**; o papel das **skills** (pastas de instruções reutilizáveis, `.agents/skills/<nome>/SKILL.md`); o que é **RAG** (buscar e injetar conhecimento antes de responder) e seu risco; e a postura crítica diante do **vibe coding** (rápido para prototipar, arriscado sem verificação).
 * **Conexão com o Bloco 3:** A automação saiu das GPUs (A14–A15) e chegou ao **próprio trabalho de desenvolvimento** — o agente lê o repositório versionado com Git (`docs/03_git.md`) e usa RAG para achar contexto.
-* **O problema que fica em aberto:** Se o agente escreve cada vez mais código, como garantir **qualidade, segurança e responsabilidade** sobre o que é entregue?
+* **O problema que fica em aberto:** Como manter a infraestrutura de GPU operando com total visibilidade e relatórios integrados via pipelines de automação em tempo real?
+
+### Aula 17: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
+* **Conceito/Fundamento:** Automação e monitoramento contínuo 24h/7d de GPUs de alta performance usando Bash, `nvidia-smi`, agendadores (`cron`/`systemd timers`), geração de relatórios gráficos com `gnuplot`/`matplotlib` e envio de telemetria remota via Google Sheets API.
+* **O que se aprende:** Extração de métricas estruturadas (`nvidia-smi --query-gpu`), scripts de coleta em CSV com amostragem, monitoramento de limiares térmicos e elétricos com alertas em tempo real, automação de agendamentos no Linux e publicação remota de relatórios de produção.
+* **Conexão com o Bloco 3:** Conecta o agendamento de tarefas e processos (A14-A15) com a entrega de um pipeline completo de observabilidade de hardware para servidores de IA.
 
 ---
 
@@ -144,4 +149,6 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A12-A13** | "Onde o speedup da GPU compensa de fato (e quando não)?" | Lab interativo no Colab (A12) + benchmark de 4 implementações, curva de speedup e mini-relatório (A13). |
 | **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` via `cron`, dashboard e envio ao Google Sheets. |
 | **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |
-| **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
+| **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
+| **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. |
+
