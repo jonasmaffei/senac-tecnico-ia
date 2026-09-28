@@ -43,7 +43,7 @@ perder os conceitos**:
 
 ### 1. Abrir o Git Bash na pasta
 
-No Explorer, entre em `aulas\aula15\laboratorio_windows`, clique com o botão direito e
+No Explorer, entre em `aulas\bloco3\aula15\laboratorio_windows`, clique com o botão direito e
 escolha **"Open Git Bash here"**.
 
 ### 2. Dar permissão de execução (só na primeira vez)

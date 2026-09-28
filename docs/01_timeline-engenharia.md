@@ -142,28 +142,6 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 
 ---
 
-## Matriz de Domínio por Elo da Corrente
-
-| Elo | Pergunta Crítica Respondida | Evidência Prática no Repositório |
-| :--- | :--- | :--- |
-| **A1-A2** | "Preciso de CPU sequencial ou GPU massiva — e o que cada arquitetura custa em energia?" | Notebooks e scripts de Von Neumann vs. Harvard, SIMD/MIMD e RISC/CISC (`benchmark_simd.py`, `estudo_imagem.py`, `arquitetura_instrucoes.py`). |
-| **A3** | "Onde os dados vivem e qual é o gargalo real de entrega?" | `benchmark_ram_vram.py`, `hierarquia_memoria.py`, `monitor_memoria.py` (VRAM, PCIe, degrau de cache). |
-| **A4-A6** | "Como alimentar a GPU num cluster remoto sem perder o job de 12h?" | `multiprocessing`/`io_bound` (A4), `demo_tcp_udp`/`telemetria_tcp`/`rsync`/SSH (A5), `tmux`/`screen`/`cron`/`systemd` (A6). |
-| **A7-A8** | "Como espremer 100% da VRAM da placa de vídeo?" | Kernels CUDA (A7) e matmul com *tiling*/*coalescing* + profiling `cuda.event`/Nsight (A8). |
-| **A9** | "E se o cliente exigir rodar em cluster AMD/Intel?" | Tradução do paralelismo para padrão aberto agnóstico (OpenCL/PyOpenCL). |
-| **A10-A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs. ROCm) adotar?" | ROCm/HIP + Docker (A10) e treino de CNN comparando throughput FP32×FP16 e custo (A11). |
-| **A12-A13** | "Onde o speedup da GPU compensa de fato (e quando não)?" | Lab interativo no Colab (A12) + benchmark de 4 implementações, curva de speedup e mini-relatório (A13). |
-| **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` via `cron`, dashboard e envio ao Google Sheets. |
-| **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |
-| **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
-| **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. |
-| **A18** | "Como compartilhar 1 GPU entre vários alunos sem colisões e CUDA OOM?" | Exclusão mútua com `flock`, fila de tickets por prioridade e monitoria de processos em tempo real. |
-| **A19** | "Como reduzir o consumo energético do cluster sem sacrificar o treino?" | `monitor_thermal.sh`/Power Limit, benchmark de eficiência (imgs/J), controle via `nvidia-ml-py` e alerta térmico no `cron`. |
-| **A20–A21** | "Como sair do plano para um modelo treinando com GPU?" | Template de projeto, checklist de prontidão, AMP, gradient checkpointing/accumulation e profiling (`torch.profiler`). |
-| **A22** | "O que fazer quando o treino dura dias sem ninguém olhando?" | Monitor integrado via `subprocess`, alertas Slack/Telegram/e-mail, dashboard pandas+matplotlib e serviço `systemd`. |
-| **A23** | "Como provar o valor da GPU para uma banca?" | Pitch de 5 min, relatório final (W&B + logs GPU), tabela baseline × GPU e rubrica de 100 pontos. |
-| **A24** | "Como levar GPU/automação para o Projeto Integrador?" | `mapear_conexoes_pi.py` (detecta loops/`np.dot`/modelos em CPU) e `plano_acao_pi.py` (visão, NLP, séries temporais). |
-
 ### Aula 19: Otimização de Processamento e Uso de Energia em GPUs (Bloco 3 — Automação)
 * **Conceito/Fundamento:** Gerenciamento térmico e energético de GPUs: TDP/TGP, *thermal throttling*, **Power Limit** configurável (`nvidia-smi -pl`), controle programático via **nvidia-ml-py (NVML)** e a métrica de **eficiência (imgs/J)**.
 * **O que se aprende:** Medir temperatura/potência/clocks em tempo real; entender o trade-off entre throughput e consumo; calibrar Power Limits por fase de treino; controlar a GPU por API (sem *parsing* de shell); e criar alertas térmicos que **agem** (reduzem o PL) automaticamente. No **notebook do Colab** (com **5 exercícios**), sem GPU o modelo é **simulado**; no **laboratório Windows**, a GPU AMD é lida de verdade e o restante entra em modo simulado.
@@ -205,3 +183,25 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **O que se aprende:** Detectar loops/`np.dot`/modelos em CPU, integrar scripts (monitor, alertas, dashboards) ao PI e gerar planos de ação (visão, NLP, séries temporais).
 * **Conexão com o Bloco 4:** Fecha a UC conectando o hackathon (código) à pesquisa do Projeto Integrador.
 * **O problema que fica em aberto:** — fim da UC.
+
+## Matriz de Domínio por Elo da Corrente
+
+| Elo | Pergunta Crítica Respondida | Evidência Prática no Repositório |
+| :--- | :--- | :--- |
+| **A1-A2** | "Preciso de CPU sequencial ou GPU massiva — e o que cada arquitetura custa em energia?" | Notebooks e scripts de Von Neumann vs. Harvard, SIMD/MIMD e RISC/CISC (`benchmark_simd.py`, `estudo_imagem.py`, `arquitetura_instrucoes.py`). |
+| **A3** | "Onde os dados vivem e qual é o gargalo real de entrega?" | `benchmark_ram_vram.py`, `hierarquia_memoria.py`, `monitor_memoria.py` (VRAM, PCIe, degrau de cache). |
+| **A4-A6** | "Como alimentar a GPU num cluster remoto sem perder o job de 12h?" | `multiprocessing`/`io_bound` (A4), `demo_tcp_udp`/`telemetria_tcp`/`rsync`/SSH (A5), `tmux`/`screen`/`cron`/`systemd` (A6). |
+| **A7-A8** | "Como espremer 100% da VRAM da placa de vídeo?" | Kernels CUDA (A7) e matmul com *tiling*/*coalescing* + profiling `cuda.event`/Nsight (A8). |
+| **A9** | "E se o cliente exigir rodar em cluster AMD/Intel?" | Tradução do paralelismo para padrão aberto agnóstico (OpenCL/PyOpenCL). |
+| **A10-A11** | "Como provar com dados objetivos qual ecossistema (CUDA vs. ROCm) adotar?" | ROCm/HIP + Docker (A10) e treino de CNN comparando throughput FP32×FP16 e custo (A11). |
+| **A12-A13** | "Onde o speedup da GPU compensa de fato (e quando não)?" | Lab interativo no Colab (A12) + benchmark de 4 implementações, curva de speedup e mini-relatório (A13). |
+| **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` via `cron`, dashboard e envio ao Google Sheets. |
+| **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |
+| **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
+| **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. |
+| **A18** | "Como compartilhar 1 GPU entre vários alunos sem colisões e CUDA OOM?" | Exclusão mútua com `flock`, fila de tickets por prioridade e monitoria de processos em tempo real. |
+| **A19** | "Como reduzir o consumo energético do cluster sem sacrificar o treino?" | `monitor_thermal.sh`/Power Limit, benchmark de eficiência (imgs/J), controle via `nvidia-ml-py` e alerta térmico no `cron`. |
+| **A20–A21** | "Como sair do plano para um modelo treinando com GPU?" | Template de projeto, checklist de prontidão, AMP, gradient checkpointing/accumulation e profiling (`torch.profiler`). |
+| **A22** | "O que fazer quando o treino dura dias sem ninguém olhando?" | Monitor integrado via `subprocess`, alertas Slack/Telegram/e-mail, dashboard pandas+matplotlib e serviço `systemd`. |
+| **A23** | "Como provar o valor da GPU para uma banca?" | Pitch de 5 min, relatório final (W&B + logs GPU), tabela baseline × GPU e rubrica de 100 pontos. |
+| **A24** | "Como levar GPU/automação para o Projeto Integrador?" | `mapear_conexoes_pi.py` (detecta loops/`np.dot`/modelos em CPU) e `plano_acao_pi.py` (visão, NLP, séries temporais). |

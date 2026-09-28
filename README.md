@@ -69,7 +69,7 @@ pip install -r requirements.txt
 
 ## 📚 Índice das Aulas
 
-> Cada bloco também tem um **índice próprio**: [Bloco 1](aulas/bloco1/README.md) · [Bloco 2](aulas/bloco2/README.md) · [Bloco 3](aulas/bloco3/README.md) · [Bloco 4](aulas/bloco4/README.md).
+> 📂 Visão geral da pasta: [`aulas/README.md`](aulas/README.md). Cada bloco também tem um **índice próprio**: [Bloco 1](aulas/bloco1/README.md) · [Bloco 2](aulas/bloco2/README.md) · [Bloco 3](aulas/bloco3/README.md) · [Bloco 4](aulas/bloco4/README.md).
 
 ### Bloco 1 — Fundamentos de Hardware e Infraestrutura
 
@@ -161,6 +161,7 @@ senac-tecnico-ia/
 ├── requirements.txt
 ├── .gitignore
 ├── aulas/
+│   ├── README.md                            → índice geral da pasta de aulas
 │   ├── bloco1/                              → Bloco 1 · Fundamentos (aulas 01–06)
 │   │   ├── README.md                        → índice do bloco
 │   │   ├── aula01/ ... aula06/              → cada aula: apresentacao_*.html, README.md,

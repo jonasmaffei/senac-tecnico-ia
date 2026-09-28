@@ -58,7 +58,7 @@ NVIDIA, o notebook detecta o ambiente e entra em **modo simulado** — todos os 
 ### No laboratório (Windows Host)
 
 ```bat
-cd aulas\aula19\laboratorio_windows
+cd aulas\bloco3\aula19\laboratorio_windows
 iniciar.bat
 ```
 

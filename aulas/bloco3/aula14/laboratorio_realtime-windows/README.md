@@ -66,7 +66,7 @@ instala as dependências e abre o navegador automaticamente.
 ### Opção B — Manual (Prompt de Comando / PowerShell)
 
 ```bat
-cd aulas\aula14\laboratorio_realtime-windows
+cd aulas\bloco3\aula14\laboratorio_realtime-windows
 
 REM (só na primeira vez) criar ambiente virtual e instalar dependências
 python -m venv .venv

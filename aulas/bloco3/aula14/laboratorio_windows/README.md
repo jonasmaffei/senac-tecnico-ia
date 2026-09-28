@@ -42,7 +42,7 @@ resumo de **especificações** (modelo da CPU, núcleos/threads, SO e placa de v
 
 ### 1. Abrir o Git Bash na pasta
 
-No **Explorer**, entre na pasta `aulas\aula14\laboratorio_windows`, clique com o botão
+No **Explorer**, entre na pasta `aulas\bloco3\aula14\laboratorio_windows`, clique com o botão
 direito em um espaço vazio e escolha **"Open Git Bash here"**
 (ou **"Abrir Git Bash aqui"**).
 
