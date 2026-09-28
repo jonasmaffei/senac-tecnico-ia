@@ -96,8 +96,10 @@ pip install -r requirements.txt
 | **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/aula15/notebook_colab/aula15_processos_fila.ipynb), [Apresentação](aulas/aula15/apresentacao_aula15.html), [Atividade](aulas/aula15/atividade.md), [Laboratório Windows](aulas/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/aula15/README.md) |
 | **16** | Agentes de Código: Harness, RAG, Skills e Vibe Coding (Antigravity CLI) | [Apresentação](aulas/aula16/apresentacao_aula16.html), [Atividade](aulas/aula16/atividade.md), [Laboratório Monitoramento](aulas/aula16/laboratorio_monitoramento/README.md), [Guia da Aula](aulas/aula16/README.md) |
 | **17** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/aula17/notebook_colab/aula17_automacao_gpu_bash.ipynb), [Apresentação](aulas/aula17/apresentacao_aula17.html), [Atividade](aulas/aula17/atividade.md), [Laboratório Windows](aulas/aula17/laboratorio_windows/README.md), [Scripts Linux](aulas/aula17/scripts_linux/), [Guia da Aula](aulas/aula17/README.md) |
+| **18** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/aula18/notebook_colab/aula18_processos_fila.ipynb), [Apresentação](aulas/aula18/apresentacao_aula18.html), [Atividade](aulas/aula18/atividade.md), [Laboratório Windows](aulas/aula18/laboratorio_windows/README.md), [Scripts Linux](aulas/aula18/scripts_linux/), [Guia da Aula](aulas/aula18/README.md) |
 
 ---
+
 
 ## 📖 Documentação
 
@@ -237,7 +239,15 @@ senac-tecnico-ia/
 │   │   ├── notebook_colab/aula17_automacao_gpu_bash.ipynb
 │   │   ├── laboratorio_windows/            → 1_monitor_gpu.py, 2_alerta_gpu.py, 3_gerar_graficos.py, 4_enviar_sheets.py, iniciar.bat
 │   │   └── scripts_linux/                  → monitor_gpu.sh, alerta_gpu.sh, gerar_graficos.sh, enviar_para_sheets.py
+│   ├── aula18/
+│   │   ├── apresentacao_aula18.html
+│   │   ├── README.md
+│   │   ├── atividade.md
+│   │   ├── notebook_colab/aula18_processos_fila.ipynb
+│   │   ├── laboratorio_windows/            → 1_flock_gpu.py, 2_gpu_queue.py, 3_teste_fila.py, 4_monitor_processos_gpu.py, iniciar.bat
+│   │   └── scripts_linux/                  → flock_gpu.sh, gpu_queue.sh, teste_fila.sh, monitor_processos_gpu.sh, train_job.py
 │   └── projeto-integrador/
+
 
 │       └── README.md
 ├── questionarios/

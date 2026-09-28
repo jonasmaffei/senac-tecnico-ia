@@ -171,4 +171,13 @@
 * **Agendadores de produção:** Comparativo prático entre o `cron` clássico (`crontab -e`) e os `systemd timers` modernos com logging via `journald`, ordem de inicialização (`After=`) e execução persistente pós-boot (`Persistent=true`).
 * **Dashboards visuais:** Renderização de relatórios de 4 gráficos (temperatura, uso de GPU/RAM, VRAM alocada e potência) via `gnuplot` no terminal Linux ou `matplotlib` no Python/Google Colab.
 * **Integração Cloud com Google Sheets:** Publicação de telemetria via Service Account da Google Sheets API (`google-auth`, `google-api-python-client`) para acompanhamento remoto sem necessidade de conexão SSH.
-* **Prática Colab & Windows Host:** Notebook no Colab (`aula17_automacao_gpu_bash.ipynb`) com suporte a modo simulado e 5 exercícios práticos; ambiente local Windows Host (`laboratorio_windows/`) com menu interativo em `iniciar.bat` para execução nativa dos scripts de monitoria e relatórios.
+* **Prática Colab & Windows Host:** Notebook no Colab (`aula17_automacao_gpu_bash.ipynb`) com suporte a modo simulado e 5 exercícios práticos; ambiente local Windows Host (`laboratorio_windows/`) com menu interativo em `iniciar.bat` para execução nativa dos scripts de monitoria e relatórios.
+
+#### Aula 18: Gestão de Processos e Carga de Trabalho (Bloco 3 — Automação)
+* **Race condition em GPU:** Quando múltiplos jobs disputam a mesma GPU simultaneamente ➔ `CUDA Out of Memory (OOM)` e contaminação de resultados. Solução: exclusão mútua com `flock` + sistema de fila com prioridades.
+* **Exclusão mútua com `flock`:** Lock de arquivo exclusivo (`-x`) para proibir acessos simultâneos. Flags `-n` (non-blocking) e `-w` (timeout). No Windows Host, a equivalência é alcançada com **lock de diretório atômico** (`mkdir`).
+* **Fila com prioridade:** Nomeação de arquivos de ticket (`prioridade_timestamp_job`) onde números menores possuem prioridade máxima de execução. Prevenção de *starvation* via técnica de *aging*.
+* **Monitoramento e diagnósticos:** Acompanhamento ao vivo com `nvidia-smi pmon`, inspeção de locks com `lsof`, e ajuste de prioridades de CPU/IO via `nice`/`ionice`.
+* **Isolamento com `systemd`:** Uso de unidades `.service` para controle de memória (`MemoryMax`), fatia de CPU (`CPUWeight`), relançamento automático (`Restart=on-failure`) e centralização de logs via `journald`.
+* **Prática Colab & Windows Host:** Notebook no Colab (`aula18_processos_fila.ipynb`) com 5 exercícios práticos e simulação em Python; laboratório local em `laboratorio_windows/` com `iniciar.bat` para testar a serialização de 4 jobs simultâneos.
+

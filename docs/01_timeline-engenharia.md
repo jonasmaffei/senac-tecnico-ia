@@ -133,6 +133,12 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **Conceito/Fundamento:** Automação e monitoramento contínuo 24h/7d de GPUs de alta performance usando Bash, `nvidia-smi`, agendadores (`cron`/`systemd timers`), geração de relatórios gráficos com `gnuplot`/`matplotlib` e envio de telemetria remota via Google Sheets API.
 * **O que se aprende:** Extração de métricas estruturadas (`nvidia-smi --query-gpu`), scripts de coleta em CSV com amostragem, monitoramento de limiares térmicos e elétricos com alertas em tempo real, automação de agendamentos no Linux e publicação remota de relatórios de produção.
 * **Conexão com o Bloco 3:** Conecta o agendamento de tarefas e processos (A14-A15) com a entrega de um pipeline completo de observabilidade de hardware para servidores de IA.
+* **O problema que fica em aberto:** Como evitar colisões de VRAM e CUDA OOM em ambientes multiusuário sem depender de orquestradores complexos?
+
+### Aula 18: Gestão de Processos e Carga de Trabalho (Bloco 3 — Automação)
+* **Conceito/Fundamento:** Controle de concorrência em GPU em ambiente multiusuário: exclusão mútua com `flock` (ou lock por diretório no Windows), filas de jobs com suporte a prioridades (1=Alta, 2=Média, 3=Baixa), monitoramento de PIDs em tempo real e isolamento com `systemd units`.
+* **O que se aprende:** Prevenção de race conditions e CUDA OOM, semântica das flags do `flock` (`-x`, `-s`, `-n`, `-w`), fila de tickets (`prioridade_timestamp_job`), `nice`/`ionice`, prevenção de starvation via *aging* e isolamento com `systemd`.
+* **Conexão com o Bloco 3:** Otimiza o compartilhamento seguro de GPUs em clusters e ambientes compartilhados sem necessidade de Slurm ou Kubernetes.
 
 ---
 
@@ -151,4 +157,6 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |
 | **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
 | **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. |
+| **A18** | "Como compartilhar 1 GPU entre vários alunos sem colisões e CUDA OOM?" | Exclusão mútua com `flock`, fila de tickets por prioridade e monitoria de processos em tempo real. |
+
 

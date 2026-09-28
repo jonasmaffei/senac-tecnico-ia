@@ -328,8 +328,8 @@
     <div class="kicker">Aula 14</div>
     <h1>Introdução à Automação de GPUs com Bash</h1>
     <p class="lead">Monitoramento contínuo com <code>nvidia-smi</code>, agendamento via
-      <code>cron</code>/<code>systemd</code>, dashboards com <code>gnuplot</code> e integração com o
-      Google Sheets.</p>
+      <code>cron</code>/<code>systemd</code>, dashboards com <code>gnuplot</code> e <strong>visualização local</strong> de relatórios.</p>
+
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
       <div class="meta"><div class="k">Duração</div><div class="v">120 min</div></div>
@@ -370,7 +370,8 @@
       <span class="pipe-arrow">→</span>
       <div class="pipe-step"><span class="step-ico">⏰</span><span class="step-title">cron / systemd</span><span class="step-sub">agendamento</span></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">gnuplot / Sheets</span><span class="step-sub">visualização</span></div>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">gnuplot / Matplotlib</span><span class="step-sub">visualização local</span></div>
+
     </div>
     <div class="grid cols-3" style="margin-top:22px">
       <div class="card"><h3><span class="ico">🐧</span> Bash</h3><p>Onipresente em servidores Linux, leve e ideal para automação de sistema.</p></div>
@@ -536,51 +537,47 @@ utilization.gpu,memory.used --format=csv,noheader,nounits</code></pre>
     </div>
   </section>
 
-  <!-- 07 — Google Sheets -->
+  <!-- 07 — Visualização Local -->
   <section class="slide">
-    <div class="kicker">Demo · Integração</div>
-    <h2><span class="num">6.</span>Publicando no Google Sheets</h2>
+    <div class="kicker">Demo · Visualização</div>
+    <h2><span class="num">6.</span>Visualização Local de Dashboards</h2>
     <div class="pipeline" style="margin-bottom:16px">
       <div class="pipe-step"><span class="step-ico">🔍</span><span class="step-title">nvidia-smi</span><span class="step-sub">coleta a cada 5 s</span></div>
       <span class="pipe-arrow">→</span>
       <div class="pipe-step"><span class="step-ico">🗄️</span><span class="step-title">CSV local</span><span class="step-sub">grava métricas</span></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-step"><span class="step-ico">⏰</span><span class="step-title">cron</span><span class="step-sub">envia a cada 5 min</span></div>
+      <div class="pipe-step"><span class="step-ico">⏰</span><span class="step-title">cron</span><span class="step-sub">gera relatórios</span></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">Sheets</span><span class="step-sub">atualizado</span></div>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">Dashboard PNG</span><span class="step-sub">salvo em reports/</span></div>
     </div>
     <div class="grid cols-2">
       <div>
-        <h3 style="margin-bottom:10px">Como funciona a integração</h3>
+        <h3 style="margin-bottom:10px">Vantagens da Visualização Local</h3>
         <ul class="clean check">
-          <li>Criar projeto no Google Cloud</li>
-          <li>Habilitar a Sheets API</li>
-          <li>Criar uma <strong>Service Account</strong> e compartilhar a planilha com ela</li>
-          <li>O script lê o CSV e faz <code>append</code> na planilha via API</li>
+          <li>Operação 100% offline e independente da nuvem</li>
+          <li>Gráficos gerados com <code>gnuplot</code> ou <code>Matplotlib</code></li>
+          <li>Geração automática de relatórios gráficos de 4 painéis</li>
+          <li>Relatórios salvos diretamente em <code>reports/gpu_dashboard.png</code></li>
         </ul>
-        <p>Assim o acompanhamento da GPU fica acessível <strong>sem SSH</strong> — qualquer pessoa
-          com acesso à planilha vê as métricas atualizadas.</p>
+        <p>O acompanhamento da GPU fica garantido mesmo em ambientes restritos ou sem acesso à internet.</p>
       </div>
       <div>
         <div class="card" style="border-top:3px solid var(--accent-2)">
-          <h3><span class="ico">🔒</span> Segurança</h3>
-          <p>Credenciais como <em>env var</em> · permissão mínima · JSON <strong>fora do
-            repositório</strong> · rotação de chaves mensal.</p>
+          <h3><span class="ico">🔒</span> Autonomia e Desempenho</h3>
+          <p>Zero consumo de banda externa · respostas em milissegundos · relatórios prontos para auditoria local.</p>
         </div>
         <div class="card" style="margin-top:12px">
-          <h3><span class="ico">🧪</span> Sem credenciais</h3>
-          <p>O script detecta a ausência das credenciais e entra em <strong>modo validação</strong>:
-            confere o cabeçalho e o número de linhas sem enviar nada. A aula funciona mesmo sem
-            conta no Google Cloud.</p>
+          <h3><span class="ico">🧪</span> Multiplataforma</h3>
+          <p>Funciona no Linux com <code>gnuplot</code> e no Windows / Colab com o fallback em <code>Matplotlib</code>.</p>
         </div>
       </div>
     </div>
     <div class="note" style="margin-top:14px">
       <span class="ico">📄</span>
-      <span>Código em <code>scripts_linux/enviar_para_sheets.py</code> —
-        <strong>comentado linha a linha</strong>.</span>
+      <span>Código em <code>scripts_linux/gerar_graficos.sh</code> e <code>laboratorio_windows/3_gerar_graficos.py</code> — <strong>comentado linha a linha</strong>.</span>
     </div>
   </section>
+
 
   <!-- 08 — discussão -->
   <section class="slide">
@@ -623,8 +620,9 @@ utilization.gpu,memory.used --format=csv,noheader,nounits</code></pre>
           <li><strong>gnuplot / Matplotlib</strong> — séries temporais</li>
         </ul>
         <p style="margin-top:12px">Recursos: docs do <code>nvidia-smi</code>, manual do
-          <code>cron</code>, <code>gnuplot</code>, Google Sheets API — e os scripts em
+          <code>cron</code>, <code>gnuplot</code>, <code>Matplotlib</code> — e os scripts em
           <code>aulas/aula14/</code>.</p>
+
       </div>
       <div>
         <div class="card" style="margin-bottom:12px">
