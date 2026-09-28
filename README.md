@@ -174,7 +174,8 @@ senac-tecnico-ia/
 │   │   └── aula14/ ... aula19/              → notebook_colab/, laboratorio_windows/, scripts_linux/
 │   ├── bloco4/                              → Bloco 4 · Projeto Final (aulas 20–24)
 │   │   ├── README.md
-│   │   └── aula20/ ... aula24/              → apresentação, atividade e 1 script de exemplo
+│   │   ├── aula20/ ... aula24/              → apresentação, atividade e 1 script de exemplo
+│   │   └── projetos-exemplo/                → 3 projetos completos (visão, PNL, séries)
 │   └── projeto-integrador/
 │       └── README.md                        → pesquisa (não exige código)
 ├── questionarios/

@@ -32,37 +32,35 @@ planejar (A20) → implementar (A21) → automatizar/monitorar (A22) → apresen
 
 ---
 
-## 🧪 Exemplo: “Detecção de Doenças em Plantas”
+## 🧪 Projetos Exemplo
 
-Um caminho simples para o projeto final, seguindo as aulas:
+Três projetos **completos** (um por domínio) que percorrem as 5 etapas das aulas 20 a 24.
+Cada um é um **script único que roda sem GPU** e imprime as etapas + gera o relatório:
+
+| # | Domínio | Projeto | Dataset |
+| :-: | :--- | :--- | :--- |
+| 1 | Visão | [Detecção de Doenças em Plantas](projetos-exemplo/1-visao-doencas-plantas/README.md) | PlantVillage |
+| 2 | PNL | [Análise de Sentimentos](projetos-exemplo/2-pnl-sentimentos/README.md) | IMDB |
+| 3 | Séries Temporais | [Previsão de Consumo de Energia](projetos-exemplo/3-series-consumo-energia/README.md) | ETT |
+
+```bash
+cd aulas/bloco4/projetos-exemplo/1-visao-doencas-plantas
+python projeto.py
+```
+
+As etapas que todos seguem:
 
 | Etapa | O que fazer | Aula |
 | :--- | :--- | :---: |
-| **1. Planejar** | Domínio (visão), problema, dataset PlantVillage, ResNet-18 pré-treinado, métrica e baseline | 20 |
-| **2. Implementar** | Treinar com AMP (fp16) + logging no W&B | 21 |
-| **3. Monitorar** | Rodar o `monitor_treinamento.sh` junto do treino e alertar se esquentar | 22 |
+| **1. Planejar** | Domínio, problema, dataset, modelo e baseline | 20 |
+| **2. Implementar** | Treinar com AMP (fp16) + DataLoader otimizado | 21 |
+| **3. Monitorar** | Rodar o `monitor_treinamento.sh` junto do treino | 22 |
 | **4. Apresentar** | Pitch de 5 min + relatório (baseline × GPU) | 23 |
 | **5. Conectar** | Mapear onde a GPU ajuda no Projeto Integrador | 24 |
 
-Estrutura do repositório:
-
-```
-deteccao-doencas-plantas/
-├── config/config.py        # hiperparâmetros
-├── data/                   # dataset
-├── models/model.py         # ResNet-18 (38 classes)
-├── training/train.py       # loop de treino com AMP
-└── scripts/                # monitor + alertas (Aula 22)
-```
-
-Resultado esperado (exemplo):
-
-| Métrica | CPU | GPU |
-| :--- | :--- | :--- |
-| Tempo por época | ~320 s | ~38 s |
-| Val Accuracy | ~71% | ~87% |
-
-> 💡 Cada pasta `aulaNN/` tem o guia, o notebook e os scripts comentados para seguir esse exemplo passo a passo.
-
+> 💡 Índice completo dos exemplos: [`projetos-exemplo/README.md`](projetos-exemplo/README.md).
 
 ---
+
+**Bloco anterior:** [Bloco 3 — Automação](../bloco3/README.md) ·
+**Índice geral:** [README do repositório](../../README.md).
