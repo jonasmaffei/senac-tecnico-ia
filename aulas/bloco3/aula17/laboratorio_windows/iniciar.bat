@@ -1,18 +1,13 @@
 @echo off
-chcp 65001 > NUL
-title Aula 17 — Laboratório de Automação de GPU (Windows Host)
+title Aula 17 - Laboratorio de Automacao de GPU
 
-echo ============================================================
-echo   🤖 Aula 17 — Automação e Telemetria de GPU (Windows Host)
-echo ============================================================
-echo.
+if exist ".venv" goto :INICIAR_ENV
 
-if not exist ".venv" (
-    echo [1/2] Criando ambiente virtual Python (.venv)...
-    python -m venv .venv
-)
+echo [1/2] Criando ambiente virtual Python (.venv)...
+python -m venv .venv
 
-echo [2/2] Ativando ambiente virtual e instalando dependências...
+:INICIAR_ENV
+echo [2/2] Ativando ambiente virtual e instalando dependencias...
 call .venv\Scripts\activate.bat
 python -m pip install --upgrade pip > NUL
 pip install -r requirements.txt
@@ -20,53 +15,54 @@ pip install -r requirements.txt
 :MENU
 cls
 echo ============================================================
-echo   📊 MENU - Laboratório de Automação de GPU (Aula 17)
+echo    MENU - Laboratorio de Automacao de GPU (Aula 17)
 echo ============================================================
-echo   1. Coletar Métricas de Hardware (1_monitor_gpu.py)
-echo   2. Verificar Alertas de Limites (2_alerta_gpu.py)
-echo   3. Gerar Dashboard de Gráficos (3_gerar_graficos.py)
-echo   4. Enviar Telemetria para Google Sheets (4_enviar_sheets.py)
-echo   5. Sair
+echo    1. Coletar Metricas de Hardware (1_monitor_gpu.py)
+echo    2. Verificar Alertas de Limites (2_alerta_gpu.py)
+echo    3. Gerar Dashboard de Graficos (3_gerar_graficos.py)
+echo    4. Enviar Telemetria para Google Sheets (4_enviar_sheets.py)
+echo    5. Sair
 echo ============================================================
-set /p OPCAO="Escolha uma opção (1-5): "
+set /p OPCAO="Escolha uma opcao (1-5): "
 
-if "%OPCAO%"=="1" (
-    cls
-    echo Executando Coleta de Métricas...
-    python 1_monitor_gpu.py 3 30
-    pause
-    goto MENU
-)
+if "%OPCAO%"=="1" goto OP1
+if "%OPCAO%"=="2" goto OP2
+if "%OPCAO%"=="3" goto OP3
+if "%OPCAO%"=="4" goto OP4
+if "%OPCAO%"=="5" goto OP5
 
-if "%OPCAO%"=="2" (
-    cls
-    echo Verificando Alertas...
-    python 2_alerta_gpu.py 75 90
-    pause
-    goto MENU
-)
-
-if "%OPCAO%"=="3" (
-    cls
-    echo Gerando Dashboard PNG...
-    python 3_gerar_graficos.py
-    pause
-    goto MENU
-)
-
-if "%OPCAO%"=="4" (
-    cls
-    echo Enviando para Google Sheets API...
-    python 4_enviar_sheets.py
-    pause
-    goto MENU
-)
-
-if "%OPCAO%"=="5" (
-    echo Encerrando laboratório. Atos de automação concluídos!
-    exit /b 0
-)
-
-echo Opção inválida! Tente novamente.
+echo Opcao invalida! Tente novamente.
 pause
 goto MENU
+
+:OP1
+cls
+echo Executando Coleta de Metricas...
+python 1_monitor_gpu.py 3 30
+pause
+goto MENU
+
+:OP2
+cls
+echo Verificando Alertas...
+python 2_alerta_gpu.py 75 90
+pause
+goto MENU
+
+:OP3
+cls
+echo Gerando Dashboard PNG...
+python 3_gerar_graficos.py
+pause
+goto MENU
+
+:OP4
+cls
+echo Enviando para Google Sheets API...
+python 4_enviar_sheets.py
+pause
+goto MENU
+
+:OP5
+echo Encerrando laboratorio. Atos de automacao concluidos!
+exit /b 0
