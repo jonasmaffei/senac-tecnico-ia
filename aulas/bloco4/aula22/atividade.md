@@ -30,6 +30,12 @@ O modelo agora treina por horas ou dias. Ninguém fica olhando o terminal — é
 
 ---
 
+## 📚 Trilha de pesquisa (alternativa sem código)
+
+Documente o **monitoramento como requisito**: quais métricas importam, custo/energia estimado e
+quais ferramentas seriam usadas — sem precisar executar o monitor.
+
+
 ## 📌 Tarefa de casa (para a Aula 23)
 
 1. Rodar um treino completo com o monitor e salvar o CSV.

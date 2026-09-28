@@ -46,6 +46,13 @@ python relatorio_final.py     # gera relatorio_final.png
 
 ---
 
+## 🔀 Outra trilha: pesquisa (sem código)
+
+Na trilha de pesquisa, a apresentação é um **relatório/pitch de pesquisa**: problema,
+alternativas, evidências (fontes) e **recomendação final** — sem demonstração de código. O
+formato sugerido é o do [`projeto-integrador/`](../../projeto-integrador/README.md).
+
+
 ## 📌 Tarefa de casa (para a Aula 24)
 
 1. Incorporar o feedback da banca ao relatório.

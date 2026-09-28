@@ -28,6 +28,13 @@ acelerada por GPU para um problema real. Esta aula é o planejamento.
 
 ---
 
+## 📚 Trilha de pesquisa (alternativa sem código)
+
+Se o seu projeto for de **pesquisa** (como o PI), nesta etapa você define o **problema real**,
+a **pergunta central** e o **roteiro de pesquisa** (fontes e alternativas de arquitetura).
+Veja os exemplos 4–6 em [`projetos-exemplo/`](../projetos-exemplo/README.md).
+
+
 ## 📌 Tarefa de casa (para a Aula 21)
 
 1. Completar o checklist e criar o **repositório GitHub**.

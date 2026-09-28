@@ -6,6 +6,11 @@ O bloco de fechamento é um **hackathon interno**: em 4 semanas, cada time plane
 implementa, monitora e apresenta uma solução de IA acelerada por GPU. A última aula conecta
 tudo ao Projeto Integrador do curso.
 
+> 🔀 Cada aula tem **duas trilhas**: **código** (implementar e treinar) e **pesquisa**
+> (sem código obrigatório, no estilo do [`projeto-integrador/`](../projeto-integrador/README.md)).
+> A trilha de pesquisa permite entregar o projeto como um trabalho de investigação
+> fundamentado. Veja exemplos prontos em [`projetos-exemplo/`](projetos-exemplo/README.md).
+
 | Aula | Tema | Recursos |
 | :---: | :--- | :--- |
 | **20** | Definição do Projeto Final (domínio, dataset, arquitetura) | [Guia](aula20/README.md) · [Apresentação](aula20/apresentacao_aula20.html) · [Atividade](aula20/atividade.md) · [Script](aula20/scripts/projeto_exemplo.py) |
@@ -34,14 +39,24 @@ planejar (A20) → implementar (A21) → automatizar/monitorar (A22) → apresen
 
 ## 🧪 Projetos Exemplo
 
-Três projetos **completos** (um por domínio) que percorrem as 5 etapas das aulas 20 a 24.
-Cada um é um **script único que roda sem GPU** e imprime as etapas + gera o relatório:
+Seis projetos completos (um por domínio), em **dois níveis** — todos percorrem as 5 etapas
+das aulas 20 a 24:
+
+**Nível de código** (script único que roda sem GPU):
 
 | # | Domínio | Projeto | Dataset |
 | :-: | :--- | :--- | :--- |
 | 1 | Visão | [Detecção de Doenças em Plantas](projetos-exemplo/1-visao-doencas-plantas/README.md) | PlantVillage |
 | 2 | PNL | [Análise de Sentimentos](projetos-exemplo/2-pnl-sentimentos/README.md) | IMDB |
 | 3 | Séries Temporais | [Previsão de Consumo de Energia](projetos-exemplo/3-series-consumo-energia/README.md) | ETT |
+
+**Nível de pesquisa** (sem código obrigatório):
+
+| # | Área | Projeto |
+| :-: | :--- | :--- |
+| 4 | Saúde | [Diagnóstico por Imagem em GPU — CUDA vs ROCm](projetos-exemplo/4-pesquisa-diagnostico-imagem/README.md) |
+| 5 | Energia | [Green AI — Eficiência Energética em Data Centers](projetos-exemplo/5-pesquisa-green-ai/README.md) |
+| 6 | Agricultura | [Agricultura de Precisão — Borda vs Nuvem](projetos-exemplo/6-pesquisa-agricultura-precisao/README.md) |
 
 ```bash
 cd aulas/bloco4/projetos-exemplo/1-visao-doencas-plantas

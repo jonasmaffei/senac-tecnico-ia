@@ -28,9 +28,21 @@ Cada time apresenta **3 conexões** GPU ↔ PI (2 min):
 
 ---
 
+## 📚 Trilha de pesquisa (alternativa sem código)
+
+As conexões GPU ↔ PI valem para as duas trilhas: indique onde a aceleração ajudaria o PI e
+justifique com base na sua pesquisa.
+
+
 ## 📌 Entregas finais da UC
 
+**Trilha de código:**
 1. Repositório do projeto com README e `requirements.txt`.
 2. Relatório final (PNG) commitado.
 3. Monitoramento com CSV de um treino completo.
 4. Documento de 1 página: **"3 conexões entre GPU e o nosso PI"**.
+
+**Trilha de pesquisa (sem código):**
+1. Trabalho de pesquisa (relatório ou slides): problema, alternativas e recomendação.
+2. Referências bibliográficas e declaração de uso de IA.
+3. Documento de 1 página: **"3 conexões entre GPU e o nosso PI"**.

@@ -38,6 +38,13 @@ O monitor grava `logs/monitor/gpu_<data>.csv` e **encerra sozinho** quando o tre
 
 ---
 
+## 🔀 Outra trilha: pesquisa (sem código)
+
+Na trilha de pesquisa, o monitoramento vira **requisito da solução**: estimar custo e energia,
+definir as métricas de operação (temperatura, potência, utilização) e citar as ferramentas
+(`nvidia-smi`, NVML) como parte da arquitetura.
+
+
 ## 📌 Tarefa de casa (para a Aula 23)
 
 1. Rodar o monitor junto de um treino e salvar o CSV.

@@ -35,6 +35,13 @@ python treino_otimizado.py
 
 ---
 
+## 🔀 Outra trilha: pesquisa (sem código)
+
+Na trilha de pesquisa, esta etapa é o **aprofundamento**: levantar dados e fontes sobre as
+otimizações (mixed precision, portabilidade CUDA/ROCm) e comparar alternativas de arquitetura,
+**sem precisar treinar**. O objetivo é **fundamentar a decisão** com evidências.
+
+
 ## 📌 Tarefa de casa (para a Aula 22)
 
 1. Treinar pelo menos **10 épocas** com AMP e logging.

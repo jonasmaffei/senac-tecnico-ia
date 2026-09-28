@@ -36,9 +36,21 @@ python mapear_conexoes_pi.py /caminho/do/pi
 
 ---
 
+## 🔀 Outra trilha: pesquisa (sem código)
+
+A conexão com o PI vale para as **duas trilhas**: aponte onde a aceleração por GPU ajudaria o
+Projeto Integrador e justifique com base na sua pesquisa ou no seu experimento.
+
+
 ## 📌 Entregas finais da UC
 
+**Trilha de código:**
 1. Repositório do projeto com README e `requirements.txt`.
 2. Relatório final (PNG) no repositório.
 3. Monitoramento com log CSV de um treino completo.
 4. Documento com **3 conexões** GPU ↔ PI.
+
+**Trilha de pesquisa (sem código):**
+1. Trabalho de pesquisa (relatório ou slides) com problema, alternativas e recomendação.
+2. Referências bibliográficas e declaração de uso de IA.
+3. Documento com **3 conexões** GPU ↔ PI.

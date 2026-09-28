@@ -28,6 +28,12 @@ O treino acabou e os resultados estão prontos. Chegou a hora de **apresentar** 
 
 ---
 
+## 📚 Trilha de pesquisa (alternativa sem código)
+
+Apresente um **relatório/pitch de pesquisa** (problema → alternativas → evidências →
+recomendação), sem demo de código.
+
+
 ## 📌 Tarefa de casa (para a Aula 24)
 
 1. Incorporar o feedback da banca ao relatório final.

@@ -30,6 +30,12 @@ O plano está pronto e o baseline medido. Agora é implementar o modelo com **ac
 
 ---
 
+## 📚 Trilha de pesquisa (alternativa sem código)
+
+Em vez de treinar, **levante evidências**: compare alternativas (CUDA vs ROCm), cite papers e
+documentações oficiais. O entregável é a **análise fundamentada**, não o código.
+
+
 ## 📌 Tarefa de casa (para a Aula 22)
 
 1. Treinar pelo menos **10 épocas** com AMP e logging.

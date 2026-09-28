@@ -175,7 +175,7 @@ senac-tecnico-ia/
 │   ├── bloco4/                              → Bloco 4 · Projeto Final (aulas 20–24)
 │   │   ├── README.md
 │   │   ├── aula20/ ... aula24/              → apresentação, atividade e 1 script de exemplo
-│   │   └── projetos-exemplo/                → 3 projetos completos (visão, PNL, séries)
+│   │   └── projetos-exemplo/                → 6 exemplos (3 de código + 3 de pesquisa)
 │   └── projeto-integrador/
 │       └── README.md                        → pesquisa (não exige código)
 ├── questionarios/
