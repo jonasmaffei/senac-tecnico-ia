@@ -204,4 +204,4 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A20–A21** | "Como sair do plano para um modelo treinando com GPU?" | Template de projeto, checklist de prontidão, AMP, gradient checkpointing/accumulation e profiling (`torch.profiler`). |
 | **A22** | "O que fazer quando o treino dura dias sem ninguém olhando?" | Monitor integrado via `subprocess`, alertas Slack/Telegram/e-mail, dashboard pandas+matplotlib e serviço `systemd`. |
 | **A23** | "Como provar o valor da GPU para uma banca?" | Pitch de 5 min, relatório final (W&B + logs GPU), tabela baseline × GPU e rubrica de 100 pontos. |
-| **A24** | "Como levar GPU/automação para o Projeto Integrador?" | `mapear_conexoes_pi.py` (detecta loops/`np.dot`/modelos em CPU) e `plano_acao_pi.py` (visão, NLP, séries temporais). |
+| **A24** | "Como levar GPU/automação para o Projeto Integrador?" | `mapear_conexoes_pi.py` (detecta loops/`np.dot`/modelos em CPU e mostra o plano por domínio). |

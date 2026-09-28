@@ -20,9 +20,10 @@ aulas/
 └── projeto-integrador/       Trabalho de pesquisa da UC
 ```
 
-Cada aula (`aulaNN/`) segue o padrão: `apresentacao_aulaNN.html`, `README.md`,
-`notebook_colab/` (com 5 exercícios), `atividade.md` e, quando há hardware real,
-`laboratorio_windows/` (além de `scripts/` ou `scripts_linux/`).
+Cada aula (`aulaNN/`) segue o padrão: `apresentacao_aulaNN.html`, `README.md`, `atividade.md` e,
+quando há material prático, `notebook_colab/` (com 5 exercícios) e/ou `laboratorio_windows/`,
+`scripts/` ou `scripts_linux/`. As aulas do **Bloco 4** (Projeto Final) são mais enxutas: um
+script de exemplo por aula.
 
 ---
 

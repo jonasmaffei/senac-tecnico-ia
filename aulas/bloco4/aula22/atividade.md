@@ -1,72 +1,37 @@
-# 📝 Atividade Prática: Aula 22 — Automação e Monitoramento do Projeto
+# 📝 Atividade: Aula 22 — Automação e Monitoramento
+
+## 🎯 Situação
+
+O modelo agora treina por horas ou dias. Ninguém fica olhando o terminal — é preciso
+**monitorar automaticamente** e ser avisado se algo sair do normal.
 
 ---
 
-## 🎯 Situação de Aprendizagem
+## 🚀 Roteiro
 
-O modelo está treinando e os primeiros resultados são promissores. Mas os treinamentos
-agora duram **horas ou dias**. Ninguém ficará olhando o terminal 24h por dia. O time precisa
-de um sistema de automação que: colete métricas da GPU continuamente, dispare alertas
-automáticos se a temperatura ou a VRAM passarem dos limites, gere dashboards de desempenho
-e integre tudo ao repositório do projeto — sem intervenção manual.
+1. Inicie o treino e pegue o PID dele.
+2. Rode o monitor junto (em outro terminal):
+   ```bash
+   cd aulas/bloco4/aula22/scripts
+   ./monitor_treinamento.sh $PID_DO_TREINO 10
+   ```
+3. Confira o CSV gerado em `logs/monitor/`.
+4. Baixe o limite de temperatura (ex.: 60) e veja o alerta disparar.
 
----
-
-## 🗂️ Roteiro de Execução
-
-| Ambiente | Onde abrir | Como executar |
-| :--- | :--- | :--- |
-| **Google Colab** | [`notebook_colab/aula22_automacao_projeto.ipynb`](notebook_colab/aula22_automacao_projeto.ipynb) | Execute as células em sequência |
-| **Servidor Linux** | [`scripts/`](scripts) | `./monitor_treinamento.sh <pid> <projeto>` |
+> 💡 No Windows/GPU AMD, use como referência o laboratório da Aula 17.
 
 ---
 
-## 🚀 Parte 1 — Monitor integrado ao pipeline
+## 💬 Discussão em grupo (10 min)
 
-1. Execute o `monitor_treinamento.sh` apontando para o PID do seu `train.py`.
-2. Verifique o CSV gerado em `logs/monitor/<projeto>_<data>.csv`.
-3. Confirme que o monitor **encerra sozinho** quando o treino termina.
-
----
-
-## 📄 Parte 2 — Integração via subprocess
-
-1. No `train.py`, inicie o monitor com `subprocess.Popen` antes do loop.
-2. Garanta o encerramento no bloco `finally:`.
-3. Force um erro no meio do treino e confirme que o monitor foi encerrado.
+1. O monitor encerrou sozinho quando o treino acabou?
+2. Que limite de temperatura faz sentido para a sua GPU?
+3. O CSV mostra alguma anomalia (pico de temperatura, VRAM crescendo)?
 
 ---
 
-## 🚨 Parte 3 — Alertas automáticos
+## 📌 Tarefa de casa (para a Aula 23)
 
-1. Configure ao menos um canal (log local já funciona; Slack/Telegram são opcionais).
-2. Ajuste os thresholds (`MAX_TEMP`, `MAX_MEMORIA_PCT`) do script.
-3. Acione um alerta artificialmente (baixe o threshold) e verifique o registro.
-
----
-
-## 📊 Parte 4 — Dashboard
-
-1. Colete um log de GPU representativo.
-2. Gere o dashboard com `python3 dashboard_metricas.py <projeto>`.
-3. Salve o PNG em `logs/dashboards/` e commite junto dos resultados.
-
----
-
-## 💬 Parte 5 — Discussão em Grupo (10 min)
-
-1. O monitor encerrou corretamente ao fim do treino? Se não, o que causou?
-2. Qual threshold de temperatura vocês definiram? Já houve alerta real? O que aconteceu?
-3. O dashboard mostrou alguma anomalia (pico de temperatura, queda de utilização, VRAM
-   crescendo)? O que esse padrão indica?
-4. Cruzando os logs de GPU com o W&B: a GPU estava maximamente usada justamente nas épocas
-   em que o `val/loss` caiu mais? Há correlação entre utilização e velocidade de convergência?
-
----
-
-## 📌 Parte 6 — Tarefa de Casa (para a Aula 23)
-
-1. Integrar o monitor ao `train.py` e executar um treinamento completo com log CSV.
-2. Gerar o **dashboard final** e salvar o PNG no repositório.
-3. Configurar ao menos um **canal de alerta** e testá-lo acionando um threshold artificial.
-4. Preparar o **pitch de 5 min**: problema → baseline → modelo GPU → resultados → lições.
+1. Rodar um treino completo com o monitor e salvar o CSV.
+2. Testar o alerta de temperatura.
+3. Preparar o **pitch de 5 min**.

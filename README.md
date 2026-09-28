@@ -117,11 +117,11 @@ pip install -r requirements.txt
 
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
-| **20** | Definição do Projeto Final (domínio, dataset, arquitetura, W&B) | [Notebook](aulas/bloco4/aula20/notebook_colab/aula20_definicao_projeto.ipynb), [Apresentação](aulas/bloco4/aula20/apresentacao_aula20.html), [Atividade](aulas/bloco4/aula20/atividade.md), [Scripts](aulas/bloco4/aula20/scripts/), [Guia da Aula](aulas/bloco4/aula20/README.md) |
-| **21** | Implementação do Modelo (AMP, checkpointing, accumulation, profiling) | [Notebook](aulas/bloco4/aula21/notebook_colab/aula21_implementacao_modelo.ipynb), [Apresentação](aulas/bloco4/aula21/apresentacao_aula21.html), [Atividade](aulas/bloco4/aula21/atividade.md), [Scripts](aulas/bloco4/aula21/scripts/), [Guia da Aula](aulas/bloco4/aula21/README.md) |
-| **22** | Automação e Monitoramento do Projeto (subprocess, alertas, dashboard, systemd) | [Notebook](aulas/bloco4/aula22/notebook_colab/aula22_automacao_projeto.ipynb), [Apresentação](aulas/bloco4/aula22/apresentacao_aula22.html), [Atividade](aulas/bloco4/aula22/atividade.md), [Scripts](aulas/bloco4/aula22/scripts/), [Guia da Aula](aulas/bloco4/aula22/README.md) |
-| **23** | Apresentação e Análise dos Projetos (pitch, relatório, rubrica) | [Notebook](aulas/bloco4/aula23/notebook_colab/aula23_apresentacao_projetos.ipynb), [Apresentação](aulas/bloco4/aula23/apresentacao_aula23.html), [Atividade](aulas/bloco4/aula23/atividade.md), [Scripts](aulas/bloco4/aula23/scripts/), [Guia da Aula](aulas/bloco4/aula23/README.md) |
-| **24** | Conexão com o Projeto Integrador (mapeamento GPU, plano de ação) | [Notebook](aulas/bloco4/aula24/notebook_colab/aula24_conexao_pi.ipynb), [Apresentação](aulas/bloco4/aula24/apresentacao_aula24.html), [Atividade](aulas/bloco4/aula24/atividade.md), [Scripts](aulas/bloco4/aula24/scripts/), [Guia da Aula](aulas/bloco4/aula24/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
+| **20** | Definição do Projeto Final (domínio, dataset, arquitetura) | [Apresentação](aulas/bloco4/aula20/apresentacao_aula20.html), [Atividade](aulas/bloco4/aula20/atividade.md), [Script](aulas/bloco4/aula20/scripts/projeto_exemplo.py), [Guia da Aula](aulas/bloco4/aula20/README.md) |
+| **21** | Implementação do Modelo (AMP, DataLoader) | [Apresentação](aulas/bloco4/aula21/apresentacao_aula21.html), [Atividade](aulas/bloco4/aula21/atividade.md), [Script](aulas/bloco4/aula21/scripts/treino_otimizado.py), [Guia da Aula](aulas/bloco4/aula21/README.md) |
+| **22** | Automação e Monitoramento (monitor de GPU em CSV) | [Apresentação](aulas/bloco4/aula22/apresentacao_aula22.html), [Atividade](aulas/bloco4/aula22/atividade.md), [Script](aulas/bloco4/aula22/scripts/monitor_treinamento.sh), [Guia da Aula](aulas/bloco4/aula22/README.md) |
+| **23** | Apresentação e Análise dos Projetos (pitch, relatório) | [Apresentação](aulas/bloco4/aula23/apresentacao_aula23.html), [Atividade](aulas/bloco4/aula23/atividade.md), [Script](aulas/bloco4/aula23/scripts/relatorio_final.py), [Guia da Aula](aulas/bloco4/aula23/README.md) |
+| **24** | Conexão com o Projeto Integrador (mapeamento GPU) | [Apresentação](aulas/bloco4/aula24/apresentacao_aula24.html), [Atividade](aulas/bloco4/aula24/atividade.md), [Script](aulas/bloco4/aula24/scripts/mapear_conexoes_pi.py), [Guia da Aula](aulas/bloco4/aula24/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
 
 ---
 
@@ -174,7 +174,7 @@ senac-tecnico-ia/
 │   │   └── aula14/ ... aula19/              → notebook_colab/, laboratorio_windows/, scripts_linux/
 │   ├── bloco4/                              → Bloco 4 · Projeto Final (aulas 20–24)
 │   │   ├── README.md
-│   │   └── aula20/ ... aula24/              → notebook_colab/ + scripts/
+│   │   └── aula20/ ... aula24/              → apresentação, atividade e 1 script de exemplo
 │   └── projeto-integrador/
 │       └── README.md                        → pesquisa (não exige código)
 ├── questionarios/
