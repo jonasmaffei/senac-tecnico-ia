@@ -180,4 +180,11 @@
 * **Monitoramento e diagnósticos:** Acompanhamento ao vivo com `nvidia-smi pmon`, inspeção de locks com `lsof`, e ajuste de prioridades de CPU/IO via `nice`/`ionice`.
 * **Isolamento com `systemd`:** Uso de unidades `.service` para controle de memória (`MemoryMax`), fatia de CPU (`CPUWeight`), relançamento automático (`Restart=on-failure`) e centralização de logs via `journald`.
 * **Prática Colab & Windows Host:** Notebook no Colab (`aula18_processos_fila.ipynb`) com 5 exercícios práticos e simulação em Python; laboratório local em `laboratorio_windows/` com `iniciar.bat` para testar a serialização de 4 jobs simultâneos.
-
+
+#### Aula 19: Otimização de Processamento e Uso de Energia em GPUs (Bloco 3 — Automação)
+* **TDP, TGP e Thermal Throttling:** TDP é a potência de dissipação projetada (ex.: RTX 4090 = 450W, A100 = 400W); TGP inclui memória e controladores. Acima de ~83–87°C o driver reduz o clock automaticamente (*thermal throttling*), podendo perder até 30% de throughput.
+* **Power Limit (`nvidia-smi -pl`):** Reduzir o PL em 20–30% costuma sacrificar apenas 5–10% de throughput, com grande queda de consumo e calor. Configurar exige `sudo`/root.
+* **Eficiência (imgs/J):** Métrica que balanceia throughput e potência média. O ponto ótimo costuma ficar em **~70–75% do TDP** — abaixo disso o throttling severo derruba o desempenho mais rápido do que economiza energia.
+* **Controle programático (nvidia-ml-py / NVML):** Leitura e configuração da GPU sem *parsing* de shell (`nvmlDeviceGetTemperature`, `GetPowerUsage`, `SetPowerManagementLimit`), ideal para dashboards e auto-scaling de PL por fase de treino.
+* **Alertas térmicos com ação:** Script agendado no `cron` que, ao cruzar o limite crítico (ex.: 88°C), reduz o PL de emergência e notifica; quando a temperatura normaliza, restaura o PL original.
+* **Prática Colab & Windows Host:** Notebook no Colab (`aula19_energia_gpu.ipynb`) com coleta, benchmark de eficiência, leitura NVML e lock portátil + **5 exercícios**; laboratório local em `laboratorio_windows/` (`lib_energia.py` + 4 scripts) que lê a GPU AMD de verdade e usa modo simulado para temperatura/potência.

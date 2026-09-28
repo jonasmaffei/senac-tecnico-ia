@@ -158,5 +158,10 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
 | **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. |
 | **A18** | "Como compartilhar 1 GPU entre vários alunos sem colisões e CUDA OOM?" | Exclusão mútua com `flock`, fila de tickets por prioridade e monitoria de processos em tempo real. |
+| **A19** | "Como reduzir o consumo energético do cluster sem sacrificar o treino?" | `monitor_thermal.sh`/Power Limit, benchmark de eficiência (imgs/J), controle via `nvidia-ml-py` e alerta térmico no `cron`. |
 
-
+### Aula 19: Otimização de Processamento e Uso de Energia em GPUs (Bloco 3 — Automação)
+* **Conceito/Fundamento:** Gerenciamento térmico e energético de GPUs: TDP/TGP, *thermal throttling*, **Power Limit** configurável (`nvidia-smi -pl`), controle programático via **nvidia-ml-py (NVML)** e a métrica de **eficiência (imgs/J)**.
+* **O que se aprende:** Medir temperatura/potência/clocks em tempo real; entender o trade-off entre throughput e consumo; calibrar Power Limits por fase de treino; controlar a GPU por API (sem *parsing* de shell); e criar alertas térmicos que **agem** (reduzem o PL) automaticamente. No **notebook do Colab** (com **5 exercícios**), sem GPU o modelo é **simulado**; no **laboratório Windows**, a GPU AMD é lida de verdade e o restante entra em modo simulado.
+* **Conexão com o Bloco 3:** Fecha a tríade do bloco — automação da telemetria (A17) + gestão da concorrência (A18) + **otimização de energia** (A19) = operação de cluster sustentável.
+* **O problema que fica em aberto:** Com energia e concorrência sob controle, como **orquestrar** tudo isso em escala e de forma sustentável a longo prazo?

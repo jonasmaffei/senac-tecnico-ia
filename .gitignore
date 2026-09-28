@@ -75,3 +75,9 @@ aulas/aula14/laboratorio_realtime-windows/reports/*
 !aulas/aula14/laboratorio_realtime-windows/reports/.gitkeep
 aulas/aula14/laboratorio_realtime-windows/**/__pycache__/
 
+# === Laboratório de energia — Aula 19 ===
+aulas/aula19/laboratorio_windows/reports/*
+!aulas/aula19/laboratorio_windows/reports/.gitkeep
+aulas/aula19/laboratorio_windows/**/__pycache__/
+
+

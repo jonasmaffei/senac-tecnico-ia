@@ -9,7 +9,7 @@ Repositório estruturado por aulas para o curso técnico de IA do Senac, cobrind
 Cada aula resolve o gargalo que a anterior deixou em aberto, formando uma cadeia causal completa:
 
 ```
-Silício → Modelos de Execução → Memória → Processos → Redes → Linux → CUDA → Tiling → OpenCL/LLMs → ROCm/AMD → Aplicação & Métricas
+Silício → Modelos de Execução → Memória → Processos → Redes → Linux → CUDA → Tiling → OpenCL/LLMs → ROCm/AMD → Aplicação & Métricas → Automação → Agentes → Orquestração
 ```
 
 ---
@@ -25,8 +25,12 @@ Tudo abaixo é **opcional** (o Colab já traz a maior parte):
 | **CuPy** | Aulas 7, 8 e 13 (FFT, estresse de GPU e benchmark) |
 | **Numba** | Aulas 3, 4, 7, 8 e 13 (kernels CUDA e tiling) |
 | **PyOpenCL** | Aula 9 (kernels multiplataforma) |
+| **psutil** | Aulas 14, 17 e 18 (automação de GPU e gestão de processos) |
 | **GPU NVIDIA / AMD** | Recomendada para Aulas 3, 7, 8, 9, 10, 11 e 13 (há fallback para CPU) |
 | **Docker / WSL 2** | Aulas 10 e 14 (AMD ROCm / PyTorch e Open WebUI/Ollama) |
+| **Google Sheets API** | Aulas 14 e 17 (telemetria de GPU para planilha) |
+| **nvidia-ml-py / NVML** | Aula 19 (controle programático de energia e temperatura) |
+| **Agentes de código / Bash** | Aulas 16, 17 e 18 (Antigravity CLI, automação e filas) |
 
 ---
 
@@ -97,6 +101,7 @@ pip install -r requirements.txt
 | **16** | Agentes de Código: Harness, RAG, Skills e Vibe Coding (Antigravity CLI) | [Apresentação](aulas/aula16/apresentacao_aula16.html), [Atividade](aulas/aula16/atividade.md), [Laboratório Monitoramento](aulas/aula16/laboratorio_monitoramento/README.md), [Guia da Aula](aulas/aula16/README.md) |
 | **17** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/aula17/notebook_colab/aula17_automacao_gpu_bash.ipynb), [Apresentação](aulas/aula17/apresentacao_aula17.html), [Atividade](aulas/aula17/atividade.md), [Laboratório Windows](aulas/aula17/laboratorio_windows/README.md), [Scripts Linux](aulas/aula17/scripts_linux/), [Guia da Aula](aulas/aula17/README.md) |
 | **18** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/aula18/notebook_colab/aula18_processos_fila.ipynb), [Apresentação](aulas/aula18/apresentacao_aula18.html), [Atividade](aulas/aula18/atividade.md), [Laboratório Windows](aulas/aula18/laboratorio_windows/README.md), [Scripts Linux](aulas/aula18/scripts_linux/), [Guia da Aula](aulas/aula18/README.md) |
+| **19** | Otimização de Processamento e Uso de Energia em GPUs (TDP, Power Limit, nvidia-ml-py, eficiência) | [Notebook](aulas/aula19/notebook_colab/aula19_energia_gpu.ipynb), [Apresentação](aulas/aula19/apresentacao_aula19.html), [Atividade](aulas/aula19/atividade.md), [Laboratório Windows](aulas/aula19/laboratorio_windows/README.md), [Scripts Linux](aulas/aula19/scripts_linux/), [Guia da Aula](aulas/aula19/README.md) |
 
 ---
 
@@ -107,9 +112,8 @@ pip install -r requirements.txt
 | Sequência | Documento | Descrição |
 | :---: | :--- | :--- |
 | **01** | [`01_timeline-engenharia.md`](docs/01_timeline-engenharia.md) | Blueprint causal de engenharia: por que cada aula existe e como se conectam |
-| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 15) |
+| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 19) |
 | **03** | [`03_git.md`](docs/03_git.md) | Guia completo de Git e GitHub: configuração de usuário/e-mail, criação de repositórios na UI e envio de projetos |
-
 | **05** | [`05_materiais-complementares.md`](docs/05_materiais-complementares.md) | Curadoria de links, playlists e cursos externos |
 | **06** | [`06_tutorial-instalacao-wsl.md`](docs/06_tutorial-instalacao-wsl.md) | Guia de instalação e configuração do WSL 2 no Windows 10 e 11 |
 | **07** | [`07_tutorial-instalacao-docker-wsl.md`](docs/07_tutorial-instalacao-docker-wsl.md) | Guia de instalação e uso do Docker Engine nativo no WSL 2 (Ubuntu) |
@@ -246,9 +250,14 @@ senac-tecnico-ia/
 │   │   ├── notebook_colab/aula18_processos_fila.ipynb
 │   │   ├── laboratorio_windows/            → 1_flock_gpu.py, 2_gpu_queue.py, 3_teste_fila.py, 4_monitor_processos_gpu.py, iniciar.bat
 │   │   └── scripts_linux/                  → flock_gpu.sh, gpu_queue.sh, teste_fila.sh, monitor_processos_gpu.sh, train_job.py
+│   ├── aula19/
+│   │   ├── apresentacao_aula19.html
+│   │   ├── README.md
+│   │   ├── atividade.md
+│   │   ├── notebook_colab/aula19_energia_gpu.ipynb
+│   │   ├── laboratorio_windows/            → lib_energia.py, 1_monitor_thermal.py, 2_alerta_termico.py, 3_benchmark_energia.py, 4_controle_pl.py, iniciar.bat
+│   │   └── scripts_linux/                  → monitor_thermal.sh, set_power_limit.sh, benchmark_energetico.sh, alerta_termico.sh
 │   └── projeto-integrador/
-
-
 │       └── README.md
 ├── questionarios/
 │   ├── README.md                              → Índice e regras de entrega
