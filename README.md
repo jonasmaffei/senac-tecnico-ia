@@ -69,39 +69,59 @@ pip install -r requirements.txt
 
 ## 📚 Índice das Aulas
 
+> Cada bloco também tem um **índice próprio**: [Bloco 1](aulas/bloco1/README.md) · [Bloco 2](aulas/bloco2/README.md) · [Bloco 3](aulas/bloco3/README.md) · [Bloco 4](aulas/bloco4/README.md).
+
 ### Bloco 1 — Fundamentos de Hardware e Infraestrutura
+
+> 📑 [Índice do Bloco 1](aulas/bloco1/README.md)
 
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
-| **01** | Introdução às Arquiteturas de Computadores e GPUs (Von Neumann/Harvard, CPU vs GPU) | [Notebook](aulas/aula01/notebook_colab/aula01_arquiteturas_cpu_gpu.ipynb), [Apresentação](aulas/aula01/apresentacao_aula01.html), [Atividade](aulas/aula01/atividade.md), [Laboratório Windows](aulas/aula01/laboratorio_windows/README.md), [Guia da Aula](aulas/aula01/README.md) |
-| **02** | Modelos de Processamento (SIMD/MIMD, RISC/CISC) | [Notebook](aulas/aula02/notebook_colab/aula02_modelos_processamento.ipynb), [Apresentação](aulas/aula02/apresentacao_aula02.html), [Atividade](aulas/aula02/atividade.md), [Laboratório Windows](aulas/aula02/laboratorio_windows/README.md), [`scripts/lib_backend.py`](aulas/aula02/scripts/lib_backend.py), [Guia da Aula](aulas/aula02/README.md) |
-| **03** | Estrutura de Memória em GPUs (Hierarquia, RAM vs VRAM, PCIe) | [Notebook](aulas/aula03/notebook_colab/aula03_memoria_gpu.ipynb), [Apresentação](aulas/aula03/apresentacao_aula03.html), [Atividade](aulas/aula03/atividade.md), [Laboratório Windows](aulas/aula03/laboratorio_windows/README.md), [Guia da Aula](aulas/aula03/README.md) |
-| **04** | Fundamentos de Processos e Threads (GIL, warps/blocos/grade) | [Notebook](aulas/aula04/notebook_colab/aula04_processos_threads.ipynb), [Apresentação](aulas/aula04/apresentacao_aula04.html), [Atividade](aulas/aula04/atividade.md), [Laboratório Windows](aulas/aula04/laboratorio_windows/README.md), [Guia da Aula](aulas/aula04/README.md) |
-| **05** | Protocolos de Redes e Interação com GPUs (IPv4/IPv6, TCP/UDP, SSH, rsync) | [Notebook](aulas/aula05/notebook_colab/aula05_redes.ipynb), [Apresentação](aulas/aula05/apresentacao_aula05.html), [Atividade](aulas/aula05/atividade.md), [Laboratório Windows](aulas/aula05/laboratorio_windows/README.md), [Guia da Aula](aulas/aula05/README.md) |
-| **06** | Sistemas Operacionais Linux e GPU (/proc, /sys, drivers, cron, systemd) | [Notebook](aulas/aula06/notebook_colab/aula06_linux_gpu.ipynb), [Apresentação](aulas/aula06/apresentacao_aula06.html), [Atividade](aulas/aula06/atividade.md), [Laboratório Windows](aulas/aula06/laboratorio_windows/README.md), [`scripts/`](aulas/aula06/scripts) ([`gpu_status.sh`](aulas/aula06/scripts/gpu_status.sh), [`cron_exemplos.sh`](aulas/aula06/scripts/cron_exemplos.sh), [`gpu-monitor.service`](aulas/aula06/scripts/gpu-monitor.service)), [Guia da Aula](aulas/aula06/README.md) |
+| **01** | Introdução às Arquiteturas de Computadores e GPUs (Von Neumann/Harvard, CPU vs GPU) | [Notebook](aulas/bloco1/aula01/notebook_colab/aula01_arquiteturas_cpu_gpu.ipynb), [Apresentação](aulas/bloco1/aula01/apresentacao_aula01.html), [Atividade](aulas/bloco1/aula01/atividade.md), [Laboratório Windows](aulas/bloco1/aula01/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco1/aula01/README.md) |
+| **02** | Modelos de Processamento (SIMD/MIMD, RISC/CISC) | [Notebook](aulas/bloco1/aula02/notebook_colab/aula02_modelos_processamento.ipynb), [Apresentação](aulas/bloco1/aula02/apresentacao_aula02.html), [Atividade](aulas/bloco1/aula02/atividade.md), [Laboratório Windows](aulas/bloco1/aula02/laboratorio_windows/README.md), [`scripts/lib_backend.py`](aulas/bloco1/aula02/scripts/lib_backend.py), [Guia da Aula](aulas/bloco1/aula02/README.md) |
+| **03** | Estrutura de Memória em GPUs (Hierarquia, RAM vs VRAM, PCIe) | [Notebook](aulas/bloco1/aula03/notebook_colab/aula03_memoria_gpu.ipynb), [Apresentação](aulas/bloco1/aula03/apresentacao_aula03.html), [Atividade](aulas/bloco1/aula03/atividade.md), [Laboratório Windows](aulas/bloco1/aula03/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco1/aula03/README.md) |
+| **04** | Fundamentos de Processos e Threads (GIL, warps/blocos/grade) | [Notebook](aulas/bloco1/aula04/notebook_colab/aula04_processos_threads.ipynb), [Apresentação](aulas/bloco1/aula04/apresentacao_aula04.html), [Atividade](aulas/bloco1/aula04/atividade.md), [Laboratório Windows](aulas/bloco1/aula04/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco1/aula04/README.md) |
+| **05** | Protocolos de Redes e Interação com GPUs (IPv4/IPv6, TCP/UDP, SSH, rsync) | [Notebook](aulas/bloco1/aula05/notebook_colab/aula05_redes.ipynb), [Apresentação](aulas/bloco1/aula05/apresentacao_aula05.html), [Atividade](aulas/bloco1/aula05/atividade.md), [Laboratório Windows](aulas/bloco1/aula05/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco1/aula05/README.md) |
+| **06** | Sistemas Operacionais Linux e GPU (/proc, /sys, drivers, cron, systemd) | [Notebook](aulas/bloco1/aula06/notebook_colab/aula06_linux_gpu.ipynb), [Apresentação](aulas/bloco1/aula06/apresentacao_aula06.html), [Atividade](aulas/bloco1/aula06/atividade.md), [Laboratório Windows](aulas/bloco1/aula06/laboratorio_windows/README.md), [`scripts/`](aulas/bloco1/aula06/scripts) ([`gpu_status.sh`](aulas/bloco1/aula06/scripts/gpu_status.sh), [`cron_exemplos.sh`](aulas/bloco1/aula06/scripts/cron_exemplos.sh), [`gpu-monitor.service`](aulas/bloco1/aula06/scripts/gpu-monitor.service)), [Guia da Aula](aulas/bloco1/aula06/README.md) |
 
 ### Bloco 2 — Programação, Otimização e Computação Heterogênea
 
+> 📑 [Índice do Bloco 2](aulas/bloco2/README.md)
+
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
-| **07** | Introdução ao Modelo CUDA (Kernels, índice global, CuPy FFT) | [Notebook](aulas/aula07/notebook_colab/aula07_cuda.ipynb), [Apresentação](aulas/aula07/apresentacao_aula07.html), [Atividade](aulas/aula07/atividade.md), [`scripts/`](aulas/aula07/scripts) ([`indice_global.py`](aulas/aula07/scripts/indice_global.py), [`primeiro_kernel.py`](aulas/aula07/scripts/primeiro_kernel.py), [`fft_benchmark.py`](aulas/aula07/scripts/fft_benchmark.py)), [Guia da Aula](aulas/aula07/README.md) |
-| **08** | Manipulação de Memória em CUDA (Tiling, Coalescing, Profiling) | [Notebook](aulas/aula08/notebook_colab/aula08_tiling.ipynb), [Apresentação](aulas/aula08/apresentacao_aula08.html), [Atividade](aulas/aula08/atividade.md), [`scripts/`](aulas/aula08/scripts) ([`matmul_tiling.py`](aulas/aula08/scripts/matmul_tiling.py), [`matmul_global.py`](aulas/aula08/scripts/matmul_global.py), [`coalescing.py`](aulas/aula08/scripts/coalescing.py), [`profiling_ocupacao.py`](aulas/aula08/scripts/profiling_ocupacao.py)), [Guia da Aula](aulas/aula08/README.md) |
-| **09** | Alternativas ao CUDA: OpenCL (+ LLMs locais) | [Notebook](aulas/aula09/notebook_colab/aula09_opencl.ipynb), [Apresentação](aulas/aula09/apresentacao_aula09.html), [Atividade](aulas/aula09/atividade.md), [Laboratório Windows](aulas/aula09/laboratorio_windows/README.md), [Tutoriais Ollama/WebUI](aulas/aula09/tutorials), [Guia da Aula](aulas/aula09/README.md) |
-| **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [Notebook](aulas/aula10/notebook_colab/aula10_rocm.ipynb), [Apresentação](aulas/aula10/apresentacao_aula10.html), [Atividade](aulas/aula10/atividade.md), [Laboratório Windows](aulas/aula10/laboratorio_windows/README.md), [Lab ROCm/Docker](aulas/aula10/laboratorio_rocm-docker/README.md), [Guia da Aula](aulas/aula10/README.md) |
-| **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (CNN, Mixed Precision/AMP, TCO) | [`atividade_aula11.py`](aulas/aula11/atividade_aula11.py), [Guia da Aula](aulas/aula11/README.md) |
-| **12** | Prática no Colab e Projeto Integrador | [`aula12_pratica_colab.ipynb`](aulas/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
-| **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [`aula13_implementacao_modelo_paralelo.ipynb`](aulas/aula13/aula13_implementacao_modelo_paralelo.ipynb), [Guia Colab](aulas/aula13/README.md) |
+| **07** | Introdução ao Modelo CUDA (Kernels, índice global, CuPy FFT) | [Notebook](aulas/bloco2/aula07/notebook_colab/aula07_cuda.ipynb), [Apresentação](aulas/bloco2/aula07/apresentacao_aula07.html), [Atividade](aulas/bloco2/aula07/atividade.md), [`scripts/`](aulas/bloco2/aula07/scripts) ([`indice_global.py`](aulas/bloco2/aula07/scripts/indice_global.py), [`primeiro_kernel.py`](aulas/bloco2/aula07/scripts/primeiro_kernel.py), [`fft_benchmark.py`](aulas/bloco2/aula07/scripts/fft_benchmark.py)), [Guia da Aula](aulas/bloco2/aula07/README.md) |
+| **08** | Manipulação de Memória em CUDA (Tiling, Coalescing, Profiling) | [Notebook](aulas/bloco2/aula08/notebook_colab/aula08_tiling.ipynb), [Apresentação](aulas/bloco2/aula08/apresentacao_aula08.html), [Atividade](aulas/bloco2/aula08/atividade.md), [`scripts/`](aulas/bloco2/aula08/scripts) ([`matmul_tiling.py`](aulas/bloco2/aula08/scripts/matmul_tiling.py), [`matmul_global.py`](aulas/bloco2/aula08/scripts/matmul_global.py), [`coalescing.py`](aulas/bloco2/aula08/scripts/coalescing.py), [`profiling_ocupacao.py`](aulas/bloco2/aula08/scripts/profiling_ocupacao.py)), [Guia da Aula](aulas/bloco2/aula08/README.md) |
+| **09** | Alternativas ao CUDA: OpenCL (+ LLMs locais) | [Notebook](aulas/bloco2/aula09/notebook_colab/aula09_opencl.ipynb), [Apresentação](aulas/bloco2/aula09/apresentacao_aula09.html), [Atividade](aulas/bloco2/aula09/atividade.md), [Laboratório Windows](aulas/bloco2/aula09/laboratorio_windows/README.md), [Tutoriais Ollama/WebUI](aulas/bloco2/aula09/tutorials), [Guia da Aula](aulas/bloco2/aula09/README.md) |
+| **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [Notebook](aulas/bloco2/aula10/notebook_colab/aula10_rocm.ipynb), [Apresentação](aulas/bloco2/aula10/apresentacao_aula10.html), [Atividade](aulas/bloco2/aula10/atividade.md), [Laboratório Windows](aulas/bloco2/aula10/laboratorio_windows/README.md), [Lab ROCm/Docker](aulas/bloco2/aula10/laboratorio_rocm-docker/README.md), [Guia da Aula](aulas/bloco2/aula10/README.md) |
+| **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (CNN, Mixed Precision/AMP, TCO) | [`atividade_aula11.py`](aulas/bloco2/aula11/atividade_aula11.py), [Guia da Aula](aulas/bloco2/aula11/README.md) |
+| **12** | Prática no Colab e Projeto Integrador | [`aula12_pratica_colab.ipynb`](aulas/bloco2/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/bloco2/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
+| **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [`aula13_implementacao_modelo_paralelo.ipynb`](aulas/bloco2/aula13/aula13_implementacao_modelo_paralelo.ipynb), [Guia Colab](aulas/bloco2/aula13/README.md) |
 
 ### Bloco 3 — Automação
 
+> 📑 [Índice do Bloco 3](aulas/bloco3/README.md)
+
 | Aula | Tema | Scripts / Recursos |
 | :---: | :--- | :--- |
-| **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/aula14/notebook_colab/aula14_automacao_gpu_bash.ipynb), [Apresentação](aulas/aula14/apresentacao_aula14.html), [Atividade](aulas/aula14/atividade.md), [Scripts Linux](aulas/aula14/scripts_linux/) ([`monitor_gpu.sh`](aulas/aula14/scripts_linux/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/aula14/scripts_linux/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/aula14/scripts_linux/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/aula14/scripts_linux/enviar_para_sheets.py)), [Laboratório Windows (AMD)](aulas/aula14/laboratorio_windows/README.md), [Realtime Docker](aulas/aula14/laboratorio_realtime-docker/README.md), [Realtime Windows](aulas/aula14/laboratorio_realtime-windows/README.md), [Guia da Aula](aulas/aula14/README.md) |
-| **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/aula15/notebook_colab/aula15_processos_fila.ipynb), [Apresentação](aulas/aula15/apresentacao_aula15.html), [Atividade](aulas/aula15/atividade.md), [Laboratório Windows](aulas/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/aula15/README.md) |
-| **16** | Agentes de Código: Harness, RAG, Skills e Vibe Coding (Antigravity CLI) | [Apresentação](aulas/aula16/apresentacao_aula16.html), [Atividade](aulas/aula16/atividade.md), [Laboratório Monitoramento](aulas/aula16/laboratorio_monitoramento/README.md), [Guia da Aula](aulas/aula16/README.md) |
-| **17** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/aula17/notebook_colab/aula17_automacao_gpu_bash.ipynb), [Apresentação](aulas/aula17/apresentacao_aula17.html), [Atividade](aulas/aula17/atividade.md), [Laboratório Windows](aulas/aula17/laboratorio_windows/README.md), [Scripts Linux](aulas/aula17/scripts_linux/), [Guia da Aula](aulas/aula17/README.md) |
-| **18** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/aula18/notebook_colab/aula18_processos_fila.ipynb), [Apresentação](aulas/aula18/apresentacao_aula18.html), [Atividade](aulas/aula18/atividade.md), [Laboratório Windows](aulas/aula18/laboratorio_windows/README.md), [Scripts Linux](aulas/aula18/scripts_linux/), [Guia da Aula](aulas/aula18/README.md) |
-| **19** | Otimização de Processamento e Uso de Energia em GPUs (TDP, Power Limit, nvidia-ml-py, eficiência) | [Notebook](aulas/aula19/notebook_colab/aula19_energia_gpu.ipynb), [Apresentação](aulas/aula19/apresentacao_aula19.html), [Atividade](aulas/aula19/atividade.md), [Laboratório Windows](aulas/aula19/laboratorio_windows/README.md), [Scripts Linux](aulas/aula19/scripts_linux/), [Guia da Aula](aulas/aula19/README.md) |
+| **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/bloco3/aula14/notebook_colab/aula14_automacao_gpu_bash.ipynb), [Apresentação](aulas/bloco3/aula14/apresentacao_aula14.html), [Atividade](aulas/bloco3/aula14/atividade.md), [Scripts Linux](aulas/bloco3/aula14/scripts_linux/) ([`monitor_gpu.sh`](aulas/bloco3/aula14/scripts_linux/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/bloco3/aula14/scripts_linux/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/bloco3/aula14/scripts_linux/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/bloco3/aula14/scripts_linux/enviar_para_sheets.py)), [Laboratório Windows (AMD)](aulas/bloco3/aula14/laboratorio_windows/README.md), [Realtime Docker](aulas/bloco3/aula14/laboratorio_realtime-docker/README.md), [Realtime Windows](aulas/bloco3/aula14/laboratorio_realtime-windows/README.md), [Guia da Aula](aulas/bloco3/aula14/README.md) |
+| **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/bloco3/aula15/notebook_colab/aula15_processos_fila.ipynb), [Apresentação](aulas/bloco3/aula15/apresentacao_aula15.html), [Atividade](aulas/bloco3/aula15/atividade.md), [Laboratório Windows](aulas/bloco3/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco3/aula15/README.md) |
+| **16** | Agentes de Código: Harness, RAG, Skills e Vibe Coding (Antigravity CLI) | [Apresentação](aulas/bloco3/aula16/apresentacao_aula16.html), [Atividade](aulas/bloco3/aula16/atividade.md), [Laboratório Monitoramento](aulas/bloco3/aula16/laboratorio_monitoramento/README.md), [Guia da Aula](aulas/bloco3/aula16/README.md) |
+| **17** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/bloco3/aula17/notebook_colab/aula17_automacao_gpu_bash.ipynb), [Apresentação](aulas/bloco3/aula17/apresentacao_aula17.html), [Atividade](aulas/bloco3/aula17/atividade.md), [Laboratório Windows](aulas/bloco3/aula17/laboratorio_windows/README.md), [Scripts Linux](aulas/bloco3/aula17/scripts_linux/), [Guia da Aula](aulas/bloco3/aula17/README.md) |
+| **18** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/bloco3/aula18/notebook_colab/aula18_processos_fila.ipynb), [Apresentação](aulas/bloco3/aula18/apresentacao_aula18.html), [Atividade](aulas/bloco3/aula18/atividade.md), [Laboratório Windows](aulas/bloco3/aula18/laboratorio_windows/README.md), [Scripts Linux](aulas/bloco3/aula18/scripts_linux/), [Guia da Aula](aulas/bloco3/aula18/README.md) |
+| **19** | Otimização de Processamento e Uso de Energia em GPUs (TDP, Power Limit, nvidia-ml-py, eficiência) | [Notebook](aulas/bloco3/aula19/notebook_colab/aula19_energia_gpu.ipynb), [Apresentação](aulas/bloco3/aula19/apresentacao_aula19.html), [Atividade](aulas/bloco3/aula19/atividade.md), [Laboratório Windows](aulas/bloco3/aula19/laboratorio_windows/README.md), [Scripts Linux](aulas/bloco3/aula19/scripts_linux/), [Guia da Aula](aulas/bloco3/aula19/README.md) |
+
+### Bloco 4 — Projeto Final (Aplicação de GPUs na IA)
+
+> 📑 [Índice do Bloco 4](aulas/bloco4/README.md)
+
+| Aula | Tema | Scripts / Recursos |
+| :---: | :--- | :--- |
+| **20** | Definição do Projeto Final (domínio, dataset, arquitetura, W&B) | [Notebook](aulas/bloco4/aula20/notebook_colab/aula20_definicao_projeto.ipynb), [Apresentação](aulas/bloco4/aula20/apresentacao_aula20.html), [Atividade](aulas/bloco4/aula20/atividade.md), [Scripts](aulas/bloco4/aula20/scripts/), [Guia da Aula](aulas/bloco4/aula20/README.md) |
+| **21** | Implementação do Modelo (AMP, checkpointing, accumulation, profiling) | [Notebook](aulas/bloco4/aula21/notebook_colab/aula21_implementacao_modelo.ipynb), [Apresentação](aulas/bloco4/aula21/apresentacao_aula21.html), [Atividade](aulas/bloco4/aula21/atividade.md), [Scripts](aulas/bloco4/aula21/scripts/), [Guia da Aula](aulas/bloco4/aula21/README.md) |
+| **22** | Automação e Monitoramento do Projeto (subprocess, alertas, dashboard, systemd) | [Notebook](aulas/bloco4/aula22/notebook_colab/aula22_automacao_projeto.ipynb), [Apresentação](aulas/bloco4/aula22/apresentacao_aula22.html), [Atividade](aulas/bloco4/aula22/atividade.md), [Scripts](aulas/bloco4/aula22/scripts/), [Guia da Aula](aulas/bloco4/aula22/README.md) |
+| **23** | Apresentação e Análise dos Projetos (pitch, relatório, rubrica) | [Notebook](aulas/bloco4/aula23/notebook_colab/aula23_apresentacao_projetos.ipynb), [Apresentação](aulas/bloco4/aula23/apresentacao_aula23.html), [Atividade](aulas/bloco4/aula23/atividade.md), [Scripts](aulas/bloco4/aula23/scripts/), [Guia da Aula](aulas/bloco4/aula23/README.md) |
+| **24** | Conexão com o Projeto Integrador (mapeamento GPU, plano de ação) | [Notebook](aulas/bloco4/aula24/notebook_colab/aula24_conexao_pi.ipynb), [Apresentação](aulas/bloco4/aula24/apresentacao_aula24.html), [Atividade](aulas/bloco4/aula24/atividade.md), [Scripts](aulas/bloco4/aula24/scripts/), [Guia da Aula](aulas/bloco4/aula24/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
 
 ---
 
@@ -112,7 +132,7 @@ pip install -r requirements.txt
 | Sequência | Documento | Descrição |
 | :---: | :--- | :--- |
 | **01** | [`01_timeline-engenharia.md`](docs/01_timeline-engenharia.md) | Blueprint causal de engenharia: por que cada aula existe e como se conectam |
-| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 19) |
+| **02** | [`02_resumos.md`](docs/02_resumos.md) | Resumos teóricos consolidados de todas as aulas (Aulas 1 a 24) |
 | **03** | [`03_git.md`](docs/03_git.md) | Guia completo de Git e GitHub: configuração de usuário/e-mail, criação de repositórios na UI e envio de projetos |
 | **05** | [`05_materiais-complementares.md`](docs/05_materiais-complementares.md) | Curadoria de links, playlists e cursos externos |
 | **06** | [`06_tutorial-instalacao-wsl.md`](docs/06_tutorial-instalacao-wsl.md) | Guia de instalação e configuração do WSL 2 no Windows 10 e 11 |
@@ -141,124 +161,21 @@ senac-tecnico-ia/
 ├── requirements.txt
 ├── .gitignore
 ├── aulas/
-│   ├── aula01/
-│   │   ├── apresentacao_aula01.html
+│   ├── bloco1/                              → Bloco 1 · Fundamentos (aulas 01–06)
+│   │   ├── README.md                        → índice do bloco
+│   │   ├── aula01/ ... aula06/              → cada aula: apresentacao_*.html, README.md,
+│   │   │                                      notebook_colab/, atividade.md, laboratorio_windows/
+│   ├── bloco2/                              → Bloco 2 · Programação GPU (aulas 07–13)
 │   │   ├── README.md
-│   │   ├── notebook_colab/aula01_arquiteturas_cpu_gpu.ipynb
-│   │   ├── laboratorio_windows/             → 1_hardware.py, 2_benchmark.py, lib_hw.py
-│   │   └── atividade.md
-│   ├── aula02/
-│   │   ├── apresentacao_aula02.html
+│   │   └── aula07/ ... aula13/              → notebook_colab/ + scripts/ (modo referência)
+│   ├── bloco3/                              → Bloco 3 · Automação (aulas 14–19)
 │   │   ├── README.md
-│   │   ├── notebook_colab/aula02_modelos_processamento.ipynb
-│   │   ├── laboratorio_windows/             → 1_benchmark_simd.py, 2_estudo_imagem.py, 3_arquitetura_instrucoes.py
-│   │   ├── scripts/lib_backend.py           → compartilhado (notebook + lab)
-│   │   └── atividade.md
-│   ├── aula03/
-│   │   ├── apresentacao_aula03.html
+│   │   └── aula14/ ... aula19/              → notebook_colab/, laboratorio_windows/, scripts_linux/
+│   ├── bloco4/                              → Bloco 4 · Projeto Final (aulas 20–24)
 │   │   ├── README.md
-│   │   ├── notebook_colab/aula03_memoria_gpu.ipynb
-│   │   ├── laboratorio_windows/             → 1_benchmark_ram_vram.py, 2_hierarquia_memoria.py, 3_monitor_memoria.py
-│   │   └── atividade.md
-│   ├── aula04/
-│   │   ├── apresentacao_aula04.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula04_processos_threads.ipynb
-│   │   ├── laboratorio_windows/             → 1_processos_threads.py, 2_io_bound.py, 3_kernels_cuda.py, 4_monitor_processos.py
-│   │   └── atividade.md
-│   ├── aula05/
-│   │   ├── apresentacao_aula05.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula05_redes.ipynb
-│   │   ├── laboratorio_windows/             → 1_demo_tcp_udp.py, 2_telemetria_tcp.py, 3_ipv4_ipv6.py, comandos_rede.sh
-│   │   └── atividade.md
-│   ├── aula06/
-│   │   ├── apresentacao_aula06.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula06_linux_gpu.ipynb
-│   │   ├── laboratorio_windows/             → hardware real (iniciar.bat + 1_inspecionar.sh, 2_status_gpu.sh, 3_agendar.sh, monitoramento_linux.py)
-│   │   ├── scripts/                         → gpu_status.sh, cron_exemplos.sh, gpu-monitor.service (referências servidor Linux)
-│   │   └── atividade.md
-│   ├── aula07/
-│   │   ├── apresentacao_aula07.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula07_cuda.ipynb
-│   │   ├── scripts/                         → lib_cuda.py, indice_global.py, primeiro_kernel.py, fft_benchmark.py (referência)
-│   │   └── atividade.md
-│   ├── aula08/
-│   │   ├── apresentacao_aula08.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula08_tiling.ipynb
-│   │   ├── scripts/                         → lib_cuda.py, coalescing.py, matmul_global.py, matmul_tiling.py, profiling_ocupacao.py, stress_nvtop.py (referência)
-│   │   └── atividade.md
-│   ├── aula09/
-│   │   ├── apresentacao_aula09.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula09_opencl.ipynb
-│   │   ├── laboratorio_windows/             → 1_listar_dispositivos.py, 2_primeiro_kernel.py, 3_benchmark_work_groups.py, lib_opencl.py
-│   │   ├── tutorials/                       → hands-on-ollama.md, hands-on-frontend-ollama.md
-│   │   └── atividade.md
-│   ├── aula10/
-│   │   ├── apresentacao_aula10.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula10_rocm.ipynb
-│   │   ├── laboratorio_windows/             → 1_rocm_pytorch_benchmark.py, 2_diagnostico_portabilidade.py, lib_rocm.py
-│   │   ├── laboratorio_rocm-docker/         → ROCm + PyTorch via Docker (industrial)
-│   │   ├── laboratorio_verificar-gpu/       → verifica acesso à GPU (Windows/AMD)
-│   │   ├── laboratorio_stressar-gpu/        → estressa GPU via Vulkan (Windows/AMD)
-│   │   └── atividade.md
-│   ├── aula11/
-│   │   ├── atividade_aula11.py
-│   │   └── README.md
-│   ├── aula12/
-│   │   ├── aula12_pratica_colab.ipynb
-│   │   └── README.md
-│   ├── aula13/
-│   │   ├── aula13_implementacao_modelo_paralelo.ipynb
-│   │   └── README.md
-│   ├── aula14/
-│   │   ├── apresentacao_aula14.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula14_automacao_gpu_bash.ipynb
-│   │   ├── atividade.md
-│   │   ├── scripts_linux/                  → monitor_gpu.sh, alerta_gpu.sh, gerar_graficos.sh, enviar_para_sheets.py
-│   │   ├── laboratorio_windows/            → versão Windows/Git Bash (AMD e NVIDIA)
-│   │   ├── laboratorio_realtime-docker/    → webservice Python (Flask + SSE) em Docker
-│   │   └── laboratorio_realtime-windows/   → webservice Python nativo no Windows
-│   ├── aula15/
-│   │   ├── apresentacao_aula15.html
-│   │   ├── README.md
-│   │   ├── notebook_colab/aula15_processos_fila.ipynb
-│   │   ├── atividade.md
-│   │   └── laboratorio_windows/            → fila de GPU com lock/prioridade (Git Bash + AMD)
-│   ├── aula16/
-│   │   ├── apresentacao_aula16.html
-│   │   ├── atividade.md                    → roteiro prático da Antigravity CLI (agy)
-│   │   ├── laboratorio_monitoramento/      → AGENTS.md + projeto de monitoramento web
-│   │   └── README.md
-│   ├── aula17/
-│   │   ├── apresentacao_aula17.html
-│   │   ├── README.md
-│   │   ├── atividade.md
-│   │   ├── notebook_colab/aula17_automacao_gpu_bash.ipynb
-│   │   ├── laboratorio_windows/            → 1_monitor_gpu.py, 2_alerta_gpu.py, 3_gerar_graficos.py, 4_enviar_sheets.py, iniciar.bat
-│   │   └── scripts_linux/                  → monitor_gpu.sh, alerta_gpu.sh, gerar_graficos.sh, enviar_para_sheets.py
-│   ├── aula18/
-│   │   ├── apresentacao_aula18.html
-│   │   ├── README.md
-│   │   ├── atividade.md
-│   │   ├── notebook_colab/aula18_processos_fila.ipynb
-│   │   ├── laboratorio_windows/            → 1_flock_gpu.py, 2_gpu_queue.py, 3_teste_fila.py, 4_monitor_processos_gpu.py, iniciar.bat
-│   │   └── scripts_linux/                  → flock_gpu.sh, gpu_queue.sh, teste_fila.sh, monitor_processos_gpu.sh, train_job.py
-│   ├── aula19/
-│   │   ├── apresentacao_aula19.html
-│   │   ├── README.md
-│   │   ├── atividade.md
-│   │   ├── notebook_colab/aula19_energia_gpu.ipynb
-│   │   ├── laboratorio_windows/            → lib_energia.py, 1_monitor_thermal.py, 2_alerta_termico.py, 3_benchmark_energia.py, 4_controle_pl.py, iniciar.bat
-│   │   └── scripts_linux/                  → monitor_thermal.sh, set_power_limit.sh, benchmark_energetico.sh, alerta_termico.sh
+│   │   └── aula20/ ... aula24/              → notebook_colab/ + scripts/
 │   └── projeto-integrador/
-│       └── README.md
+│       └── README.md                        → pesquisa (não exige código)
 ├── questionarios/
 │   ├── README.md                              → Índice e regras de entrega
 │   ├── questionario-aulas-1-7.md              → Fase 1 (já respondida em sala)

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 24 — Conexão com o Projeto Integrador</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 7px 16px; font-size: .84rem; cursor: pointer;
+  }
+  .nav-buttons button:hover { border-color: var(--accent); background: var(--panel-2); }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 4 · Projeto Final</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 24 · Conceitos</div>
+    <h1>Conexão com o Projeto Integrador</h1>
+    <p class="lead">Articular arquitetura, GPU e automação com o <strong>Projeto Integrador</strong>: identificar pontos de aceleração, integrar a infraestrutura de monitoramento ao repositório do PI e propor um <strong>plano de ação</strong> por domínio.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">4 — Projeto Final</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Ferramentas</div><div class="v">Miro, GitHub, Notion, W&amp;B</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎯</span> Situação de Aprendizagem</h3>
+        <p>A UC chegou ao fim. Você aprendeu a montar servidores com GPU, escrever código CUDA, automatizar monitoramento e treinar modelos reais. Agora o desafio é <strong>não deixar esse conhecimento isolado</strong>: conectá-lo ao PI do curso.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🧭</span> O que vamos mapear</h3>
+        <p>Onde o PI pode ser acelerado, como a infraestrutura de monitoramento se integra e qual o plano de ação por domínio (visão, NLP ou séries temporais).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Roteiro -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> articular os conhecimentos da UC com o Projeto Integrador, propondo soluções concretas de otimização e inovação.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: recapitulação dos Blocos 1–4</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: pontos de aceleração no PI</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: integrar monitor e W&amp;B ao PI</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Atividade: mapear 3 conexões GPU ↔ PI</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Apresentação dos mapas de conexão</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Arquitetura ideal do PI com GPU</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Síntese final e avaliação formativa</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Encerramento e orientações finais</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>análise de repositório · integração de scripts · plano de ação por domínio · W&amp;B no PI · arquitetura de referência · transfer learning no PI</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Materiais da aula</h3>
+          <p>Apresentação + <code>notebook_colab/</code> com 5 exercícios + <code>scripts/</code> (mapeamento de conexões e planos por domínio).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Mapear conexões -->
+  <section class="slide">
+    <div class="kicker">Teoria · Diagnóstico</div>
+    <h2><span class="num">1.</span>Mapear conexões GPU ↔ PI</h2>
+    <p>Antes de integrar, identifique no repositório do PI os pontos de <strong>alto custo computacional</strong> que a GPU acelera.</p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">🔁</span> Loops sobre dados</h3>
+        <p><code>for</code> sobre imagens/arquivos/batches sem GPU → candidatos a <em>DataLoader</em> CUDA.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🧠</span> Modelos ML existentes</h3>
+        <p>scikit-learn, Keras ou PyTorch em CPU → migrar para <code>.to('cuda')</code> ou <code>.half()</code>.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🔢</span> NumPy pesado</h3>
+        <p><code>np.dot</code>, <code>matmul</code>, <code>fft</code> em CPU → reescrever com tensores na GPU.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 — Integração -->
+  <section class="slide">
+    <div class="kicker">Prática · Integração</div>
+    <h2><span class="num">2.</span>Integrar a infraestrutura GPU ao PI</h2>
+    <p>Copie os artefatos da UC — monitor, alertas, dashboards — para o repositório do PI e atualize README e requirements.</p>
+    <div class="pipeline" style="margin:16px 0">
+      <div class="pipe-step"><span class="step-ico">📦</span><span class="step-title">scripts/gpu/</span><span class="step-sub">monitor + alertas</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">dashboard</span><span class="step-sub">pandas + matplotlib</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">📄</span><span class="step-title">relatório</span><span class="step-sub">W&amp;B + GPU</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">📝</span><span class="step-title">README + .env</span><span class="step-sub">como reproduzir</span></div>
+    </div>
+    <div class="note">
+      <span class="ico">💡</span>
+      <span>O PI do curso é uma <strong>pesquisa</strong>; ele <em>não</em> exige código. A aceleração GPU entra como <strong>complemento opcional</strong> — um protótipo que sustenta a recomendação.</span>
+    </div>
+  </section>
+
+  <!-- 05 — W&B no PI -->
+  <section class="slide">
+    <div class="kicker">Prática · Rastreamento</div>
+    <h2><span class="num">3.</span>W&amp;B e monitor no treino do PI</h2>
+    <p>Reutilize o padrão das aulas anteriores: W&amp;B para métricas de treino e o monitor de GPU para a saúde do hardware.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">O que registrar</h3>
+        <ul class="clean">
+          <li><strong>W&amp;B:</strong> train/val loss, accuracy, época, config</li>
+          <li><strong>GPU:</strong> temperatura, VRAM, utilização, potência</li>
+          <li><strong>Tags:</strong> <code>"PI"</code>, <code>"GPU"</code>, domínio</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-5)">
+        <h3><span class="ico">🔗</span> Cruzamento</h3>
+        <p>Junte as duas fontes por janela temporal: a GPU estava mais ocupada quando o <code>val/loss</code> caía mais rápido?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 — Planos por domínio -->
+  <section class="slide">
+    <div class="kicker">Plano de Ação</div>
+    <h2><span class="num">4.</span>Plano por domínio do PI</h2>
+    <table>
+      <thead>
+        <tr><th>Domínio</th><th>Principais acelerações</th><th>Monitor sugerido</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Visão Computacional</td><td>DataLoader multi-worker, AMP, batch maior, transfer learning</td><td>10 s · 83 °C · 88% VRAM</td></tr>
+        <tr><td>NLP / Texto</td><td>Gradient checkpointing, accumulation, tokenização paralela, FP16</td><td>15 s · 80 °C · 92% VRAM</td></tr>
+        <tr><td>Séries Temporais</td><td>LSTM/Transformer na GPU, janela vetorizada, workers persistentes</td><td>20 s · 82 °C · 85% VRAM</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">📄</span>
+      <span>O script <code>scripts/plano_acao_pi.py</code> gera o plano completo do seu domínio.</span>
+    </div>
+  </section>
+
+  <!-- 07 — Arquitetura -->
+  <section class="slide">
+    <div class="kicker">Arquitetura</div>
+    <h2><span class="num">5.</span>Arquitetura de referência do PI com GPU</h2>
+    <div class="pipeline" style="margin:16px 0">
+      <div class="pipe-step"><span class="step-ico">🗄️</span><span class="step-title">data/</span><span class="step-sub">raw · processed · splits</span></div>
+      <div class="pipe-step"><span class="step-ico">🧠</span><span class="step-title">models/</span><span class="step-sub">architectures · checkpoints</span></div>
+      <div class="pipe-step"><span class="step-ico">🏋️</span><span class="step-title">training/</span><span class="step-sub">train · evaluate · predict</span></div>
+      <div class="pipe-step"><span class="step-ico">⚙️</span><span class="step-title">scripts/gpu/</span><span class="step-sub">monitor · alertas</span></div>
+      <div class="pipe-step"><span class="step-ico">📈</span><span class="step-title">logs/</span><span class="step-sub">monitor · dashboards</span></div>
+    </div>
+    <div class="note">
+      <span class="ico">✅</span>
+      <span>Checklist: GPU sendo usada · runs no W&amp;B com tag "PI" · monitor integrado · dashboard automático · README reprodutível · baseline documentado.</span>
+    </div>
+  </section>
+
+  <!-- 08 — Debate -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">6.</span>Mapa de conexões (2 min por time)</h2>
+    <div class="debate"><div class="q">1</div><p>Qual componente do PI mais se beneficia de GPU: treino de um modelo, inferência em produção ou pré-processamento? Qual o ganho estimado?</p></div>
+    <div class="debate"><div class="q">2</div><p>O repositório do PI já tem código numpy/sklearn/torch em CPU que poderia migrar para GPU? O que muda — só <code>.to('cuda')</code> ou a estrutura dos dados?</p></div>
+    <div class="debate"><div class="q">3</div><p>Como o monitor de GPU pode ajudar especificamente o PI? Que thresholds fazem sentido para a carga do projeto?</p></div>
+    <div class="debate"><div class="q">4</div><p>Se o PI fosse a produção com RTX 4090, quais 3 ajustes de arquitetura maximizariam o uso da GPU?</p></div>
+  </section>
+
+  <!-- 09 — Síntese final -->
+  <section class="slide">
+    <div class="kicker">Síntese Final da UC</div>
+    <h2><span class="num">7.</span>A jornada completa</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Bloco 1 — Fundamentos:</strong> CPU vs GPU, CUDA, VRAM, benchmark, nvidia-smi.</li>
+          <li><strong>Bloco 2 — Programação:</strong> kernels CUDA, OpenCL, ROCm, otimização e profiling.</li>
+          <li><strong>Bloco 3 — Automação:</strong> monitoramento, filas de jobs e energia.</li>
+          <li><strong>Bloco 4 — Projeto Final:</strong> pipeline completo + pitch + conexão com o PI.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🏁</span> Entregas finais da UC</h3>
+          <p>Repositório com README e requirements · dashboard PNG · monitor integrado com log CSV · documento "3 conexões GPU ↔ PI" · avaliação formativa.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📌</span> Próximos Passos</h3>
+          <p>Abra o <code>notebook_colab/aula24_conexao_pi.ipynb</code> e resolva os 5 exercícios.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 09</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

@@ -56,28 +56,28 @@ alertas.log
 gpu_dashboard.png
 gpu_log_dashboard.png
 dashboard.html
-aulas/aula14/laboratorio_windows/reports/
+aulas/bloco3/aula14/laboratorio_windows/reports/
 
 # === Laboratório de fila de GPU — Aula 15 ===
-aulas/aula15/laboratorio_windows/reports/*
-!aulas/aula15/laboratorio_windows/reports/.gitkeep
-aulas/aula15/laboratorio_windows/**/__pycache__/
+aulas/bloco3/aula15/laboratorio_windows/reports/*
+!aulas/bloco3/aula15/laboratorio_windows/reports/.gitkeep
+aulas/bloco3/aula15/laboratorio_windows/**/__pycache__/
 
 # === Laboratório Windows — Aula 06 ===
-aulas/aula06/laboratorio_windows/reports/*
-!aulas/aula06/laboratorio_windows/reports/.gitkeep
+aulas/bloco1/aula06/laboratorio_windows/reports/*
+!aulas/bloco1/aula06/laboratorio_windows/reports/.gitkeep
 
 # === Laboratórios realtime (Docker e Windows) — Aula 14 ===
-aulas/aula14/laboratorio_realtime-docker/reports/*
-!aulas/aula14/laboratorio_realtime-docker/reports/.gitkeep
-aulas/aula14/laboratorio_realtime-docker/**/__pycache__/
-aulas/aula14/laboratorio_realtime-windows/reports/*
-!aulas/aula14/laboratorio_realtime-windows/reports/.gitkeep
-aulas/aula14/laboratorio_realtime-windows/**/__pycache__/
+aulas/bloco3/aula14/laboratorio_realtime-docker/reports/*
+!aulas/bloco3/aula14/laboratorio_realtime-docker/reports/.gitkeep
+aulas/bloco3/aula14/laboratorio_realtime-docker/**/__pycache__/
+aulas/bloco3/aula14/laboratorio_realtime-windows/reports/*
+!aulas/bloco3/aula14/laboratorio_realtime-windows/reports/.gitkeep
+aulas/bloco3/aula14/laboratorio_realtime-windows/**/__pycache__/
 
 # === Laboratório de energia — Aula 19 ===
-aulas/aula19/laboratorio_windows/reports/*
-!aulas/aula19/laboratorio_windows/reports/.gitkeep
-aulas/aula19/laboratorio_windows/**/__pycache__/
+aulas/bloco3/aula19/laboratorio_windows/reports/*
+!aulas/bloco3/aula19/laboratorio_windows/reports/.gitkeep
+aulas/bloco3/aula19/laboratorio_windows/**/__pycache__/
 
 

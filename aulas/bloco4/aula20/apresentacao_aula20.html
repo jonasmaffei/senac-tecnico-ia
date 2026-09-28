@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 20 — Definição do Projeto Final</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 7px 16px; font-size: .84rem; cursor: pointer;
+    border-color: var(--border);
+  }
+  .nav-buttons button:hover { border-color: var(--accent); background: var(--panel-2); }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 4 · Projeto Final</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 20 · Conceitos</div>
+    <h1>Definição do Projeto Final</h1>
+    <p class="lead">O hackathon começa: escolher o <strong>domínio</strong> e o <strong>problema real</strong>, selecionar o <strong>dataset</strong>, planejar a <strong>arquitetura CPU/GPU</strong> e estruturar o <strong>repositório</strong> — reaproveitando a automação dos Blocos 1–3.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">4 — Projeto Final</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Ferramentas</div><div class="v">Hugging Face, PyTorch/TF, Colab, W&B, Trello</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎯</span> Situação de Aprendizagem</h3>
+        <p>A empresa abriu um <strong>hackathon interno de 4 semanas</strong>: cada time deve entregar uma solução de IA acelerada por GPU para um problema real, com acesso a <strong>2× RTX 4090</strong> e Colab Pro. O desafio é estruturar o projeto do zero.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🧭</span> O que vamos definir</h3>
+        <p>Domínio, problema, dataset, framework, estratégia de GPU (CUDA/ROCm/Colab), estrutura de repositório e <strong>checklist de prontidão</strong> para começar a implementar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Roteiro -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> planejar um projeto de IA com uso estratégico de GPU, alinhado a um problema real e aos recursos disponíveis.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: hackathon e regras</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: domínios de IA acelerados por GPU</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: explorar datasets e modelos no Hugging Face</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: planejamento de arquitetura CPU/GPU</span></div>
+          <div class="tl-item"><span class="tl-time">35 min</span><span class="tl-txt">Atividade: definir problema, dataset e arquitetura</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: estrutura de repositório e W&B setup</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Discussão — feedback cruzado</span></div>
+          <div class="tl-item"><span class="tl-time">5 min</span><span class="tl-txt">Síntese e próximos passos</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Transfer Learning · Mixed Precision · W&B / MLflow · DataLoader GPU · Baseline vs Target · Checkpointing</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Materiais da aula</h3>
+          <p>Apresentação + <code>notebook_colab/</code> com 5 exercícios + <code>scripts/</code> de referência (sem GPU no laboratório, roda em modo simulado).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Domínios -->
+  <section class="slide">
+    <div class="kicker">Teoria · Domínios</div>
+    <h2><span class="num">1.</span>Escolhendo o domínio do projeto</h2>
+    <p>Cada domínio tem um perfil diferente de uso de GPU — escolha com base nos dados, no problema e na viabilidade em 4 semanas.</p>
+    <div class="grid cols-3">
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">👁️</span> Visão Computacional</h3>
+        <p>Doenças em plantas, contagem de células, inspeção industrial.<br><br><strong>Modelos:</strong> ResNet, EfficientNet, YOLO, ViT<br><strong>GPU:</strong> alta VRAM (batches grandes)</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">💬</span> PNL (Linguagem)</h3>
+        <p>Sentimentos, extração de entidades, sumarização.<br><br><strong>Modelos:</strong> BERT, RoBERTa, GPT-2 fine-tune<br><strong>GPU:</strong> VRAM e RAM balanceadas</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-5)">
+        <h3><span class="ico">📈</span> Séries Temporais</h3>
+        <p>Consumo elétrico, anomalias IoT, falhas de equipamento.<br><br><strong>Modelos:</strong> LSTM, Transformer, TCN<br><strong>GPU:</strong> menor VRAM, muitos steps</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 — Arquitetura -->
+  <section class="slide">
+    <div class="kicker">Teoria · Arquitetura</div>
+    <h2><span class="num">2.</span>Planejamento de arquitetura CPU/GPU</h2>
+    <p>Equilibre a capacidade da GPU, o tamanho do dataset e o prazo. <strong>Transfer learning</strong> sempre que possível: reduz o tempo de treino em ~10×.</p>
+    <table>
+      <thead>
+        <tr><th>Decisão</th><th>Recomendação</th><th>Impacto</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Framework</td><td>PyTorch (flexibilidade) ou TF/Keras (rapidez)</td><td>Ecossistema e velocidade de dev</td></tr>
+        <tr><td>Precision</td><td>fp16 (RTX/Colab) ou bf16 (A100/H100)</td><td>−50% VRAM, +30% throughput</td></tr>
+        <tr><td>Transfer Learning</td><td>Backbone pré-treinado (ImageNet / HF Hub)</td><td>10× menos épocas</td></tr>
+        <tr><td>Batch Size</td><td>Maior que couber na VRAM</td><td>Estabilidade do gradiente</td></tr>
+        <tr><td>DataLoader</td><td><code>num_workers=4, pin_memory=True</code></td><td>Elimina gargalo de I/O</td></tr>
+        <tr><td>Logging</td><td>Weights &amp; Biases ou MLflow</td><td>Reproducibilidade</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 05 — Estrutura do repo -->
+  <section class="slide">
+    <div class="kicker">Prática · Engenharia</div>
+    <h2><span class="num">3.</span>Estrutura do repositório do projeto</h2>
+    <p>Um repositório bem organizado é <strong>critério de avaliação</strong>. Integre os scripts de automação dos Blocos 1–3 na pasta <code>scripts/</code>.</p>
+    <div class="pipeline" style="margin:16px 0">
+      <div class="pipe-step"><span class="step-ico">📁</span><span class="step-title">config/</span><span class="step-sub">ConfigProjeto</span></div>
+      <div class="pipe-step"><span class="step-ico">🗄️</span><span class="step-title">data/</span><span class="step-sub">download + preprocess</span></div>
+      <div class="pipe-step"><span class="step-ico">🧠</span><span class="step-title">models/</span><span class="step-sub">arquitetura</span></div>
+      <div class="pipe-step"><span class="step-ico">🏋️</span><span class="step-title">training/</span><span class="step-sub">train / evaluate</span></div>
+      <div class="pipe-step"><span class="step-ico">⚙️</span><span class="step-title">scripts/</span><span class="step-sub">monitor + fila + alerta</span></div>
+    </div>
+    <div class="note">
+      <span class="ico">💡</span>
+      <span>Adicione <code>checkpoints/</code> e <code>data/raw/</code> no <code>.gitignore</code>. Use <strong>W&amp;B Artifacts</strong> para versionar pesos e datasets grandes sem sobrecarregar o Git.</span>
+    </div>
+  </section>
+
+  <!-- 06 — Reuso dos blocos -->
+  <section class="slide">
+    <div class="kicker">Integração</div>
+    <h2><span class="num">4.</span>Reaproveitando os Blocos 1–3</h2>
+    <p>O projeto final não começa do zero: ele <strong>integra</strong> tudo o que foi construído até aqui.</p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">🛠️</span> Automação com Bash</h3>
+        <p>Monitorar a GPU durante as horas de treino — logs em CSV para o relatório final.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🎛️</span> Gestão de Processos</h3>
+        <p>Gerenciar a fila de experimentos: vários configs rodando em sequência por prioridade.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🌱</span> Otimização de Energia</h3>
+        <p>Calibrar o Power Limit para maximizar a eficiência em treinamentos longos.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">📄</span>
+      <span>Os scripts reais estão em <code>aulas/bloco3/aula14/</code>, <code>aulas/bloco3/aula15/</code> e <code>aulas/bloco3/aula19/</code>; copie-os para o <code>scripts/</code> do seu projeto.</span>
+    </div>
+  </section>
+
+  <!-- 07 — Checklist -->
+  <section class="slide">
+    <div class="kicker">Atividade</div>
+    <h2><span class="num">5.</span>Checklist de prontidão</h2>
+    <p>Cada time deve completar o checklist ao final da aula — ele define se o projeto está <strong>pronto para implementar</strong> na próxima aula.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <ul class="clean check">
+        <li><strong>Problema:</strong> domínio, impacto mensurável e dataset público definidos</li>
+        <li><strong>Arquitetura:</strong> framework, modelo base, GPU e precision definidos</li>
+        <li><strong>Automação:</strong> monitor GPU, fila e logging (W&amp;B) previstos</li>
+      </ul>
+      <ul class="clean check">
+        <li><strong>Repositório:</strong> estrutura de pastas, README e <code>requirements.txt</code></li>
+        <li><strong>Avaliação:</strong> métrica principal, baseline e meta de desempenho</li>
+        <li><strong>100% marcado</strong> = pronto para a Aula 21</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 08 — Debate -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">6.</span>Feedback cruzado dos projetos</h2>
+    <div class="debate"><div class="q">1</div><p>Qual problema vocês escolheram? Por que ele é relevante e como a GPU acelera a solução em comparação a uma abordagem puramente em CPU?</p></div>
+    <div class="debate"><div class="q">2</div><p>O dataset tem desafios de qualidade (desequilíbrio, ruído, gaps)? Como tratá-los antes de ir para a GPU?</p></div>
+    <div class="debate"><div class="q">3</div><p>Qual será o <strong>baseline mais simples possível</strong> (regressão logística, média histórica) para comparar com o modelo profundo?</p></div>
+    <div class="debate"><div class="q">4</div><p>Em 4 semanas com 2× RTX 4090 e Colab Pro, quantas épocas vocês estimam treinar? Quanta VRAM o modelo usa?</p></div>
+  </section>
+
+  <!-- 09 — Síntese -->
+  <section class="slide">
+    <div class="kicker">Síntese</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Transfer Learning:</strong> reutilizar pesos pré-treinados — converge ~10× mais rápido.</li>
+          <li><strong>Mixed Precision:</strong> fp16/bf16 reduz VRAM à metade e aumenta throughput.</li>
+          <li><strong>W&amp;B:</strong> rastreia hiperparâmetros, métricas e estatísticas de GPU por experimento.</li>
+          <li><strong>Baseline primeiro:</strong> solução simples antes do modelo complexo — evita over-engineering.</li>
+          <li><strong>Estrutura do repo:</strong> separar config, data, models e scripts desde o início.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Próximos Passos</h3>
+          <p>Abra o <code>notebook_colab/aula20_definicao_projeto.ipynb</code> e complete o checklist de prontidão ao final.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🏠</span> Tarefa para a Aula 21</h3>
+          <p>Repositório criado e compartilhado, dataset carregando no Colab e <strong>baseline simples medido</strong> (ponto de comparação).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 09</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

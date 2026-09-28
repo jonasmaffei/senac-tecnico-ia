@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 22 — Automação e Monitoramento do Projeto</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 7px 16px; font-size: .84rem; cursor: pointer;
+    border-color: var(--border);
+  }
+  .nav-buttons button:hover { border-color: var(--accent); background: var(--panel-2); }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 4 · Projeto Final</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 22 · Conceitos</div>
+    <h1>Automação e Monitoramento do Projeto</h1>
+    <p class="lead">Integrar o <strong>monitoramento de GPU</strong> ao ciclo de vida do modelo: coleta contínua em CSV, <strong>alertas automáticos</strong> por Slack/Telegram/e-mail, <strong>dashboard</strong> em Python e execução como <strong>serviço systemd</strong>.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">4 — Projeto Final</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Ferramentas</div><div class="v">Bash, nvidia-smi, subprocess, pandas, systemd</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎯</span> Situação de Aprendizagem</h3>
+        <p>O modelo está treinando e os resultados são promissores — mas o treino agora dura <strong>horas ou dias</strong>. Ninguém olhará o terminal 24h. É preciso <strong>automatizar</strong> a coleta, os alertas e os dashboards.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3><span class="ico">🧭</span> O que vamos integrar</h3>
+        <p>Monitor Bash iniciado junto do <code>train.py</code>, alertas multi-canal, dashboard com pandas+matplotlib e o monitor como serviço do sistema.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Roteiro -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> integrar a automação de monitoramento ao ciclo de vida do modelo, garantindo estabilidade e rastreabilidade.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: estado atual dos projetos</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: integrar o monitor ao pipeline</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: monitor Bash com log CSV</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: alertas via e-mail e Slack</span></div>
+          <div class="tl-item"><span class="tl-time">35 min</span><span class="tl-txt">Atividade: integrar monitor ao train.py</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: exportar métricas e dashboard</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Discussão — revisão dos pipelines</span></div>
+          <div class="tl-item"><span class="tl-time">5 min</span><span class="tl-txt">Síntese e tarefa de casa</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>nvidia-smi + CSV log · subprocess.Popen · Slack Webhook · systemd service · pandas + matplotlib · W&amp;B API export</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Materiais da aula</h3>
+          <p>Apresentação + <code>notebook_colab/</code> com 5 exercícios + <code>scripts/</code> (monitor, alertas, dashboard).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Monitor integrado -->
+  <section class="slide">
+    <div class="kicker">Teoria · Integração</div>
+    <h2><span class="num">1.</span>Monitor integrado ao pipeline</h2>
+    <p>O monitor evolui para rodar <strong>junto</strong> do treino: coleta de todas as GPUs e <strong>auto-encerramento</strong> quando o processo filho termina.</p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">📡</span> Coleta automática</h3>
+        <p><code>nvidia-smi</code> a cada N segundos — temperatura, VRAM, potência e utilização de todas as GPUs.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">📄</span> CSV estruturado</h3>
+        <p>Log indexado por timestamp, pronto para análise com pandas e geração de dashboard.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🛑</span> Auto-encerramento</h3>
+        <p>Monitora o PID do treinamento (<code>kill -0</code>) e para sozinho quando o processo encerra.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">📄</span>
+      <span>O script completo está em <code>scripts/monitor_treinamento.sh</code>, comentado linha a linha.</span>
+    </div>
+  </section>
+
+  <!-- 04 — subprocess -->
+  <section class="slide">
+    <div class="kicker">Prática · Python</div>
+    <h2><span class="num">2.</span>Integrar o monitor ao train.py</h2>
+    <p>Em vez de rodar o monitor em outro terminal, o próprio Python o inicia em background com <code>subprocess.Popen</code>.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Ciclo de vida compartilhado</h3>
+        <ul class="clean">
+          <li><strong>Iniciar:</strong> <code>Popen</code> antes do loop de treino</li>
+          <li><strong>Encerrar:</strong> no bloco <code>finally:</code></li>
+          <li><strong>Garantia:</strong> o monitor morre com o treino, mesmo com erro ou Ctrl+C</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">💡</span> Por que importa</h3>
+        <p>Sem o <code>finally</code>, um monitor órfão continua consumindo CPU e poluindo logs. O ciclo de vida compartilhado garante limpeza automática.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — Alertas -->
+  <section class="slide">
+    <div class="kicker">Prática · Alertas</div>
+    <h2><span class="num">3.</span>Alertas multi-canal</h2>
+    <p>Com variáveis de ambiente configuradas, o script dispara alertas em vários canais simultaneamente — log local é sempre ativo.</p>
+    <table>
+      <thead>
+        <tr><th>Canal</th><th>Variável de ambiente</th><th>Configuração</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Slack</td><td><code>SLACK_WEBHOOK_URL</code></td><td>Incoming Webhook em api.slack.com</td></tr>
+        <tr><td>Telegram</td><td><code>TELEGRAM_BOT_TOKEN</code> + <code>CHAT_ID</code></td><td>BotFather → <code>/newbot</code></td></tr>
+        <tr><td>E-mail</td><td><code>ALERTA_EMAIL</code></td><td>Requer sendmail/postfix</td></tr>
+        <tr><td>Log local</td><td>sempre ativo</td><td><code>logs/monitor/alertas.log</code></td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">⚠️</span>
+      <span><strong>Thresholds graduais:</strong> WARN a 82 °C / 85% VRAM e CRITICAL a 90 °C / 95% — dá tempo de reagir antes do OOM.</span>
+    </div>
+  </section>
+
+  <!-- 06 — Dashboard -->
+  <section class="slide">
+    <div class="kicker">Prática · Visualização</div>
+    <h2><span class="num">4.</span>Dashboard com pandas + matplotlib</h2>
+    <p>Com o CSV coletado, gere o relatório visual das 4 métricas principais ao fim de cada sessão.</p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">🌡️</span> Temperatura</h3>
+        <p>Curva em °C com linhas de WARN/CRITIC — revela throttling.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">⚡</span> Utilização</h3>
+        <p>% de uso da GPU — queda no meio do treino indica gargalo no DataLoader.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">💾</span> VRAM &amp; Potência</h3>
+        <p>Memória usada (GB) e consumo (W) — detecta vazamentos e OOM iminente.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 — systemd -->
+  <section class="slide">
+    <div class="kicker">Produção · systemd</div>
+    <h2><span class="num">5.</span>Monitor como serviço do sistema</h2>
+    <p>Para monitorar GPUs mesmo sem treino ativo, registre o monitor como serviço <code>systemd</code> — reinicia sozinho em caso de falha.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Boas práticas</h3>
+        <ul class="clean">
+          <li>Nunca rode como root — usuário dedicado, leitura apenas</li>
+          <li>Rotacione logs com <code>logrotate</code> (evita disco cheio)</li>
+          <li><code>Restart=on-failure</code> + <code>RestartSec=10s</code></li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🔄</span> Alternativa: cron</h3>
+        <p>Sem systemd, use <code>@reboot</code> no <code>crontab</code> para iniciar o monitor com o servidor. Menos robusto, porém mais simples.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — W&B + logs -->
+  <section class="slide">
+    <div class="kicker">Relatório Final</div>
+    <h2><span class="num">6.</span>Combinar W&amp;B + logs de GPU</h2>
+    <p>Exporte as métricas de treino do W&amp;B e junte com os logs locais de GPU para o relatório final do projeto.</p>
+    <div class="pipeline" style="margin:16px 0">
+      <div class="pipe-step"><span class="step-ico">📈</span><span class="step-title">W&amp;B API</span><span class="step-sub">val/loss, val/acc</span></div>
+      <div class="pipe-arrow">+</div>
+      <div class="pipe-step"><span class="step-ico">🖥️</span><span class="step-title">CSV local</span><span class="step-sub">temp, util, VRAM</span></div>
+      <div class="pipe-arrow">=</div>
+      <div class="pipe-step"><span class="step-ico">📄</span><span class="step-title">relatório</span><span class="step-sub">PNG final</span></div>
+    </div>
+    <div class="note">
+      <span class="ico">🔍</span>
+      <span>Pergunta-chave da análise: a GPU estava mais ocupada nas épocas em que o <code>val/loss</code> caiu mais rápido?</span>
+    </div>
+  </section>
+
+  <!-- 09 — Debate -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">7.</span>Revisão dos pipelines</h2>
+    <div class="debate"><div class="q">1</div><p>Vocês integraram o monitor ao `train.py` via subprocess? O monitor encerrou corretamente? Se não, o que causou?</p></div>
+    <div class="debate"><div class="q">2</div><p>Qual threshold de temperatura definiram? Já houve alerta real? O que aconteceu depois?</p></div>
+    <div class="debate"><div class="q">3</div><p>O dashboard mostrou alguma anomalia (pico de temperatura, queda de utilização, VRAM crescendo)? O que indica?</p></div>
+    <div class="debate"><div class="q">4</div><p>Cruzando GPU × W&amp;B: a GPU estava maximamente usada quando o val/loss caiu mais rápido?</p></div>
+  </section>
+
+  <!-- 10 — Síntese -->
+  <section class="slide">
+    <div class="kicker">Síntese</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Monitor integrado:</strong> <code>subprocess.Popen</code> + <code>finally</code>.</li>
+          <li><strong>CSV estruturado:</strong> timestamp como índice, une com W&amp;B por janela temporal.</li>
+          <li><strong>Alertas multi-canal:</strong> Slack (time) e Telegram (pessoal).</li>
+          <li><strong>Thresholds graduais:</strong> WARN e CRITICAL — tempo para reagir.</li>
+          <li><strong>Dashboard automático:</strong> PNG ao fim da sessão, commitado no repo.</li>
+          <li><strong>systemd:</strong> monitoramento contínuo independente do treino.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Próximos Passos</h3>
+          <p>Abra o <code>notebook_colab/aula22_automacao_projeto.ipynb</code> e resolva os 5 exercícios.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🏠</span> Tarefa para a Aula 23</h3>
+          <p>Integrar o monitor ao treino, gerar o dashboard final e preparar o <strong>pitch de 5 min</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 10</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

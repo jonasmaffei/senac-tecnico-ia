@@ -188,3 +188,52 @@
 * **Controle programático (nvidia-ml-py / NVML):** Leitura e configuração da GPU sem *parsing* de shell (`nvmlDeviceGetTemperature`, `GetPowerUsage`, `SetPowerManagementLimit`), ideal para dashboards e auto-scaling de PL por fase de treino.
 * **Alertas térmicos com ação:** Script agendado no `cron` que, ao cruzar o limite crítico (ex.: 88°C), reduz o PL de emergência e notifica; quando a temperatura normaliza, restaura o PL original.
 * **Prática Colab & Windows Host:** Notebook no Colab (`aula19_energia_gpu.ipynb`) com coleta, benchmark de eficiência, leitura NVML e lock portátil + **5 exercícios**; laboratório local em `laboratorio_windows/` (`lib_energia.py` + 4 scripts) que lê a GPU AMD de verdade e usa modo simulado para temperatura/potência.
+
+---
+
+## Bloco 4 — Projeto Final (Aulas 20 a 24)
+
+#### Aula 20: Definição do Projeto Final (Bloco 4 — Projeto Final)
+* **Domínios de IA na GPU:** Visão computacional (ResNet/EfficientNet/YOLO/ViT — alta VRAM), PNL (BERT/RoBERTa/GPT-2 — VRAM e RAM balanceadas) e séries temporais (LSTM/Transformer/TCN — menor VRAM, muitos steps).
+* **Planejamento de arquitetura:** Transfer learning (10× menos épocas), mixed precision fp16/bf16 (−50% VRAM, +30% throughput), batch size máximo que cabe na VRAM e DataLoader com `num_workers`/`pin_memory`.
+* **W&B / MLflow:** Rastreamento de hiperparâmetros, métricas e estatísticas de GPU por experimento.
+* **Baseline primeiro:** Implementar a solução mais simples antes do modelo complexo; ela será o alvo de comparação.
+* **Estrutura do repositório:** `config/`, `data/`, `models/`, `training/`, `scripts/` e `checkpoints/` (este último no `.gitignore`).
+* **Prática Colab & referência:** Notebook (`aula20_definicao_projeto.ipynb`) com catálogo de domínios, estimativa de VRAM, checklist de prontidão e **5 exercícios**; scripts `arquitetura_projeto.py` e `checklist_projeto.py`.
+
+#### Aula 21: Implementação do Modelo no Projeto (Bloco 4 — Projeto Final)
+* **Pipeline otimizado:** DataLoader (`num_workers`, `pin_memory`, `prefetch_factor`), `zero_grad(set_to_none=True)` e transferência `non_blocking=True` eliminam o gargalo CPU→GPU.
+* **Mixed Precision:** `autocast` + `GradScaler` — speedup de 1.5–2.5× e redução de ~45% na VRAM, com precisão próxima ao fp32.
+* **Gradient Checkpointing:** Recomputa ativações no backward — −60% VRAM ao custo de ~30% mais tempo; para modelos >100M parâmetros com VRAM <16GB.
+* **Gradient Accumulation:** Batch efetivo = batch real × n_steps; permite batch grande sem OOM (normalizar a perda por n_steps).
+* **Profiling:** `torch.profiler` ordena operações por tempo/memória CUDA e exporta trace para o Chrome — medir antes de otimizar.
+* **Prática no modo de referência:** Notebook (`aula21_implementacao_modelo.ipynb`) com 6 células didáticas + **5 exercícios**; scripts `pipeline_treinamento.py` e `otimizacao_memoria.py`.
+
+#### Aula 22: Automação e Monitoramento do Projeto (Bloco 4 — Projeto Final)
+* **Monitor integrado:** `monitor_treinamento.sh` roda junto do `train.py`, coleta todas as GPUs em CSV e encerra sozinho quando o treino termina (verifica o PID com `kill -0`).
+* **Ciclo de vida com subprocess:** `Popen` inicia o monitor e o bloco `finally:` garante o encerramento mesmo em erro/Ctrl+C.
+* **Alertas multi-canal:** `alertas.sh` envia para log local, Slack (webhook), Telegram (bot) e e-mail (sendmail); thresholds graduais WARN (82°C/85% VRAM) e CRITICAL (90°C/95%).
+* **Dashboard:** `dashboard_metricas.py` lê os CSVs de `logs/monitor/` e gera 4 gráficos (temperatura, utilização, VRAM e potência).
+* **systemd:** Monitor contínuo independente do treino, com `Restart=on-failure` e logs no `journald`; usar usuário dedicado e `logrotate`.
+* **Prática Colab & Linux:** Notebook (`aula22_automacao_projeto.ipynb`) com 5 exercícios; scripts para servidor Linux.
+
+#### Aula 23: Apresentação e Análise dos Projetos (Bloco 4 — Projeto Final)
+* **Pitch de 5 minutos:** Problema (0:00–0:45) → Solução (0:45–1:30) → Demo (1:30–2:30) → Resultados (2:30–3:30) → Lições + PI (3:30–5:00).
+* **Relatório final automatizado:** Combina métricas do W&B e logs de GPU em 6 gráficos, incluindo a comparação baseline CPU × GPU.
+* **Tabela comparativa:** Tempo/época, val accuracy, throughput e VRAM — evidencia o ganho real da aceleração.
+* **Rubrica (100 pts + bônus):** Modelo (30), automação/monitoramento (25), apresentação (25) e documentação (20); bônus até +10.
+* **Prática:** Notebook (`aula23_apresentacao_projetos.ipynb`) com 5 exercícios; scripts `relatorio_final.py` e `checklist_apresentacao.py`.
+
+#### Aula 24: Conexão com o Projeto Integrador (Bloco 4 — Projeto Final)
+* **Mapeamento de conexões:** `mapear_conexoes_pi.py` varre o repositório do PI e encontra loops sobre imagens/arquivos, `np.dot`/`matmul`/`fft`, carregamento de modelos e loops de treinamento/inferência.
+* **Plano de ação por domínio:** `plano_acao_pi.py` recomenda acelerações (visão: AMP + DataLoader; NLP: checkpointing + accumulation; séries: LSTM/Transformer na GPU) e thresholds de monitor.
+* **Integração ao PI:** Copiar `scripts/gpu/` (monitor, alertas, dashboard, relatório), atualizar README e `.env.example`.
+* **W&B no PI:** Runs com tags `"PI"`, `"GPU"` e domínio; cruzar métricas de treino com as de GPU por janela temporal.
+* **Conexão pesquisa × código:** O PI do curso é uma **pesquisa** (não exige código); a GPU entra como **complemento opcional** que sustenta a recomendação.
+* **Prática:** Notebook (`aula24_conexao_pi.ipynb`) com 5 exercícios; scripts `mapear_conexoes_pi.py` e `plano_acao_pi.py`.
+
+### Entregas finais da UC
+* Repositório do projeto GPU (README + requirements + runs no W&B).
+* Dashboard final em PNG commitado no repositório.
+* Monitor integrado ao `train.py` com log CSV de pelo menos 1 treinamento completo.
+* Documento de 1 página com 3 conexões entre GPU/UC e o PI.

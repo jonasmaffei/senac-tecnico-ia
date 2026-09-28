@@ -159,9 +159,49 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. |
 | **A18** | "Como compartilhar 1 GPU entre vários alunos sem colisões e CUDA OOM?" | Exclusão mútua com `flock`, fila de tickets por prioridade e monitoria de processos em tempo real. |
 | **A19** | "Como reduzir o consumo energético do cluster sem sacrificar o treino?" | `monitor_thermal.sh`/Power Limit, benchmark de eficiência (imgs/J), controle via `nvidia-ml-py` e alerta térmico no `cron`. |
+| **A20–A21** | "Como sair do plano para um modelo treinando com GPU?" | Template de projeto, checklist de prontidão, AMP, gradient checkpointing/accumulation e profiling (`torch.profiler`). |
+| **A22** | "O que fazer quando o treino dura dias sem ninguém olhando?" | Monitor integrado via `subprocess`, alertas Slack/Telegram/e-mail, dashboard pandas+matplotlib e serviço `systemd`. |
+| **A23** | "Como provar o valor da GPU para uma banca?" | Pitch de 5 min, relatório final (W&B + logs GPU), tabela baseline × GPU e rubrica de 100 pontos. |
+| **A24** | "Como levar GPU/automação para o Projeto Integrador?" | `mapear_conexoes_pi.py` (detecta loops/`np.dot`/modelos em CPU) e `plano_acao_pi.py` (visão, NLP, séries temporais). |
 
 ### Aula 19: Otimização de Processamento e Uso de Energia em GPUs (Bloco 3 — Automação)
 * **Conceito/Fundamento:** Gerenciamento térmico e energético de GPUs: TDP/TGP, *thermal throttling*, **Power Limit** configurável (`nvidia-smi -pl`), controle programático via **nvidia-ml-py (NVML)** e a métrica de **eficiência (imgs/J)**.
 * **O que se aprende:** Medir temperatura/potência/clocks em tempo real; entender o trade-off entre throughput e consumo; calibrar Power Limits por fase de treino; controlar a GPU por API (sem *parsing* de shell); e criar alertas térmicos que **agem** (reduzem o PL) automaticamente. No **notebook do Colab** (com **5 exercícios**), sem GPU o modelo é **simulado**; no **laboratório Windows**, a GPU AMD é lida de verdade e o restante entra em modo simulado.
 * **Conexão com o Bloco 3:** Fecha a tríade do bloco — automação da telemetria (A17) + gestão da concorrência (A18) + **otimização de energia** (A19) = operação de cluster sustentável.
 * **O problema que fica em aberto:** Com energia e concorrência sob controle, como **orquestrar** tudo isso em escala e de forma sustentável a longo prazo?
+
+---
+
+## Bloco 4 — Projeto Final: Aplicação de GPUs na IA (Aulas 20–24)
+
+> Cinco aulas para **planejar, implementar e apresentar** um projeto completo de IA acelerado por GPU, em formato de hackathon interno.
+
+### Aula 20: Definição do Projeto Final (Bloco 4 — Projeto Final)
+* **Conceito/Fundamento:** Planejamento de um projeto de IA acelerado por GPU: escolha do domínio (visão, PNL ou séries temporais), definição do problema, seleção do dataset (Hugging Face), arquitetura CPU/GPU e estrutura de repositório.
+* **O que se aprende:** Transfer learning, mixed precision, W&B/MLflow, DataLoader otimizado, baseline vs target e checkpointing. Checklist de prontidão do hackathon.
+* **Conexão com o Bloco 3:** Reaproveita os scripts de monitoramento (A17), fila (A18) e energia (A19) no pipeline do projeto.
+* **O problema que fica em aberto:** Com o plano pronto, como implementar o modelo com aceleração GPU real e validar os ganhos?
+
+### Aula 21: Implementação do Modelo no Projeto (Bloco 4 — Projeto Final)
+* **Conceito/Fundamento:** Pipeline de treinamento otimizado para GPU: mixed precision (`autocast`/`GradScaler`), gradient checkpointing, gradient accumulation, DataLoader com `pin_memory`/`prefetch` e profiling com `torch.profiler`.
+* **O que se aprende:** Medir o trade-off throughput × VRAM, estimar batch size, combinar técnicas de memória e identificar gargalos com o profiler.
+* **Conexão com o Bloco 4:** É a implementação do plano da Aula 20; os ganhos são comparados ao baseline medido.
+* **O problema que fica em aberto:** O modelo treina por horas — como monitorar e alertar sem intervenção manual?
+
+### Aula 22: Automação e Monitoramento do Projeto (Bloco 4 — Projeto Final)
+* **Conceito/Fundamento:** Integração do monitoramento ao ciclo de vida do modelo: monitor Bash iniciado via `subprocess.Popen`, alertas multi-canal (Slack/Telegram/e-mail), dashboard com pandas+matplotlib e serviço systemd.
+* **O que se aprende:** CSV estruturado, thresholds graduais (WARN/CRITICAL), ciclo de vida compartilhado com o treino e combinação W&B + logs de GPU.
+* **Conexão com o Bloco 4:** Aplica ao projeto as técnicas de automação das Aulas 17–19.
+* **O problema que fica em aberto:** Como transformar os dados técnicos em uma apresentação convincente?
+
+### Aula 23: Apresentação e Análise dos Projetos (Bloco 4 — Projeto Final)
+* **Conceito/Fundamento:** Comunicação técnica: pitch de 5 minutos (problema → solução → demo → resultados → lições + PI), relatório final automatizado, rubrica de avaliação de 100 pontos e checklist de prontidão.
+* **O que se aprende:** Estruturar a narrativa, montar a tabela baseline × GPU, exportar runs do W&B e responder à banca.
+* **Conexão com o Bloco 4:** Consolida tudo o que foi construído nas Aulas 20–22 em uma entrega avaliável.
+* **O problema que fica em aberto:** Como reaproveitar esse conhecimento no Projeto Integrador do curso?
+
+### Aula 24: Conexão com o Projeto Integrador (Bloco 4 — Projeto Final)
+* **Conceito/Fundamento:** Articulação da UC com o Projeto Integrador: análise do repositório do PI em busca de pontos de aceleração, integração da infraestrutura de monitoramento e plano de ação por domínio.
+* **O que se aprende:** Detectar loops/`np.dot`/modelos em CPU, integrar scripts (monitor, alertas, dashboards) ao PI e gerar planos de ação (visão, NLP, séries temporais).
+* **Conexão com o Bloco 4:** Fecha a UC conectando o hackathon (código) à pesquisa do Projeto Integrador.
+* **O problema que fica em aberto:** — fim da UC.

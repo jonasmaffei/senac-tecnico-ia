@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 23 — Apresentação e Análise dos Projetos</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 7px 16px; font-size: .84rem; cursor: pointer;
+  }
+  .nav-buttons button:hover { border-color: var(--accent); background: var(--panel-2); }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 4 · Projeto Final</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 23 · Conceitos</div>
+    <h1>Apresentação e Análise dos Projetos</h1>
+    <p class="lead">Transformar dados técnicos em <strong>narrativa</strong>: estruturar o <strong>pitch de 5 minutos</strong>, gerar o <strong>relatório final automatizado</strong>, apresentar para a banca e receber feedback para a conexão com o Projeto Integrador.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">4 — Projeto Final</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
+      <div class="meta"><div class="k">Ferramentas</div><div class="v">W&amp;B, Canva, OBS, GitHub Pages</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">🎯</span> Situação de Aprendizagem</h3>
+        <p>O treinamento finalizou, os logs estão salvos e o W&amp;B registrou todas as runs. Uma <strong>banca técnica</strong> vai avaliar cada projeto. Você tem <strong>5 minutos</strong> para mostrar o problema, a solução, a demo e os números.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧭</span> O que vamos preparar</h3>
+        <p>Roteiro do pitch, relatório final (W&amp;B + logs GPU), checklist de prontidão e a <strong>rubrica de avaliação</strong> de 100 pontos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Roteiro -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e roteiro da aula</h2>
+    <p><strong>Objetivo:</strong> comunicar de forma clara e técnica os resultados, destacando o uso estratégico da GPU e as competências adquiridas.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: checklist final dos projetos</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: estrutura do pitch de 5 min</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: gerar o relatório final</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Apresentações — rodada 1</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Feedback técnico — rodada 1</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Apresentações — rodada 2</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Feedback técnico — rodada 2</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Síntese, pontuação e próximos passos</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>pitch técnico 5 min · relatório automatizado · baseline vs GPU · rubrica de avaliação · W&amp;B run export · conexão com o PI</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">📄</span> Materiais da aula</h3>
+          <p>Apresentação + <code>notebook_colab/</code> com 5 exercícios + <code>scripts/</code> (relatório e checklist).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Pitch -->
+  <section class="slide">
+    <div class="kicker">Teoria · Comunicação</div>
+    <h2><span class="num">1.</span>Estrutura do pitch de 5 minutos</h2>
+    <p>Equilibre narrativa e dados. Cada bloco tem tempo recomendado e pontos obrigatórios.</p>
+    <div class="pipeline" style="margin:16px 0">
+      <div class="pipe-step"><span class="step-ico">🎯</span><span class="step-title">Problema</span><span class="step-sub">0:00–0:45</span></div>
+      <div class="pipe-step"><span class="step-ico">🏗️</span><span class="step-title">Solução</span><span class="step-sub">0:45–1:30</span></div>
+      <div class="pipe-step"><span class="step-ico">🖥️</span><span class="step-title">Demo</span><span class="step-sub">1:30–2:30</span></div>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">Resultados</span><span class="step-sub">2:30–3:30</span></div>
+      <div class="pipe-step"><span class="step-ico">🧠</span><span class="step-title">Lições + PI</span><span class="step-sub">3:30–5:00</span></div>
+    </div>
+    <div class="note">
+      <span class="ico">💡</span>
+      <span><strong>Problema:</strong> qual custo sem GPU? · <strong>Solução:</strong> arquitetura e stack · <strong>Demo:</strong> treino + monitor · <strong>Resultados:</strong> tabela baseline×GPU · <strong>Lições:</strong> o que faria diferente.</span>
+    </div>
+  </section>
+
+  <!-- 04 — Resultados -->
+  <section class="slide">
+    <div class="kicker">Resultados</div>
+    <h2><span class="num">2.</span>Tabela comparativa obrigatória</h2>
+    <p>Inclua a comparação baseline × GPU nos slides — ela evidencia o impacto real da aceleração.</p>
+    <table>
+      <thead>
+        <tr><th>Métrica</th><th>Baseline (CPU)</th><th>Modelo GPU</th><th>Ganho</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Tempo por época</td><td>~320 s</td><td>~38 s</td><td>8.4× mais rápido</td></tr>
+        <tr><td>Val Accuracy</td><td>71.2 %</td><td>87.6 %</td><td>+16.4 pp</td></tr>
+        <tr><td>Throughput</td><td>48 imgs/s</td><td>410 imgs/s</td><td>8.5× maior</td></tr>
+        <tr><td>Tempo total de treino</td><td>~5 h</td><td>~35 min</td><td>8× mais rápido</td></tr>
+        <tr><td>VRAM utilizada</td><td>—</td><td>9.4 GB</td><td>RTX 4090: 78%</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">⚠️</span>
+      <span>Valores de referência — <strong>substitua pelos dados reais do seu projeto</strong>.</span>
+    </div>
+  </section>
+
+  <!-- 05 — Relatório -->
+  <section class="slide">
+    <div class="kicker">Prática · Relatório</div>
+    <h2><span class="num">3.</span>Relatório final automatizado</h2>
+    <p>Combine <strong>métricas do W&amp;B</strong> (treino) com os <strong>logs de GPU</strong> (CSV) em um único PNG de 6 gráficos.</p>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">📈</span> Curvas de treino</h3>
+        <p>val/loss e val/acc por época, por run do W&amp;B.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🖥️</span> Saúde da GPU</h3>
+        <p>Temperatura, utilização e VRAM durante o treino.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">📊</span> Baseline × GPU</h3>
+        <p>Barras comparando tempo, accuracy, VRAM e throughput.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 — Rubrica -->
+  <section class="slide">
+    <div class="kicker">Avaliação</div>
+    <h2><span class="num">4.</span>Rubrica do hackathon (100 pts)</h2>
+    <table>
+      <thead>
+        <tr><th>Dimensão</th><th>Critérios principais</th><th>Pts</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Qualidade técnica do modelo</td><td>CUDA, métricas registradas, múltiplas runs, otimizações (AMP)</td><td>30</td></tr>
+        <tr><td>Automação e monitoramento</td><td>Monitor integrado, log CSV, dashboard automático</td><td>25</td></tr>
+        <tr><td>Qualidade da apresentação</td><td>Clareza, demo funcional, respostas à banca</td><td>25</td></tr>
+        <tr><td>Documentação e reprodutibilidade</td><td>README, requirements, código comentado</td><td>20</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">🎁</span>
+      <span><strong>Bônus (+10):</strong> alerta automático funcional (+5) · comparação estatística com baseline (+3) · deploy/integração com o PI (+2).</span>
+    </div>
+  </section>
+
+  <!-- 07 — Checklist -->
+  <section class="slide">
+    <div class="kicker">Prontidão</div>
+    <h2><span class="num">5.</span>Checklist antes do pitch</h2>
+    <div class="grid cols-2" style="align-items:start">
+      <ul class="clean check">
+        <li><strong>Repositório:</strong> README, <code>requirements.txt</code>, <code>.gitignore</code>, commit recente</li>
+        <li><strong>Código:</strong> <code>train.py</code>, <code>config.py</code>, monitor integrado</li>
+        <li><strong>Logs:</strong> CSV de GPU e dashboard gerado</li>
+      </ul>
+      <ul class="clean check">
+        <li><strong>W&amp;B:</strong> runs acessíveis com as métricas</li>
+        <li><strong>Relatório:</strong> PNG final gerado</li>
+        <li><strong>Pitch:</strong> os 5 blocos no tempo certo</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 08 — Debate -->
+  <section class="slide">
+    <div class="kicker">Feedback Cruzado</div>
+    <h2><span class="num">6.</span>Perguntas da banca</h2>
+    <div class="debate"><div class="q">1</div><p>O ganho de velocidade (ex.: 8×) veio de qual técnica principal? AMP, DataLoader multiprocessado, batch maior? Combinaria mais de uma?</p></div>
+    <div class="debate"><div class="q">2</div><p>O monitor detectou algum evento real (temperatura, VRAM no limite, utilização caindo)? Como o time reagiu?</p></div>
+    <div class="debate"><div class="q">3</div><p>O gráfico de val/loss mostrou overfitting ou underfitting? Quais hiperparâmetros foram ajustados entre as runs?</p></div>
+    <div class="debate"><div class="q">4</div><p>Como o tema do projeto se conecta ao Projeto Integrador? Que componente se beneficiaria da GPU?</p></div>
+  </section>
+
+  <!-- 09 — Síntese -->
+  <section class="slide">
+    <div class="kicker">Síntese</div>
+    <h2>O que levar desta aula</h2>
+    <div class="grid cols-2">
+      <div>
+        <ul class="clean check">
+          <li><strong>Pipeline completo:</strong> dados → GPU → monitor → dashboard → relatório.</li>
+          <li><strong>Reprodutibilidade:</strong> README + requirements + runs + CSV.</li>
+          <li><strong>Comunicação técnica:</strong> pitch com dados reais, não slides genéricos.</li>
+          <li><strong>Baseline obrigatório:</strong> sem CPU, não há como medir o valor da GPU.</li>
+          <li><strong>Feedback como dado:</strong> documente e corrija na versão final.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">📌</span> Próximos Passos</h3>
+          <p>Abra o <code>notebook_colab/aula23_apresentacao_projetos.ipynb</code> e resolva os 5 exercícios.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🏠</span> Tarefa para a Aula 24</h3>
+          <p>Incorporar o feedback ao relatório, mapear <strong>3 conexões</strong> GPU ↔ PI e preparar 1 slide de proposta.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 09</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>
