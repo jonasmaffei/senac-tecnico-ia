@@ -1,30 +1,30 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-# lib_backend.py — detecção automática de backend de processamento
+# lib_backend.py - deteccao automatica de backend de processamento
 # ----------------------------------------------------------------------------
-# Este arquivo é importado pelos scripts da Aula 02 para que o MESMO código
+# Este arquivo e importado pelos scripts da Aula 02 para que o MESMO codigo
 # rode em qualquer ambiente:
 #
 #   - Google Colab (GPU NVIDIA)  -> usa CuPy (SIMD em GPU)
 #   - Linux com ROCm (AMD)       -> usa CuPy-ROCm / PyTorch
 #   - Windows com GPU AMD        -> usa PyTorch-DirectML, se instalado
-#   - QUALQUER máquina (padrão)  -> usa NumPy (SIMD em CPU, via AVX/SSE)
+#   - QUALQUER maquina (padrao)  -> usa NumPy (SIMD em CPU, via AVX/SSE)
 #
-# O objetivo didático: mostrar que o código é o mesmo, só a "engine" de
-# paralelismo muda. NumPy já usa instruções SIMD por baixo dos panos.
+# O objetivo didatico: mostrar que o codigo e o mesmo, so a "engine" de
+# paralelismo muda. NumPy ja usa instrucoes SIMD por baixo dos panos.
 #
 # Uso:
 #   from lib_backend import detectar_backend, xp, BACKEND
-#   xp.arange(10)   # xp é numpy OU cupy, conforme o backend detectado
+#   xp.arange(10)   # xp e numpy OU cupy, conforme o backend detectado
 # ============================================================================
 
 import importlib
 
-# Ordem de preferência: GPU real primeiro, CPU como rede de segurança.
-# Cada item: (nome amigável, módulo Python, função que confirma disponibilidade)
+# Ordem de preferencia: GPU real primeiro, CPU como rede de seguranca.
+# Cada item: (nome amigavel, modulo Python, funcao que confirma disponibilidade)
 _CANDIDATOS = [
     ("CuPy (GPU NVIDIA/ROCm)", "cupy", lambda m: m.cuda.runtime.getDeviceCount() > 0),
-    ("PyTorch CUDA (GPU NVIDIA)", "torch", None),   # tratado à parte abaixo
+    ("PyTorch CUDA (GPU NVIDIA)", "torch", None),   # tratado a parte abaixo
     ("PyTorch DirectML (GPU AMD no Windows)", "torch_directml", None),
 ]
 
@@ -43,13 +43,13 @@ def _numa_gpu_valida(mod):
 
 
 def detectar_backend():
-    """Escolhe o melhor backend disponível e ajusta as variáveis globais.
+    """Escolhe o melhor backend disponivel e ajusta as variaveis globais.
 
-    Devolve o módulo a ser usado como 'xp' (numpy ou cupy) e imprime um resumo.
+    Devolve o modulo a ser usado como 'xp' (numpy ou cupy) e imprime um resumo.
     """
     global BACKEND, GPU_NOME, xp, torch
 
-    # 1) CuPy — melhor caso: arrays acelerados por GPU com a API do NumPy
+    # 1) CuPy - melhor caso: arrays acelerados por GPU com a API do NumPy
     try:
         cupy = importlib.import_module("cupy")
         if _numa_gpu_valida(cupy):
@@ -64,14 +64,14 @@ def detectar_backend():
     except Exception:
         pass
 
-    # 2) PyTorch com CUDA (Colab também oferece essa opção)
+    # 2) PyTorch com CUDA (Colab tambem oferece essa opcao)
     try:
         import torch as _torch
         torch = _torch
         if _torch.cuda.is_available():
             BACKEND = "PyTorch CUDA (GPU)"
             GPU_NOME = _torch.cuda.get_device_name(0)
-            xp = _TorchXP(_torch)          # wrapper mínimo com API parecida com NumPy
+            xp = _TorchXP(_torch)          # wrapper minimo com API parecida com NumPy
             _resumo()
             return xp
     except Exception:
@@ -102,7 +102,7 @@ def _resumo():
     print("=" * 64)
     print(f" Backend de processamento: {BACKEND}")
     if BACKEND == "NumPy (CPU SIMD)":
-        print(" Nenhuma GPU acessível aqui — usando o SIMD da própria CPU.")
+        print(" Nenhuma GPU acessivel aqui - usando o SIMD da propria CPU.")
         print(" (No Colab com T4 GPU, este mesmo script usaria CuPy.)")
     else:
         print(f" Dispositivo: {GPU_NOME}")
@@ -110,9 +110,9 @@ def _resumo():
 
 
 def info():
-    """Devolve o estado atual como dicionário.
+    """Devolve o estado atual como dicionario.
 
-    Use esta função (em vez de importar as variáveis) porque o backend é
+    Use esta funcao (em vez de importar as variaveis) porque o backend e
     definido apenas quando `detectar_backend()` roda. Ex.:
         import lib_backend
         xp = lib_backend.detectar_backend()
@@ -122,7 +122,7 @@ def info():
 
 
 # ---------------------------------------------------------------------------
-# Wrappers mínimos: expõem só o que a Aula 02 usa (arange, asarray, ...)
+# Wrappers minimos: expoem so o que a Aula 02 usa (arange, asarray, ...)
 # e convertem o resultado de volta para NumPy, simplificando o exemplo.
 # ---------------------------------------------------------------------------
 class _TorchXP:

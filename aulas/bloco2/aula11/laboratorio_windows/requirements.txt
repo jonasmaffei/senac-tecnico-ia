@@ -1,0 +1,5 @@
+# Dependencias do laboratorio Windows - Aula 11.
+# Instaladas automaticamente pelo iniciar.bat (dentro de .venv).
+# O torch (CPU) permite rodar a deteccao e mostrar a referencia mesmo sem GPU.
+# No Colab (GPU T4) o mesmo codigo treina de verdade.
+torch>=2.0.0

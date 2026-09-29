@@ -253,13 +253,12 @@
     <div class="grid cols-2">
       <div>
         <p>O ROCm <strong>emula a API CUDA</strong> do PyTorch. O código Python é
-          <strong>idêntico</strong>:</p>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>device = "cuda" if torch.cuda.is_available() else "cpu"
-modelo.to(device)
-
-torch.cuda.is_available()  # True no ROCm também!</code></pre>
+          <strong>idêntico</strong>: a mesma chamada <code>torch.cuda.is_available()</code>
+          retorna <code>True</code> numa GPU AMD com ROCm — sem <strong>uma linha</strong>
+          alterada.</p>
+        <div class="terminal" style="margin-top:10px">
+<span class="dim">$ python3 -c "import torch; print(torch.cuda.is_available())"</span>
+True   <span class="dim"># GPU AMD via ROCm</span>
         </div>
       </div>
       <div>
@@ -319,14 +318,15 @@ $ python3 -c "import torch; print(torch.version.hip)"
     <h2><span class="num">5.</span>Treinar ResNet-18 com ROCm</h2>
     <div class="grid cols-2">
       <div>
-        <p>O mesmo código da Aula 11 (ainda virá) roda em CUDA e ROCm. Aqui medimos
-          <strong>throughput</strong> e <strong>matmul</strong>.</p>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>saida = modelo(imgs)
-perda = criterio(saida, labels)
-perda.backward()
-otimizador.step()</code></pre>
+        <p>O <strong>mesmo script da Aula 11</strong> roda em CUDA e ROCm sem alteração.
+          Aqui o benchmark treina uma <strong>ResNet-18</strong> (ou uma CNN simples, se o
+          <code>torchvision</code> não estiver disponível) e mede <strong>imgs/s</strong> e
+          <strong>matmul</strong>.</p>
+        <div class="terminal" style="margin-top:10px">
+<span class="dim">$ python rocm_pytorch_benchmark.py</span>
+Modelo      : ResNet-18
+Throughput  : 812 imagens/s
+Matmul 4096 : 2.1 ms
         </div>
       </div>
       <div>

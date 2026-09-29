@@ -1,40 +1,40 @@
 #!/usr/bin/env bash
 # ============================================================================
-# lib_gpu.sh — funções compartilhadas do laboratório de monitoramento
+# lib_gpu.sh - funcoes compartilhadas do laboratorio de monitoramento
 # ----------------------------------------------------------------------------
-# Este arquivo NÃO é executado sozinho: ele é "carregado" pelos outros scripts
+# Este arquivo NAO e executado sozinho: ele e "carregado" pelos outros scripts
 # com o comando:  source ./lib_gpu.sh
 #
-# Compatível com Git Bash (Windows), WSL e Linux.
-# Detecta automaticamente NVIDIA, AMD (Windows ou ROCm/Linux) ou, na ausência
+# Compativel com Git Bash (Windows), WSL e Linux.
+# Detecta automaticamente NVIDIA, AMD (Windows ou ROCm/Linux) ou, na ausencia
 # de GPU, gera dados simulados com o MESMO formato do CSV.
 #
-# IMPORTANTE: não usamos arquivos .ps1 (o laboratório bloqueia por política de
-# execução). A leitura da GPU AMD no Windows é feita por um comando inline do
-# PowerShell via -EncodedCommand, que NÃO é afetado por ExecutionPolicy.
+# IMPORTANTE: nao usamos arquivos .ps1 (o laboratorio bloqueia por politica de
+# execucao). A leitura da GPU AMD no Windows e feita por um comando inline do
+# PowerShell via -EncodedCommand, que NAO e afetado por ExecutionPolicy.
 # ============================================================================
 
-# Força o fuso horário de Brasília (BRT, UTC-3) para todos os scripts que
+# Forca o fuso horario de Brasilia (BRT, UTC-3) para todos os scripts que
 # importarem esta lib. Usamos "BRT3" em vez de "America/Sao_Paulo" porque o
-# Git Bash no Windows não traz a base tzdata completa — com o nome errado o
-# horário caía silenciosamente para GMT. O Brasil não tem mais horário de
-# verão, então UTC-3 fixo é sempre correto.
+# Git Bash no Windows nao traz a base tzdata completa - com o nome errado o
+# horario caia silenciosamente para GMT. O Brasil nao tem mais horario de
+# verao, entao UTC-3 fixo e sempre correto.
 export TZ="BRT3"
 
 # ---------------------------------------------------------------------------
-# PASTA DE RELATÓRIOS
-#   Todos os arquivos gerados (CSV de métricas, log de alertas e dashboard)
-#   ficam dentro de ./reports, para não sujar a raiz do laboratório.
+# PASTA DE RELATORIOS
+#   Todos os arquivos gerados (CSV de metricas, log de alertas e dashboard)
+#   ficam dentro de ./reports, para nao sujar a raiz do laboratorio.
 # ---------------------------------------------------------------------------
 export DIR_RELATORIOS="${DIR_RELATORIOS:-./reports}"
 
-# Garante que a pasta de relatórios exista (cria se necessário)
+# Garante que a pasta de relatorios exista (cria se necessario)
 preparar_relatorios() {
     mkdir -p "$DIR_RELATORIOS"
 }
 
 # ---------------------------------------------------------------------------
-# DETECÇÃO DE BACKEND
+# DETECCAO DE BACKEND
 #   Prioridade: NVIDIA > AMD Linux (rocm-smi/amd-smi) > AMD Windows (PowerShell)
 #               > Simulado
 # ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ elif command -v powershell >/dev/null 2>&1; then
     BACKEND="amd_windows"
 fi
 
-# Nome do executável NVIDIA (nvidia-smi ou nvidia-smi.exe no Git Bash)
+# Nome do executavel NVIDIA (nvidia-smi ou nvidia-smi.exe no Git Bash)
 NVIDIA_SMI=""
 if [ "$BACKEND" = "nvidia" ]; then
     if command -v nvidia-smi >/dev/null 2>&1; then
@@ -64,7 +64,7 @@ if [ "$BACKEND" = "nvidia" ]; then
     fi
 fi
 
-# Retorna 0 (verdadeiro) se houver GPU real disponível
+# Retorna 0 (verdadeiro) se houver GPU real disponivel
 tem_gpu() {
     [ "$BACKEND" != "simulado" ]
 }
@@ -80,7 +80,7 @@ nome_backend() {
 }
 
 # ---------------------------------------------------------------------------
-# COLETA REAL — NVIDIA
+# COLETA REAL - NVIDIA
 # ---------------------------------------------------------------------------
 consultar_nvidia() {
     "$NVIDIA_SMI" \
@@ -89,7 +89,7 @@ consultar_nvidia() {
 }
 
 # ---------------------------------------------------------------------------
-# COLETA REAL — AMD no Linux (rocm-smi / amd-smi)
+# COLETA REAL - AMD no Linux (rocm-smi / amd-smi)
 # ---------------------------------------------------------------------------
 consultar_amd_linux() {
     if command -v amd-smi >/dev/null 2>&1; then
@@ -116,7 +116,7 @@ for g in itens:
     print(f"{idx},{nome},{temp},{util},N/A,{usada},{total},{power},N/A")
 ' 2>/dev/null
     else
-        # rocm-smi (ROCm <= 5): usa a saída CSV
+        # rocm-smi (ROCm <= 5): usa a saida CSV
         rocm-smi --showtemp --showuse --showmeminfo vram --showpower --csv 2>/dev/null | \
         awk -F',' 'NR>1 {
             gsub(/ /,"",$1); gsub(/[^0-9.]/,"",$3);
@@ -126,16 +126,16 @@ for g in itens:
 }
 
 # ---------------------------------------------------------------------------
-# COLETA REAL — AMD no Windows
+# COLETA REAL - AMD no Windows
 #   Script PowerShell INLINE (sem arquivo .ps1), passado via -EncodedCommand.
-#   Esse modo não depende de ExecutionPolicy, então funciona mesmo quando o
-#   laboratório bloqueia a execução de arquivos .ps1.
+#   Esse modo nao depende de ExecutionPolicy, entao funciona mesmo quando o
+#   laboratorio bloqueia a execucao de arquivos .ps1.
 # ---------------------------------------------------------------------------
 consultar_amd_windows() {
     local ps="powershell.exe"
     command -v powershell.exe >/dev/null 2>&1 || ps="powershell"
 
-    # Script PowerShell em uma única string (sem aspas simples internas)
+    # Script PowerShell em uma unica string (sem aspas simples internas)
     local script_ps
     script_ps='
 $ErrorActionPreference = "SilentlyContinue"
@@ -171,7 +171,7 @@ Write-Output "0,$nome,$temp,$util,N/A,$mem,$tot,N/A,N/A"
     local enc
     enc=$(printf '%s' "$script_ps" | iconv -f UTF-8 -t UTF-16LE 2>/dev/null | base64 | tr -d '\n')
     if [ -z "$enc" ]; then
-        # Sem iconv/base64: cai para um comando simples de utilização
+        # Sem iconv/base64: cai para um comando simples de utilizacao
         "$ps" -NoProfile -Command "(Get-Counter '\GPU Engine(*)\Utilization Percentage').CounterSamples | Measure-Object CookedValue -Sum | ForEach-Object { '0,AMD GPU,42,' + [math]::Round(\$_.Sum,0) + ',N/A,0,0,N/A,N/A' }" 2>/dev/null | tr -d '\r'
         return
     fi
@@ -182,7 +182,7 @@ Write-Output "0,$nome,$temp,$util,N/A,$mem,$tot,N/A,N/A"
 # ---------------------------------------------------------------------------
 # COLETA SIMULADA
 # ---------------------------------------------------------------------------
-# Gera UMA linha simulada no mesmo formato do CSV ($1 = índice da amostra).
+# Gera UMA linha simulada no mesmo formato do CSV ($1 = indice da amostra).
 # A temperatura cresce com o tempo para que o alerta de 80 C seja disparado.
 linha_simulada() {
     local i="${1:-0}"
@@ -196,10 +196,10 @@ linha_simulada() {
 }
 
 # ---------------------------------------------------------------------------
-# COLETA COMBINADA — Windows (GPU + CPU + RAM em UMA única chamada)
-#   Chamar o PowerShell é caro (~1 s por processo). Como o 1_monitorar.sh
-#   coleta GPU e sistema na mesma amostra, juntamos tudo em uma só chamada.
-#   Saída: "linha_gpu|linha_sistema"
+# COLETA COMBINADA - Windows (GPU + CPU + RAM em UMA unica chamada)
+#   Chamar o PowerShell e caro (~1 s por processo). Como o 1_monitorar.sh
+#   coleta GPU e sistema na mesma amostra, juntamos tudo em uma so chamada.
+#   Saida: "linha_gpu|linha_sistema"
 # ---------------------------------------------------------------------------
 consultar_windows_completo() {
     local ps="powershell.exe"
@@ -208,7 +208,7 @@ consultar_windows_completo() {
     local script_ps
     script_ps='
 $ErrorActionPreference = "SilentlyContinue"
-# ── GPU: nome e VRAM total pelo registro ──
+# -- GPU: nome e VRAM total pelo registro --
 $nome = "AMD GPU"; $tot = 0
 $base = "HKLM:\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
 Get-ChildItem $base | ForEach-Object {
@@ -219,7 +219,7 @@ Get-ChildItem $base | ForEach-Object {
     }
 }
 if ($nome -eq "AMD GPU") { $nome = (Get-CimInstance Win32_VideoController | Select-Object -First 1).Name }
-# ── GPU: utilização (engtype 3D) e VRAM usada ──
+# -- GPU: utilizacao (engtype 3D) e VRAM usada --
 $util = 0
 $e = Get-CimInstance Win32_PerfFormattedData_GPUPerformanceCounters_GPUEngine
 if ($e) {
@@ -235,13 +235,13 @@ if ($m) {
 }
 $temp = [math]::Round(42 + ($util * 0.48), 0)
 $nome = $nome -replace ",", " "
-# ── Sistema: CPU% e RAM ──
+# -- Sistema: CPU% e RAM --
 $cpu = (Get-CimInstance Win32_PerfFormattedData_PerfOS_Processor | Where-Object { $_.Name -eq "_Total" }).PercentProcessorTime
 if ($null -eq $cpu) { $cpu = 0 }
 $o = Get-CimInstance Win32_OperatingSystem
 $ramtot = [math]::Round($o.TotalVisibleMemorySize / 1024, 0)
 $ramused = [math]::Round($o.TotalVisibleMemorySize / 1024, 0) - [math]::Round($o.FreePhysicalMemory / 1024, 0)
-# ── Temperatura da CPU (quando exposta) ──
+# -- Temperatura da CPU (quando exposta) --
 $cput = (Get-CimInstance Win32_PerfFormattedData_Counters_ThermalZoneInformation | Measure-Object HighPrecisionTemperature -Maximum).Maximum
 if ($cput) { $cput = [math]::Round(($cput / 10) - 273.15, 0) } else { $cput = "N/A" }
 Write-Output "0,$nome,$temp,$util,N/A,$mem,$tot,N/A,N/A|$cpu,$ramused,$ramtot,$cput"
@@ -253,10 +253,10 @@ Write-Output "0,$nome,$temp,$util,N/A,$mem,$tot,N/A,N/A|$cpu,$ramused,$ramtot,$c
 }
 
 # ---------------------------------------------------------------------------
-# INTERFACE PÚBLICA
+# INTERFACE PUBLICA
 # ---------------------------------------------------------------------------
-# Devolve os dados atuais: reais se houver GPU, simulados caso contrário.
-# $1 = índice da amostra (usado apenas no modo simulado)
+# Devolve os dados atuais: reais se houver GPU, simulados caso contrario.
+# $1 = indice da amostra (usado apenas no modo simulado)
 obter_dados_gpu() {
     local i="${1:-0}"
     if [ "$BACKEND" = "simulado" ]; then
@@ -264,7 +264,7 @@ obter_dados_gpu() {
         return
     fi
 
-    # No Windows AMD, a coleta combinada já foi feita (veja dados_windows_pt)
+    # No Windows AMD, a coleta combinada ja foi feita (veja dados_windows_pt)
     if [ "$BACKEND" = "amd_windows" ] && [ -n "${COLETA_WINDOWS:-}" ]; then
         printf '%s\n' "${COLETA_WINDOWS%%|*}"
         return
@@ -277,7 +277,7 @@ obter_dados_gpu() {
         amd_windows) dados="$(consultar_amd_windows)" ;;
     esac
 
-    # Se a coleta real falhou (ex.: sem permissão), cai no simulado
+    # Se a coleta real falhou (ex.: sem permissao), cai no simulado
     if [ -z "$dados" ]; then
         linha_simulada "$i"
     else
@@ -285,13 +285,13 @@ obter_dados_gpu() {
     fi
 }
 
-# Cabeçalho padrão do CSV (14 colunas: GPU + sistema)
+# Cabecalho padrao do CSV (14 colunas: GPU + sistema)
 cabecalho_csv() {
     echo "timestamp,gpu_index,gpu_name,temp_c,util_gpu_pct,util_mem_pct,mem_used_mb,mem_total_mb,power_w,power_limit_w,cpu_pct,ram_used_mb,ram_total_mb,cpu_temp_c"
 }
 
 # ---------------------------------------------------------------------------
-# COLETA DO SISTEMA — CPU e memória RAM
+# COLETA DO SISTEMA - CPU e memoria RAM
 #   Windows: classes de performance do CIM (independem do idioma do Windows).
 #   Linux: /proc/stat e /proc/meminfo (sem instalar nada).
 #   Fallback: valores simulados, no mesmo formato.
@@ -300,7 +300,7 @@ consultar_sistema_windows() {
     local ps="powershell.exe"
     command -v powershell.exe >/dev/null 2>&1 || ps="powershell"
 
-    # Script PowerShell INLINE (mesma técnica sem .ps1 usada na GPU)
+    # Script PowerShell INLINE (mesma tecnica sem .ps1 usada na GPU)
     local script_ps
     script_ps='
 $ErrorActionPreference = "SilentlyContinue"
@@ -324,7 +324,7 @@ Write-Output "$cpu,$used,$tot,$temp"
 }
 
 consultar_sistema_linux() {
-    # CPU: diferença entre duas leituras de /proc/stat (0,2 s de intervalo)
+    # CPU: diferenca entre duas leituras de /proc/stat (0,2 s de intervalo)
     local c1 c2
     c1=$(grep '^cpu ' /proc/stat)
     sleep 0.2
@@ -348,12 +348,12 @@ consultar_sistema_linux() {
 }
 
 # Devolve "cpu_pct,ram_used_mb,ram_total_mb,cpu_temp_c" (real ou simulado)
-# $1 = índice da amostra (usado apenas no modo simulado)
+# $1 = indice da amostra (usado apenas no modo simulado)
 obter_dados_sistema() {
     local i="${1:-0}"
     local dados=""
     if [ -n "${COLETA_WINDOWS:-}" ]; then
-        # Já veio junto com a coleta da GPU (evita um 2º PowerShell por amostra)
+        # Ja veio junto com a coleta da GPU (evita um 2o PowerShell por amostra)
         dados="${COLETA_WINDOWS#*|}"
     elif [ "$BACKEND" = "amd_linux" ] || [ "$(uname -s 2>/dev/null)" = "Linux" ]; then
         dados="$(consultar_sistema_linux)"
@@ -362,7 +362,7 @@ obter_dados_sistema() {
     fi
 
     if [ -z "$dados" ]; then
-        # Modo simulado: valores plausíveis para a atividade continuar
+        # Modo simulado: valores plausiveis para a atividade continuar
         local cpu=$(( 12 + (i * 5 + RANDOM % 9) % 60 ))
         local ram=$(( 8192 + (i * 300) % 4096 ))
         echo "$cpu,$ram,16384,N/A"
@@ -372,7 +372,7 @@ obter_dados_sistema() {
 }
 
 # ---------------------------------------------------------------------------
-# ESPECIFICAÇÕES DA MÁQUINA (para os cards fixos do dashboard)
+# ESPECIFICACOES DA MAQUINA (para os cards fixos do dashboard)
 # ---------------------------------------------------------------------------
 # Devolve "cpu_nome|nucleos|threads|os|host"
 specs_sistema() {
@@ -409,17 +409,17 @@ Write-Output "$nome|$($proc.NumberOfCores)|$($proc.NumberOfLogicalProcessors)|$(
     printf '%s\n' "$out"
 }
 
-# Mensagem amigável sobre o modo de execução
+# Mensagem amigavel sobre o modo de execucao
 aviso_modo() {
     echo ">> Backend de GPU: $(nome_backend)"
     if tem_gpu; then
         echo "   Usando dados REAIS da GPU."
         if [ "$BACKEND" = "amd_windows" ]; then
-            echo "   Obs.: no Windows, temperatura e potência são estimadas"
-            echo "         (o driver AMD não as expõe; use ROCm no Linux para valores reais)."
+            echo "   Obs.: no Windows, temperatura e potencia sao estimadas"
+            echo "         (o driver AMD nao as expoe; use ROCm no Linux para valores reais)."
         fi
     else
-        echo "   Nenhuma GPU detectada — usando MODO SIMULADO."
-        echo "   (os arquivos gerados têm o mesmo formato dos dados reais)"
+        echo "   Nenhuma GPU detectada - usando MODO SIMULADO."
+        echo "   (os arquivos gerados tem o mesmo formato dos dados reais)"
     fi
 }

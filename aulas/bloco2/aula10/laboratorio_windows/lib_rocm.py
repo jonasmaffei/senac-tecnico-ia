@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-# lib_rocm.py — Diagnóstico de portabilidade CUDA ↔ ROCm (sem quebrar)
+# lib_rocm.py - Diagnostico de portabilidade CUDA <-> ROCm (sem quebrar)
 # ----------------------------------------------------------------------------
-# As GPUs AMD executam código PyTorch escrito para CUDA através da camada HIP,
-# que emula a API `torch.cuda`. Este módulo centraliza a detecção do backend
+# As GPUs AMD executam codigo PyTorch escrito para CUDA atraves da camada HIP,
+# que emula a API `torch.cuda`. Este modulo centraliza a deteccao do backend
 # (CUDA nativo NVIDIA ou ROCm/HIP AMD) e permite que os scripts continuem
-# rodando mesmo numa máquina sem GPU nenhuma (ex.: o laboratório Windows).
+# rodando mesmo numa maquina sem GPU nenhuma (ex.: o laboratorio Windows).
 #
 # Uso:
 #   import lib_rocm
@@ -33,7 +33,7 @@ def backend():
         return "sem-torch"
 
     if torch.cuda.is_available():
-        # Em ROCm, o PyTorch preenche torch.version.hip (e não .cuda).
+        # Em ROCm, o PyTorch preenche torch.version.hip (e nao .cuda).
         if getattr(torch.version, "hip", None):
             return "ROCm/HIP"
         return "CUDA"
@@ -41,7 +41,7 @@ def backend():
 
 
 def diagnostico():
-    """Monta um dicionário com o ambiente de deep learning disponível."""
+    """Monta um dicionario com o ambiente de deep learning disponivel."""
     info = {
         "sistema": f"{platform.system()} {platform.release()}",
         "python": platform.python_version(),
@@ -71,21 +71,21 @@ def diagnostico():
 
 
 def imprimir(info):
-    """Imprime o diagnóstico de forma legível."""
+    """Imprime o diagnostico de forma legivel."""
     print("=" * 60)
-    print("  DIAGNÓSTICO DO AMBIENTE DE DEEP LEARNING")
+    print("  DIAGNOSTICO DO AMBIENTE DE DEEP LEARNING")
     print("=" * 60)
     print(f"Sistema Operacional : {info['sistema']}")
-    print(f"Versão do Python    : {info['python']}")
-    print(f"Versão do PyTorch   : {info['torch'] or '(não instalado)'}")
+    print(f"Versao do Python    : {info['python']}")
+    print(f"Versao do PyTorch   : {info['torch'] or '(nao instalado)'}")
 
     backend_nome = info["backend"]
     if backend_nome == "sem-torch":
-        print("GPU Disponível?     : NÃO (PyTorch não instalado)")
+        print("GPU Disponivel?     : NAO (PyTorch nao instalado)")
     elif backend_nome == "CPU-torch":
-        print("GPU Disponível?     : NÃO (Executando em CPU)")
+        print("GPU Disponivel?     : NAO (Executando em CPU)")
     else:
-        print("GPU Disponível?     : SIM")
+        print("GPU Disponivel?     : SIM")
         print(f"Nome do Dispositivo : {info['gpu']}")
         print(f"VRAM Total          : {info['vram_gb']} GB")
         rotulo = "ROCm / HIP (AMD)" if backend_nome == "ROCm/HIP" else "CUDA Nativo (NVIDIA)"
@@ -94,11 +94,11 @@ def imprimir(info):
 
 
 def explicar_sem_gpu():
-    """Mensagem quando não há GPU (CUDA/ROCm) nem torch."""
+    """Mensagem quando nao ha GPU (CUDA/ROCm) nem torch."""
     print("Sem GPU CUDA/ROCm (ou sem PyTorch) neste ambiente.")
-    print("Os números de benchmark abaixo são de REFERÊNCIA para comparação.")
+    print("Os numeros de benchmark abaixo sao de REFERENCIA para comparacao.")
     print("Em um servidor com GPU (Colab NVIDIA ou Docker rocm/pytorch), o")
-    print("MESMO código Python roda sem alterações.")
+    print("MESMO codigo Python roda sem alteracoes.")
 
 
 def cabecalho_ascii():

@@ -1,146 +1,134 @@
-# Aula 11: Aplicação de Modelos de IA (NVIDIA vs AMD) — Guia Prático Nivelado
+# 🧠 Aula 11 — Aplicação de Modelos de IA (NVIDIA vs AMD)
+
+**Objetivo:** treinar um modelo de visão computacional e comparar o desempenho entre GPUs
+**NVIDIA** (CUDA) e **AMD** (ROCm), medindo **throughput**, **VRAM** e o ganho do
+*mixed precision* (FP16), para apoiar uma decisão de infraestrutura baseada em **dados**.
 
 ---
 
-## 🎯 Objetivo da Aula (Sem Complicação!)
+## 🎯 Situação de aprendizagem
 
-Nesta aula, você vai atuar como um **consultor de tecnologia**. O seu objetivo é rodar o treinamento de um modelo de inteligência artificial (ResNet) e comparar como duas marcas de placas de vídeo (**NVIDIA** e **AMD**) se comportam.
-
-Você não precisa ser um programador experiente para esta aula! O código já está pronto. Sua missão é **executar, observar os números (métricas) e responder às perguntas de pesquisa**.
-
----
-
-## 📊 O que significam os números que vamos medir?
-
-Imagine que treinar um modelo de IA é como fazer entregas de mercadorias:
-
-| Métrica | O que significa na prática? | Analogia simples |
-| :--- | :--- | :--- |
-| **Throughput (imgs/s)** | Quantas imagens o computador consegue processar por segundo. **(Quanto maior, melhor!)** | Velocidade de pacotes entregues por minuto. |
-| **VRAM Usada (MB)** | Quanta memória da placa de vídeo está sendo ocupada durante o treino. | O espaço ocupado no porta-malas do veículo. |
-| **Tempo por Época (s)** | Quanto tempo leva para o modelo ler todo o conjunto de dados uma vez. | O tempo de uma viagem completa de ida e volta. |
-| **Mixed Precision (FP16)** | Técnica que reduz o tamanho dos números usados nos cálculos para gastar menos memória. | Dobrar as caixas dentro do caminhão para caber o dobro de carga. |
+A startup **"IA Entregas"** precisa alugar GPUs na nuvem para treinar seus modelos pelos
+próximos **3 anos**. O diretor financeiro quer saber se deve escolher placas **NVIDIA** ou
+**AMD**. Você é o **consultor de tecnologia**: roda o benchmark, lê os números e recomenda a
+melhor escolha técnica e financeira.
 
 ---
 
-## 💻 1. Executando o Script Prático no Google Colab ou WSL
+## 🗂️ Conteúdo
 
-Abra o arquivo `atividade_aula11.py` ou cole o código no seu **Google Colab**. 
+| Item | O que é |
+| :--- | :--- |
+| [`apresentacao_aula11.html`](apresentacao_aula11.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com explicação + **5 exercícios** |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Experimentos portáveis** (FP32/FP16 + custo TCO) |
+| [`atividade.md`](atividade.md) | Atividade de pesquisa (engenharia + negócios) e discussão |
 
-### O Código Explicado Passo a Passo:
+### Estrutura da aula
 
-```python
-import torch
-import torch.nn as nn
-import time
+```
+aula11/
+  apresentacao_aula11.html
+  README.md
+  notebook_colab/aula11_aplicacao_modelos.ipynb
+  laboratorio_windows/          # iniciar.bat, lib_treino.py, 1_benchmark_treino.py, 2_comparar_ecossistemas.py
+  atividade.md
+```
 
-# Passo 2: Descobrir automaticamente qual placa de vídeo está no computador
-def checar_placa():
-    if torch.cuda.is_available():
-        nome_gpu = torch.cuda.get_device_name(0)
-        print(f"✅ Placa de Vídeo Detectada: {nome_gpu}")
-        return "cuda"
-    else:
-        print("⚠️ Nenhuma GPU detectada. Usando a CPU.")
-        return "cpu"
+> ℹ️ **Não há `scripts/` separado:** o laboratório é autocontido (`lib_treino.py` local). Como o
+> laboratório não tem GPU NVIDIA, ele roda em **modo de referência** — o mesmo código treina de
+> verdade no Colab (T4).
 
-dispositivo = checar_placa()
+---
 
-# Passo 3: O Modelo (Mantive o original)
-modelo = nn.Sequential(
-    nn.Conv2d(3, 32, kernel_size=3, padding=1),
-    nn.ReLU(),
-    nn.AdaptiveAvgPool2d((1, 1)),
-    nn.Flatten(),
-    nn.Linear(32, 10)
-).to(dispositivo)
+## 🚀 Como rodar
 
-# Passo 4: Função para treinar o modelo e medir a velocidade
-def simular_treinamento(usar_mixed_precision=False):
-    modo = "Otimizado (FP16)" if usar_mixed_precision else "Padrão (FP32)"
-    print(f"\n🚀 Iniciando treino no modo: {modo}")
-    
-    otimizador = torch.optim.SGD(modelo.parameters(), lr=0.01)
-    criterio = nn.CrossEntropyLoss()
-    
-    # Sintaxe do PyTorch (Agnóstica de hardware)
-    scaler = torch.amp.GradScaler('cuda') if usar_mixed_precision else None
+### No Google Colab (recomendado — treino real)
 
-    # WARM-UP (Aquecimento)
-    # A GPU sempre é mais lenta na 1ª iteração porque precisa compilar os kernels.
-    # Rodamos um lote invisível antes de ligar o cronômetro.
-    img_warmup = torch.randn(64, 3, 224, 224, device=dispositivo)
-    lbl_warmup = torch.randint(0, 10, (64,), device=dispositivo)
-    modelo(img_warmup)
-    
-    # Sincroniza a placa de vídeo antes de iniciar o relógio!
-    if dispositivo == "cuda": torch.cuda.synchronize()
-    t0 = time.time()
-    
-    for lote in range(50):
-        imagens = torch.randn(64, 3, 224, 224, device=dispositivo)
-        etiquetas = torch.randint(0, 10, (64,), device=dispositivo)
+1. Abra `notebook_colab/aula11_aplicacao_modelos.ipynb` pelo **GitHub** no Colab
+   (`https://github.com/jonasmaffei/senac-tecnico-ia`).
+2. *Ambiente de execução ➔ Alterar tipo de ambiente ➔ **T4 GPU*** ➔ *Salvar*.
+3. Rode as células na ordem.
 
-        otimizador.zero_grad()
+> 💡 **Sem GPU?** O notebook detecta e mostra os **números de referência** (T4) — a aula roda do
+> começo ao fim.
 
-        if usar_mixed_precision:
-            # Sintaxe do autocast
-            with torch.amp.autocast('cuda'):
-                saida = modelo(imagens)
-                perda = criterio(saida, etiquetas)
-            scaler.scale(perda).backward()
-            scaler.step(otimizador)
-            scaler.update()
-        else:
-            saida = modelo(imagens)
-            perda = criterio(saida, etiquetas)
-            perda.backward()
-            otimizador.step()
+### No Windows do laboratório (portável)
 
-    # Sincroniza a GPU para garantir que ela terminou o trabalho
-    if dispositivo == "cuda": torch.cuda.synchronize()
-    tempo_total = time.time() - t0
-    
-    imagens_processadas = 50 * 64
-    velocidade = imagens_processadas / tempo_total
-    
-    print(f"⏱️ Tempo Total: {tempo_total:.2f} segundos")
-    print(f"⚡ Velocidade (Throughput): {velocidade:.1f} imagens por segundo")
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
 
-# Executa as duas simulações
-simular_treinamento(usar_mixed_precision=False)
-simular_treinamento(usar_mixed_precision=True)
+```
+[1] 1_benchmark_treino.py       - FP32 vs. FP16 (throughput)
+[2] 2_comparar_ecossistemas.py  - NVIDIA x AMD + custo (TCO)
+[0] Sair
 ```
 
 ---
 
-## 🔍 2. Atividade de Pesquisa e Análise de Negócios
+## 🔑 Conceitos-chave
 
-Em duplas ou trios, pesquisem na internet e respondam às perguntas a seguir para ajudar na decisão de compra de uma empresa fictícia de tecnologia:
+### Métricas de treino
 
-### 📄 Cenário da Empresa:
-> A startup **"IA Entregas"** precisa contratar servidores de placa de vídeo na nuvem para treinar seus modelos pelos próximos 3 anos. O diretor financeiro quer saber se deve escolher placas **NVIDIA** ou **AMD**.
+| Métrica | O que é | Analogia |
+| :--- | :--- | :--- |
+| **Throughput (imgs/s)** | Imagens processadas por segundo | pacotes entregues por minuto |
+| **VRAM (MB)** | Memória da GPU em uso | espaço no caminhão |
+| **Tempo por época (s)** | Tempo para ler todo o dataset | duração da viagem |
+| **Mixed Precision (FP16)** | Cálculos com números menores | dobrar a carga útil |
 
-### 📋 Roteiro de Pesquisa:
+### Mixed Precision (FP16)
 
-1. **Pesquisa de Custo na Nuvem:**
-   * Pesquise o valor por hora de aluguel de uma GPU **NVIDIA T4** (ou A10G) no Google Cloud ou AWS.
-   * Pesquise sobre o preço de placas **AMD Instinct (como a MI300X)** ou placas AMD na nuvem.
-   * *Qual das marcas costuma ter um preço de aluguel por hora mais baixo?*
+Usa FP16 onde dá ganho e mantém FP32 onde a precisão é crítica. O **`GradScaler`** controla a
+escala do gradiente para evitar *underflow*. Ganho típico numa **T4**: **~1.9×** de throughput.
 
-2. **Facilidade de Uso vs Economia:**
-   * A NVIDIA usa o ecossistema **CUDA** (muito popular e fácil de instalar). A AMD usa o **ROCm**.
-   * Se uma empresa tem uma equipe técnica habituada ao ecossistema NVIDIA, qual seria o desafio operacional de mudar para AMD? O valor mais baixo da AMD compensa a necessidade de adaptação da equipe?
+### CUDA × ROCm
 
-3. **Análise dos Resultados do Código:**
-   * Ao rodar o código acima no modo **Otimizado (FP16)**, o que aconteceu com a velocidade de processamento (imagens por segundo)? 
-   * Por que usar técnicas de otimização é importante antes de gastar dinheiro comprando mais placas de vídeo?
+| Critério | NVIDIA (CUDA) | AMD (ROCm) |
+| :--- | :--- | :--- |
+| Ecossistema | maduro | em crescimento |
+| Facilidade | exemplos abundantes | setup mais trabalhoso |
+| Custo/hora na nuvem | mais caro | tende a ser menor |
+| Portabilidade | código preso ao CUDA | PyTorch roda via HIP |
+
+> A pergunta certa não é "qual é mais rápida", mas **"qual entrega o melhor resultado por real
+> gasto"**, considerando a equipe que você já tem.
 
 ---
 
-## 📝 Tarefa de Casa (Relatório Simples em Word/PDF)
+## 🧪 Atividade guiada
 
-Escreva um texto curto de 1 a 2 páginas respondendo à pergunta:
-> *"Se você fosse o gerente de tecnologia, qual marca de placa de vídeo recomendaria comprar para a sua empresa hoje e por quê?"*
+No **Colab** (GPU) ou no **Windows**:
 
-**Dica:** Considere a facilidade de uso, o preço do hardware e os resultados observados na prática!
+```bash
+python laboratorio_windows/1_benchmark_treino.py      # FP32 vs. FP16
+python laboratorio_windows/2_comparar_ecossistemas.py # NVIDIA x AMD + TCO
+```
+
+Roteiro completo em [`atividade.md`](atividade.md).
+
+---
+
+## 💬 Discussão em grupo
+
+Em grupos de 3–4:
+
+1. O FP16 deu ganho grande. Por que **não** treinamos tudo em FP16?
+2. A AMD tem preço/hora menor. Que **custos escondidos** podem aparecer?
+3. Otimizar o software antes de comprar mais GPUs pode sair mais barato? Dê um exemplo.
+4. Se o mesmo código roda em CUDA e ROCm, o que ainda prende as empresas à NVIDIA?
+
+---
+
+## 📌 Tarefa de casa
+
+Relatório de 1 a 2 páginas: *"Qual marca de placa de vídeo eu recomendaria para a IA Entregas
+hoje e por quê?"*, citando **um número medido**, **um número de custo** e **um fator
+qualitativo**. Detalhes em [`atividade.md`](atividade.md).
+
+---
+
+## 🔗 Relação com o curso
+
+- **Aula 10** mostrou a **portabilidade** CUDA → ROCm (o mesmo PyTorch roda numa GPU AMD).
+  Esta aula **mede** o desempenho e transforma a comparação em **decisão de negócio**.
+- **Próxima (Aula 12):** laboratório prático no Colab + início do **Projeto Integrador**.

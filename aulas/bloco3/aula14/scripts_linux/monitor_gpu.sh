@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# monitor_gpu.sh — coleta métricas de GPU com nvidia-smi e salva em CSV
+# monitor_gpu.sh - coleta metricas de GPU com nvidia-smi e salva em CSV
 # ----------------------------------------------------------------------------
 # Uso: ./monitor_gpu.sh [intervalo_segundos] [arquivo_saida] [duracao_segundos]
 # Ex.: ./monitor_gpu.sh 5 gpu_log.csv 3600
@@ -8,23 +8,23 @@
 
 # 'set -euo pipefail' torna o script rigoroso:
 #   -e = para no primeiro erro
-#   -u = erro se usar variável não definida
+#   -u = erro se usar variavel nao definida
 #   -o pipefail = erro se qualquer comando de um pipe falhar
 set -euo pipefail
 
-# ── Parâmetros (com valores padrão caso não sejam informados) ───────────────
+# -- Parametros (com valores padrao caso nao sejam informados) ---------------
 INTERVALO="${1:-5}"                              # segundos entre coletas
-SAIDA="${2:-gpu_log_$(date +%Y%m%d_%H%M%S).csv}" # arquivo CSV de saída
-DURACAO="${3:-3600}"                             # duração total em segundos
+SAIDA="${2:-gpu_log_$(date +%Y%m%d_%H%M%S).csv}" # arquivo CSV de saida
+DURACAO="${3:-3600}"                             # duracao total em segundos
 
-# Calcula quantas amostras cabem na duração informada (evita divisão por zero)
+# Calcula quantas amostras cabem na duracao informada (evita divisao por zero)
 if [ "$INTERVALO" -gt 0 ]; then
     MAX_AMOSTRAS=$(( DURACAO / INTERVALO ))
 else
     MAX_AMOSTRAS=720
 fi
 
-# ── Cabeçalho do CSV ────────────────────────────────────────────────────────
+# -- Cabecalho do CSV --------------------------------------------------------
 CABECALHO="timestamp,gpu_index,gpu_name,temp_c,util_gpu_pct,"
 CABECALHO+="util_mem_pct,mem_used_mb,mem_total_mb,power_w,power_limit_w,"
 CABECALHO+="clock_graphics_mhz,clock_mem_mhz"
@@ -33,13 +33,13 @@ echo "$CABECALHO" > "$SAIDA"
 echo "Iniciando monitoramento -> $SAIDA"
 echo "Intervalo: ${INTERVALO}s | Duracao: ${DURACAO}s | Amostras: ${MAX_AMOSTRAS}"
 
-# ── Loop de coleta ──────────────────────────────────────────────────────────
+# -- Loop de coleta ----------------------------------------------------------
 AMOSTRA=0
 while [ "$AMOSTRA" -lt "$MAX_AMOSTRAS" ]; do
     TS=$(date +"%Y-%m-%d %H:%M:%S")  # Timestamp da coleta
 
-    # nvidia-smi --query-gpu devolve UMA LINHA POR GPU (CSV sem cabeçalho/unidades).
-    # Se não houver GPU NVIDIA, geramos uma amostra SIMULADA no mesmo formato,
+    # nvidia-smi --query-gpu devolve UMA LINHA POR GPU (CSV sem cabecalho/unidades).
+    # Se nao houver GPU NVIDIA, geramos uma amostra SIMULADA no mesmo formato,
     # para a aula (dashboard e alerta) continuar funcionando.
     if command -v nvidia-smi >/dev/null 2>&1; then
         DADOS=$(nvidia-smi \

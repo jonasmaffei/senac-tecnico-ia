@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# kernels_cuda.py — Configuração de blocos e threads na GPU (CUDA/Numba)
+# kernels_cuda.py - Configuracao de blocos e threads na GPU (CUDA/Numba)
 # ----------------------------------------------------------------------------
-# OBJETIVO: entender a hierarquia de threads da GPU na prática:
+# OBJETIVO: entender a hierarquia de threads da GPU na pratica:
 #
-#   Thread  -> 1 instância do kernel (1 dado)
-#   Warp    -> 32 threads que executam a MESMA instrução (SIMD)
-#   Bloco   -> grupo de warps, roda em 1 SM, compartilha memória (shared)
+#   Thread  -> 1 instancia do kernel (1 dado)
+#   Warp    -> 32 threads que executam a MESMA instrucao (SIMD)
+#   Bloco   -> grupo de warps, roda em 1 SM, compartilha memoria (shared)
 #   Grid    -> todos os blocos = o problema completo
 #
 # Fazemos dois experimentos:
 #   1) Variar threads por bloco (32, 64, ..., 1024) e medir o tempo.
 #   2) Grid 2D para processar uma imagem (cada thread = 1 pixel).
 #
-# ⚠️ Requer GPU NVIDIA + numba. Sem GPU, o script explica o conceito e mostra
-#    os números esperados (Tesla T4) — a aula não quebra.
+# ! Requer GPU NVIDIA + numba. Sem GPU, o script explica o conceito e mostra
+#    os numeros esperados (Tesla T4) - a aula nao quebra.
 #
 # Uso:  python kernels_cuda.py
 # ============================================================================
@@ -30,7 +30,7 @@ except (AttributeError, ValueError):
 
 
 def experimento_1d():
-    """Varia o número de threads por bloco numa soma de vetores simples."""
+    """Varia o numero de threads por bloco numa soma de vetores simples."""
     from numba import cuda
     import numpy as np
 
@@ -45,15 +45,15 @@ def experimento_1d():
 
     @cuda.jit
     def soma_vetores(a, b, c):
-        idx = cuda.grid(1)            # índice GLOBAL desta thread
-        if idx < a.shape[0]:          # proteção: não passar do fim do vetor
+        idx = cuda.grid(1)            # indice GLOBAL desta thread
+        if idx < a.shape[0]:          # protecao: nao passar do fim do vetor
             c[idx] = a[idx] + b[idx]
 
-    print("Experimento 1 — variar threads por bloco")
+    print("Experimento 1 - variar threads por bloco")
     print(f"{'threads/bloco':>13} | {'blocos':>8} | {'tempo (ms)':>10}")
     print("-" * 40)
     for threads_por_bloco in (32, 64, 128, 256, 512, 1024):
-        # Quantos blocos são necessários para cobrir N elementos?
+        # Quantos blocos sao necessarios para cobrir N elementos?
         blocos = (N + threads_por_bloco - 1) // threads_por_bloco
 
         soma_vetores[blocos, threads_por_bloco](a_d, b_d, c_d)  # warm-up
@@ -66,8 +66,8 @@ def experimento_1d():
         tempo = (time.perf_counter() - inicio) / 50
         print(f"{threads_por_bloco:>13} | {blocos:>8} | {tempo * 1000:>10.3f}")
     print("-" * 40)
-    print("256 threads/bloco costuma ser o ponto ótimo: múltiplo de 32 (warp)")
-    print("e maximiza a ocupação do SM sem estourar os limites do bloco.\n")
+    print("256 threads/bloco costuma ser o ponto otimo: multiplo de 32 (warp)")
+    print("e maximiza a ocupacao do SM sem estourar os limites do bloco.\n")
 
 
 def experimento_2d():
@@ -82,7 +82,7 @@ def experimento_2d():
             r = img_rgb[y, x, 0]
             g = img_rgb[y, x, 1]
             b = img_rgb[y, x, 2]
-            # luminância percebida: o olho é mais sensível ao verde
+            # luminancia percebida: o olho e mais sensivel ao verde
             img_gray[y, x] = np.uint8(0.299 * r + 0.587 * g + 0.114 * b)
 
     H, W = 1080, 1920                   # Full HD
@@ -95,7 +95,7 @@ def experimento_2d():
     BLOCO = (16, 16)                    # 256 threads por bloco, em 2D
     GRID = ((W + 15) // 16, (H + 15) // 16)
 
-    print("Experimento 2 — grid 2D (imagem)")
+    print("Experimento 2 - grid 2D (imagem)")
     print(f"Grid : {GRID[0]} x {GRID[1]} blocos")
     print(f"Bloco: {BLOCO[0]} x {BLOCO[1]} threads")
     print(f"Total de threads: {GRID[0] * GRID[1] * BLOCO[0] * BLOCO[1]:,}")
@@ -107,10 +107,10 @@ def experimento_2d():
 
 
 def explicar_sem_gpu():
-    """Quando não há GPU: explica a hierarquia e mostra números esperados."""
-    print("Numba/CUDA indisponível neste ambiente (sem GPU NVIDIA).")
-    print("Ainda assim, veja o conceito e os números esperados (Tesla T4):\n")
-    print("Experimento 1 — variar threads por bloco (valores de referência)")
+    """Quando nao ha GPU: explica a hierarquia e mostra numeros esperados."""
+    print("Numba/CUDA indisponivel neste ambiente (sem GPU NVIDIA).")
+    print("Ainda assim, veja o conceito e os numeros esperados (Tesla T4):\n")
+    print("Experimento 1 - variar threads por bloco (valores de referencia)")
     print(f"{'threads/bloco':>13} | {'blocos':>8} | {'tempo (ms)':>10}")
     print("-" * 40)
     referencia = [
@@ -118,10 +118,10 @@ def explicar_sem_gpu():
         (256, 4096, 0.088), (512, 2048, 0.101), (1024, 1024, 0.115),
     ]
     for threads_por_bloco, blocos, ms in referencia:
-        destaque = "  <- ótimo" if threads_por_bloco == 256 else ""
+        destaque = "  <- otimo" if threads_por_bloco == 256 else ""
         print(f"{threads_por_bloco:>13} | {blocos:>8} | {ms:>10.3f}{destaque}")
     print("-" * 40)
-    print("256 threads/bloco costuma ser o ponto ótimo (múltiplo de 32 = 1 warp).")
+    print("256 threads/bloco costuma ser o ponto otimo (multiplo de 32 = 1 warp).")
     print()
     print("Hierarquia da GPU: Thread -> Warp (32, SIMD) -> Bloco (1 SM) -> Grid.")
     print("No Colab com T4 GPU, este mesmo script mede os tempos de verdade.")

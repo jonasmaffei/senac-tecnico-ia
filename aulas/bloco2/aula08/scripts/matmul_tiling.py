@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# matmul_tiling.py — Multiplicação de matrizes com MEMÓRIA COMPARTILHADA
+# matmul_tiling.py - Multiplicacao de matrizes com MEMORIA COMPARTILHADA
 # ----------------------------------------------------------------------------
-# OBJETIVO: a solução para o gargalo da memória global. Em vez de cada thread
-# ler da VRAM a cada conta, o BLOCO inteiro carrega um "tile" (pedaço) de A e
-# de B para a memória compartilhada (SRAM, ~5 ciclos) e reutiliza os dados
-# entre os threads. Isso reduz os acessos à VRAM por um fator ~TILE.
+# OBJETIVO: a solucao para o gargalo da memoria global. Em vez de cada thread
+# ler da VRAM a cada conta, o BLOCO inteiro carrega um "tile" (pedaco) de A e
+# de B para a memoria compartilhada (SRAM, ~5 ciclos) e reutiliza os dados
+# entre os threads. Isso reduz os acessos a VRAM por um fator ~TILE.
 #
-# Compara também com o CuBLAS (via CuPy), a biblioteca otimizada da NVIDIA.
+# Compara tambem com o CuBLAS (via CuPy), a biblioteca otimizada da NVIDIA.
 #
-# Requer GPU NVIDIA. Sem GPU, mostra o conceito e os tempos de referência.
+# Requer GPU NVIDIA. Sem GPU, mostra o conceito e os tempos de referencia.
 #
 # Uso:  python matmul_tiling.py
 # ============================================================================
@@ -35,7 +35,7 @@ def tiling():
 
     @cuda.jit
     def matmul_shared(A, B, C):
-        # Tiles na memória compartilhada do bloco (SRAM rápida).
+        # Tiles na memoria compartilhada do bloco (SRAM rapida).
         tile_A = cuda.shared.array((TILE, TILE), dtype=float32)
         tile_B = cuda.shared.array((TILE, TILE), dtype=float32)
 
@@ -45,7 +45,7 @@ def tiling():
         _, N = B.shape
 
         soma = float32(0.0)
-        # Percorre os tiles ao longo da dimensão K
+        # Percorre os tiles ao longo da dimensao K
         for t in range((K + TILE - 1) // TILE):
             kr = t * TILE + ty
             kc = t * TILE + tx
@@ -55,7 +55,7 @@ def tiling():
 
             cuda.syncthreads()          # todos carregaram antes de calcular
 
-            for k in range(TILE):       # multiplica já na SRAM (rápido!)
+            for k in range(TILE):       # multiplica ja na SRAM (rapido!)
                 soma += tile_A[ty, k] * tile_B[k, tx]
 
             cuda.syncthreads()          # antes de recarregar os tiles
@@ -81,16 +81,16 @@ def tiling():
     t = time.perf_counter() - inicio
 
     erro = np.max(np.abs(C_d.copy_to_host() - A @ B))
-    print(f"Memória Compartilhada (tiling): {t*1000:8.2f} ms")
+    print(f"Memoria Compartilhada (tiling): {t*1000:8.2f} ms")
     print(f"Erro vs. NumPy                : {erro:.5f}")
 
 
 def cublas():
-    """Comparação com o cuBLAS (biblioteca otimizada via CuPy), se disponível."""
+    """Comparacao com o cuBLAS (biblioteca otimizada via CuPy), se disponivel."""
     try:
         import cupy as cp
     except ImportError:
-        print("\nCuPy não instalado — não foi possível comparar com o cuBLAS.")
+        print("\nCuPy nao instalado - nao foi possivel comparar com o cuBLAS.")
         return
 
     n = 1024
@@ -111,7 +111,7 @@ def cublas():
     _ = A_cpu @ B_cpu
     t_cpu = __import__("time").perf_counter() - t0
 
-    print(f"\nComparação (N={n}):")
+    print(f"\nComparacao (N={n}):")
     print(f"  CPU  (NumPy)       : {t_cpu*1000:8.1f} ms")
     print(f"  GPU  (cuBLAS/CuPy) : {t_cublas*1000:8.2f} ms  ({t_cpu/t_cublas:.1f}x)")
 
@@ -119,7 +119,7 @@ def cublas():
 def main():
     lib_cuda.cabecalho_ascii()
     print("=" * 64)
-    print(f" Matmul com tiling (memória compartilhada) — N = {N}, TILE = {TILE}")
+    print(f" Matmul com tiling (memoria compartilhada) - N = {N}, TILE = {TILE}")
     print("=" * 64)
     lib_cuda.resumo()
 
@@ -130,10 +130,10 @@ def main():
         lib_cuda.explicar_sem_gpu()
         print()
         print("Tiling: carrega um tile TILE x TILE de A e B na SRAM do bloco e")
-        print("reutiliza os dados -> cada elemento é lido ~TILE vezes menos da VRAM.")
+        print("reutiliza os dados -> cada elemento e lido ~TILE vezes menos da VRAM.")
         print("Precisa de DOIS cuda.syncthreads() (barreira antes/depois do uso).")
         print()
-        print("Referência (T4, N=512): global ~120 ms -> tiling ~18 ms (~6.7x).")
+        print("Referencia (T4, N=512): global ~120 ms -> tiling ~18 ms (~6.7x).")
 
 
 if __name__ == "__main__":

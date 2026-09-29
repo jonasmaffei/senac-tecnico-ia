@@ -16,13 +16,13 @@ try:
     vulkan = ctypes.CDLL("libvulkan.so.1")
     print("[OK] Vulkan loader carregado")
 except Exception as e:
-    print("[ERRO] Não foi possível carregar Vulkan:")
+    print("[ERRO] Nao foi possivel carregar Vulkan:")
     print(e)
     sys.exit(1)
 
 
 # ------------------------------------------------------------
-# Verificação usando vulkaninfo
+# Verificacao usando vulkaninfo
 # ------------------------------------------------------------
 
 import subprocess
@@ -108,7 +108,7 @@ try:
     print("[OK] Vulkan instance criada")
 
 except Exception as e:
-    print("[ERRO] Não foi possível criar Vulkan instance:")
+    print("[ERRO] Nao foi possivel criar Vulkan instance:")
     print(e)
     sys.exit(1)
 
@@ -174,10 +174,10 @@ for device in devices:
 if selected is None:
 
     print()
-    print("[ERRO] RX 550X/Radeon não encontrada.")
+    print("[ERRO] RX 550X/Radeon nao encontrada.")
 
     print()
-    print("GPUs disponíveis:")
+    print("GPUs disponiveis:")
 
     for device in devices:
         props = vk.vkGetPhysicalDeviceProperties(device)
@@ -220,7 +220,7 @@ for index, family in enumerate(queue_families):
 
 if compute_family is None:
 
-    print("[ERRO] GPU não possui queue de compute.")
+    print("[ERRO] GPU nao possui queue de compute.")
 
     vk.vkDestroyInstance(instance, None)
 
@@ -289,7 +289,7 @@ print("GPU INICIALIZADA")
 print("=" * 60)
 
 print()
-print("Agora a RX 550X está sendo acessada pelo container.")
+print("Agora a RX 550X esta sendo acessada pelo container.")
 print()
 print("Abra no Windows:")
 print("  Gerenciador de Tarefas")
@@ -307,10 +307,10 @@ try:
 
     while True:
 
-        # Pequenas operações Vulkan para manter a queue ocupada.
+        # Pequenas operacoes Vulkan para manter a queue ocupada.
         #
-        # O objetivo inicial é manter comunicação contínua
-        # com a GPU e validar a execução pelo backend D3D12.
+        # O objetivo inicial e manter comunicacao continua
+        # com a GPU e validar a execucao pelo backend D3D12.
 
         vk.vkQueueWaitIdle(queue)
 
@@ -321,7 +321,7 @@ try:
             tempo = time.time() - inicio
 
             print(
-                f"Operações Vulkan: {contador:,} | "
+                f"Operacoes Vulkan: {contador:,} | "
                 f"tempo: {tempo:.1f}s | "
                 f"ops/s: {contador / tempo:.1f}"
             )

@@ -446,10 +446,11 @@ nvidia-smi --query-gpu=memory.used,memory.total \
       </div>
       <div>
         <h3 style="margin-bottom:10px">Via Python (pynvml)</h3>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>info = pynvml.nvmlDeviceGetMemoryInfo(h)
-print(info.used / 1024**3, "GB usados")</code></pre>
+        <div class="terminal">
+<span class="dim">$ python monitor_memoria.py</span>
+GPU 0: Tesla T4
+VRAM usada : 3.1 GB / 15.0 GB (21%)
+VRAM livre : 11.9 GB
         </div>
         <div class="note">
           <span class="ico">📄</span>
@@ -468,14 +469,15 @@ print(info.used / 1024**3, "GB usados")</code></pre>
     <div class="grid cols-2">
       <div>
         <h3 style="margin-bottom:10px">A ideia</h3>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>c_cpu = a_cpu + b_cpu        # RAM, CPU
-c_gpu = a_gpu + b_gpu        # VRAM, GPU
-a_gpu = a_cpu.cuda()         # cópia via PCIe (medir!)</code></pre>
+        <p>A mesma operação roda na <strong>RAM (CPU)</strong> e na <strong>VRAM (GPU)</strong>. O
+          tempo da GPU só vale a pena quando inclui a <strong>cópia via PCIe</strong> — que costuma
+          ser o gargalo.</p>
+        <div class="terminal">
+<span class="dim">$ python benchmark_ram_vram.py</span>
+Soma na RAM (CPU)   : 84.2 ms
+Soma na VRAM (GPU)  :  3.1 ms
+Copia RAM -> VRAM   : 21.6 ms  <span class="dim">(gargalo!)</span>
         </div>
-        <p>Sem <code>torch.cuda.synchronize()</code> você mediria só o <strong>lançamento</strong>
-          do kernel, não a execução.</p>
       </div>
       <div>
         <h3 style="margin-bottom:10px">O que o script faz</h3>

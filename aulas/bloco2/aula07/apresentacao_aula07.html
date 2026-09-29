@@ -322,16 +322,13 @@
     <h2><span class="num">5.</span>Numba: CUDA em Python</h2>
     <div class="grid cols-2">
       <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>@cuda.jit
-def soma(a, b, c):
-    idx = cuda.grid(1)
-    if idx < c.shape[0]:
-        c[idx] = a[idx] + b[idx]</code></pre>
-        </div>
-        <p>O <code>@cuda.jit</code> compila a função para rodar na GPU. Cada thread calcula
-          <strong>uma posição</strong> do vetor.</p>
+        <p>O <code>@cuda.jit</code> compila a função Python para rodar <strong>na GPU</strong>.
+          Cada thread calcula <strong>uma posição</strong> do vetor — em paralelo.</p>
+        <ul class="clean" style="margin-top:10px">
+          <li><strong>1 kernel</strong> = 1 função que roda em N threads.</li>
+          <li>Cada thread descobre seu índice e trata <strong>1 elemento</strong>.</li>
+          <li>Lançamento: <code>soma[blocos, threads](a, b, c)</code>.</li>
+        </ul>
       </div>
       <div>
         <h3 style="margin-bottom:8px">Saída esperada</h3>
@@ -358,16 +355,9 @@ Resultado[0..4] = [3. 3. 3. 3. 3.]
     <h2><span class="num">6.</span>FFT: CPU vs. GPU</h2>
     <div class="grid cols-2">
       <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code># CPU
-np.fft.fft(sinal)
-
-# GPU (mesma API!)
-cp.fft.fft(cp.asarray(sinal))</code></pre>
-        </div>
         <p>A FFT é a operação central do <strong>pré-processamento de áudio</strong>. O CuPy
-          entrega a mesma API do NumPy, mas executando na VRAM.</p>
+          entrega a <strong>mesma API</strong> do NumPy, mas executando na VRAM — quase sem
+          mudar o código.</p>
       </div>
       <div>
         <h3 style="margin-bottom:8px">Speedup (T4, 4M pontos)</h3>

@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# monitoramento_linux.py — O kernel como fonte de dados (pseudo-arquivos)
+# monitoramento_linux.py - O kernel como fonte de dados (pseudo-arquivos)
 # ----------------------------------------------------------------------------
-# OBJETIVO: mostrar que, no Linux, hardware e kernel são expostos como
-# "pseudo-arquivos" — dá para lê-los como qualquer arquivo de texto.
+# OBJETIVO: mostrar que, no Linux, hardware e kernel sao expostos como
+# "pseudo-arquivos" - da para le-los como qualquer arquivo de texto.
 #
 #   /proc/cpuinfo  -> modelo do processador
-#   /proc/meminfo  -> memória RAM em tempo real
+#   /proc/meminfo  -> memoria RAM em tempo real
 #   /proc/uptime   -> tempo ligado
-#   /sys/class/drm -> dispositivos gráficos (GPU)
+#   /sys/class/drm -> dispositivos graficos (GPU)
 #   /dev/nvidia*   -> dispositivos NVIDIA
 #
-# Como o laboratório é Windows, o script detecta o sistema: no Linux lê os
+# Como o laboratorio e Windows, o script detecta o sistema: no Linux le os
 # pseudo-arquivos; no Windows usa psutil/PowerShell para mostrar o equivalente.
 # Assim o conceito da aula nunca quebra.
 #
 # Uso:  python monitoramento_linux.py
-# Requer: (nenhum obrigatório) — psutil opcional no Windows
+# Requer: (nenhum obrigatorio) - psutil opcional no Windows
 # ============================================================================
 
 import os
@@ -36,7 +36,7 @@ except (AttributeError, ValueError):
 # Linux: ler os pseudo-arquivos do kernel
 # ---------------------------------------------------------------------------
 def ler_arquivo(caminho):
-    """Lê um pseudo-arquivo; devolve None se ele não existir."""
+    """Le um pseudo-arquivo; devolve None se ele nao existir."""
     try:
         with open(caminho, encoding="utf-8", errors="ignore") as f:
             return f.read()
@@ -47,14 +47,14 @@ def ler_arquivo(caminho):
 def monitorar_linux():
     print("[Linux] Lendo os pseudo-arquivos do kernel...\n")
 
-    # ── /proc/cpuinfo: nome do processador ─────────────────────────────────
+    # -- /proc/cpuinfo: nome do processador ---------------------------------
     cpuinfo = ler_arquivo("/proc/cpuinfo") or ""
     for linha in cpuinfo.splitlines():
         if "model name" in linha:
             print(f"  /proc/cpuinfo  -> CPU: {linha.split(':', 1)[1].strip()}")
             break
 
-    # ── /proc/meminfo: RAM total e disponível ──────────────────────────────
+    # -- /proc/meminfo: RAM total e disponivel ------------------------------
     meminfo = ler_arquivo("/proc/meminfo") or ""
     for linha in meminfo.splitlines():
         if linha.startswith(("MemTotal", "MemAvailable")):
@@ -62,18 +62,18 @@ def monitorar_linux():
             mb = int(valor.strip().split()[0]) / 1024
             print(f"  /proc/meminfo  -> {chave}: {mb:,.0f} MB")
 
-    # ── /proc/uptime: há quanto tempo o servidor está ligado ───────────────
+    # -- /proc/uptime: ha quanto tempo o servidor esta ligado ---------------
     uptime = ler_arquivo("/proc/uptime")
     if uptime:
         horas = float(uptime.split()[0]) / 3600
-        print(f"  /proc/uptime   -> ligado há {horas:.1f} horas")
+        print(f"  /proc/uptime   -> ligado ha {horas:.1f} horas")
 
-    # ── /sys/class/drm: dispositivos gráficos (GPU) ────────────────────────
+    # -- /sys/class/drm: dispositivos graficos (GPU) ------------------------
     if os.path.isdir("/sys/class/drm"):
         cards = [c for c in os.listdir("/sys/class/drm") if c.startswith("card")]
         print(f"  /sys/class/drm -> {len(cards)} dispositivo(s): {', '.join(cards) or 'nenhum'}")
 
-    # ── /dev/nvidia*: dispositivos NVIDIA ──────────────────────────────────
+    # -- /dev/nvidia*: dispositivos NVIDIA ----------------------------------
     if os.path.isdir("/dev"):
         nvidia = [d for d in os.listdir("/dev") if d.startswith("nvidia")]
         print(f"  /dev/nvidia*   -> {', '.join(nvidia) or 'nenhum'}")
@@ -95,7 +95,7 @@ def monitorar_windows():
     marca = platform.processor() or "CPU"
     nucleos = psutil.cpu_count(logical=False) or "?"
     threads = psutil.cpu_count(logical=True) or "?"
-    print(f"  CPU        -> {marca} ({nucleos} núcleos físicos / {threads} lógicos)")
+    print(f"  CPU        -> {marca} ({nucleos} nucleos fisicos / {threads} logicos)")
 
     # RAM
     memoria = psutil.virtual_memory()
@@ -105,7 +105,7 @@ def monitorar_windows():
     # Uptime (desde o boot)
     import time
     ligado_h = (time.time() - psutil.boot_time()) / 3600
-    print(f"  Ligado há  -> {ligado_h:.1f} horas")
+    print(f"  Ligado ha  -> {ligado_h:.1f} horas")
 
 
 # ---------------------------------------------------------------------------
@@ -146,7 +146,7 @@ def main():
 
     print()
     print("Ferramentas como htop, nvtop e gpustat leem esses mesmos pseudo-arquivos.")
-    print("Use tmux/screen para manter o monitoramento ativo após desconectar o SSH.")
+    print("Use tmux/screen para manter o monitoramento ativo apos desconectar o SSH.")
 
 
 if __name__ == "__main__":

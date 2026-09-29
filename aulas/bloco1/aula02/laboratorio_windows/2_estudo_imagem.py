@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# estudo_imagem.py — Estudo de caso: GPUs combinam SIMD + MIMD
+# estudo_imagem.py - Estudo de caso: GPUs combinam SIMD + MIMD
 # ----------------------------------------------------------------------------
 # OBJETIVO: processar uma imagem (converter para tons de cinza) de duas formas:
 #
 #   - CPU com loops: pixel a pixel (sequencial).
 #   - Vetorizado (SIMD): todos os pixels de uma vez, com NumPy.
 #
-# É o "espírito" do que a GPU faz: dentro de um warp/Wavefront, todas as lanes
-# executam a MESMA instrução (SIMD); e vários blocos/SMs processam pedaços
+# E o "espirito" do que a GPU faz: dentro de um warp/Wavefront, todas as lanes
+# executam a MESMA instrucao (SIMD); e varios blocos/SMs processam pedacos
 # diferentes ao mesmo tempo (MIMD).
 #
 # Uso:  python estudo_imagem.py
@@ -26,15 +26,15 @@ except (AttributeError, ValueError):
 
 import numpy as np
 
-# Resolução Full HD (1080p): H linhas x W colunas x 3 canais (RGB)
+# Resolucao Full HD (1080p): H linhas x W colunas x 3 canais (RGB)
 H, W = 1080, 1920
-rng = np.random.default_rng(42)     # semente fixa => resultado reprodutível
+rng = np.random.default_rng(42)     # semente fixa => resultado reprodutivel
 imagem = rng.integers(0, 256, (H, W, 3), dtype=np.uint8)
 
 print(f"Imagem {W}x{H} ({H * W:,} pixels)\n")
 
-# ── 1) CPU, pixel a pixel (sequencial) ──────────────────────────────────────
-# Pesos da luminância: quanto cada canal contribui para o brilho percebido.
+# -- 1) CPU, pixel a pixel (sequencial) --------------------------------------
+# Pesos da luminancia: quanto cada canal contribui para o brilho percebido.
 inicio = time.time()
 cinza_loop = np.zeros((H, W), dtype=np.uint8)
 for i in range(H):
@@ -44,7 +44,7 @@ for i in range(H):
 t_loop = time.time() - inicio
 print(f"CPU (loop por pixel): {t_loop:.3f}s")
 
-# ── 2) Vetorizado (SIMD): a mesma conta, em todos os pixels de uma vez ───────
+# -- 2) Vetorizado (SIMD): a mesma conta, em todos os pixels de uma vez -------
 inicio = time.time()
 r = imagem[:, :, 0].astype(np.float32)   # canal vermelho inteiro
 g = imagem[:, :, 1].astype(np.float32)   # canal verde inteiro
@@ -54,7 +54,7 @@ t_simd = time.time() - inicio
 print(f"Vetorizado (SIMD):    {t_simd:.3f}s")
 print(f"   -> Speedup: {t_loop / t_simd:,.0f}x mais rapido\n")
 
-# ── 3) Validação ────────────────────────────────────────────────────────────
+# -- 3) Validacao ------------------------------------------------------------
 diferenca = np.abs(cinza_loop.astype(int) - cinza_simd.astype(int)).max()
 print(f"[OK] Maior diferenca entre as versoes: {diferenca} (arredondamento)")
 

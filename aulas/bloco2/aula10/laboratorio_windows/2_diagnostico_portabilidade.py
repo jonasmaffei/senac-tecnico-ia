@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# diagnostico_portabilidade.py — CUDA, HIP e rocm-smi: o que roda onde
+# diagnostico_portabilidade.py - CUDA, HIP e rocm-smi: o que roda onde
 # ----------------------------------------------------------------------------
-# OBJETIVO: mostrar de forma didática a equivalência entre os ecossistemas
+# OBJETIVO: mostrar de forma didatica a equivalencia entre os ecossistemas
 # NVIDIA (CUDA) e AMD (ROCm), e detectar o que existe no ambiente atual.
 #
 #   CUDA (NVIDIA)   ->  ROCm/HIP (AMD)
@@ -15,7 +15,7 @@
 #   nvidia/cuda     ->  rocm/pytorch (imagem Docker)
 #
 # Uso:  python diagnostico_portabilidade.py
-# Requer: (nenhum obrigatório)
+# Requer: (nenhum obrigatorio)
 # ============================================================================
 
 import shutil
@@ -31,30 +31,30 @@ import lib_rocm
 
 EQUIVALENCIAS = [
     ("Compilador",        "nvcc",                 "hipcc"),
-    ("Álgebra linear",    "cuBLAS",               "rocBLAS"),
+    ("Algebra linear",    "cuBLAS",               "rocBLAS"),
     ("Deep learning",     "cuDNN",                "MIOpen"),
     ("FFT",               "cuFFT",                "rocFFT"),
-    ("Números aleatórios","cuRAND",               "rocRAND"),
+    ("Numeros aleatorios","cuRAND",               "rocRAND"),
     ("Profiling",         "Nsight / nvprof",      "Radeon GPU Profiler"),
     ("Monitoramento",     "nvidia-smi",           "rocm-smi"),
     ("Container",         "nvidia/cuda",          "rocm/pytorch"),
     ("Kernel (prefixo)",  "cudaMalloc / blockIdx","hipMalloc / hipBlockIdx"),
-    ("Sincronização",     "__syncthreads()",      "__syncthreads() (igual!)"),
+    ("Sincronizacao",     "__syncthreads()",      "__syncthreads() (igual!)"),
 ]
 
 
 def detectar_ferramentas():
-    """Verifica quais utilitários de GPU estão instalados no PATH."""
+    """Verifica quais utilitarios de GPU estao instalados no PATH."""
     print("\nFerramentas encontradas neste ambiente:")
     for nome in ("nvidia-smi", "rocm-smi", "rocminfo", "hipcc", "nvcc"):
         caminho = shutil.which(nome)
-        estado = caminho if caminho else "não encontrado"
+        estado = caminho if caminho else "nao encontrado"
         print(f"  {nome:<12} -> {estado}")
 
 
 def tabela_equivalentes():
-    """Imprime a tabela de equivalência CUDA <-> ROCm."""
-    print("\nEquivalência CUDA (NVIDIA) x ROCm (AMD):")
+    """Imprime a tabela de equivalencia CUDA <-> ROCm."""
+    print("\nEquivalencia CUDA (NVIDIA) x ROCm (AMD):")
     print(f"  {'Conceito':<20} {'CUDA':<30} {'ROCm/HIP'}")
     print("  " + "-" * 78)
     for conceito, cuda_eq, rocm_eq in EQUIVALENCIAS:
@@ -64,7 +64,7 @@ def tabela_equivalentes():
 def main():
     lib_rocm.cabecalho_ascii()
     print("=" * 64)
-    print(" Portabilidade CUDA x ROCm: o que muda e o que NÃO muda")
+    print(" Portabilidade CUDA x ROCm: o que muda e o que NAO muda")
     print("=" * 64)
 
     info = lib_rocm.diagnostico()
@@ -73,9 +73,9 @@ def main():
     tabela_equivalentes()
 
     print()
-    print("Mensagem central: em PyTorch, o código Python é IDÊNTICO.")
-    print("`torch.cuda.is_available()` retorna True também no ROCm — porque")
-    print("a camada HIP emula a API CUDA. O que muda é só o ambiente:")
+    print("Mensagem central: em PyTorch, o codigo Python e IDENTICO.")
+    print("`torch.cuda.is_available()` retorna True tambem no ROCm - porque")
+    print("a camada HIP emula a API CUDA. O que muda e so o ambiente:")
     print("  - NVIDIA: driver CUDA + nvcc")
     print("  - AMD:    ROCm + hipcc + rocm-smi")
     print("  - Em ambos os casos, use containers prontos (nvidia/cuda ou rocm/pytorch).")

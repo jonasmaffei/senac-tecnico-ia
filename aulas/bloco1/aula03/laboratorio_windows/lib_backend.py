@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-# lib_backend.py — detecção automática de backend de processamento
+# lib_backend.py - deteccao automatica de backend de processamento
 # ----------------------------------------------------------------------------
-# Este arquivo é importado pelos scripts da Aula 03 para que o MESMO código
-# rode em qualquer ambiente (mesmo padrão da Aula 02):
+# Este arquivo e importado pelos scripts da Aula 03 para que o MESMO codigo
+# rode em qualquer ambiente (mesmo padrao da Aula 02):
 #
-#   - Google Colab (GPU NVIDIA)  -> usa CuPy (memória na VRAM)
+#   - Google Colab (GPU NVIDIA)  -> usa CuPy (memoria na VRAM)
 #   - Linux com ROCm (AMD)       -> usa CuPy-ROCm / PyTorch
 #   - Windows com GPU AMD        -> usa PyTorch-DirectML, se instalado
-#   - QUALQUER máquina (padrão)  -> usa NumPy (memória na RAM)
+#   - QUALQUER maquina (padrao)  -> usa NumPy (memoria na RAM)
 #
-# O objetivo didático: mostrar que o código é o mesmo; o que muda é ONDE os
+# O objetivo didatico: mostrar que o codigo e o mesmo; o que muda e ONDE os
 # dados ficam (RAM do host x VRAM da placa). NumPy trabalha na RAM; CuPy
-# trabalha na VRAM — e a cópia entre as duas passa pelo barramento PCIe.
+# trabalha na VRAM - e a copia entre as duas passa pelo barramento PCIe.
 #
 # Uso:
 #   from lib_backend import detectar_backend
-#   xp = detectar_backend()   # xp é numpy OU cupy, conforme o backend
+#   xp = detectar_backend()   # xp e numpy OU cupy, conforme o backend
 # ============================================================================
 
 import importlib
 
-# Ordem de preferência: GPU real primeiro, CPU como rede de segurança.
-# Cada item: (nome amigável, módulo Python)
+# Ordem de preferencia: GPU real primeiro, CPU como rede de seguranca.
+# Cada item: (nome amigavel, modulo Python)
 _CANDIDATOS = [
     ("CuPy (GPU NVIDIA/ROCm)", "cupy"),
     ("PyTorch CUDA (GPU NVIDIA)", "torch"),
@@ -44,13 +44,13 @@ def _numa_gpu_valida(mod):
 
 
 def detectar_backend():
-    """Escolhe o melhor backend disponível e ajusta as variáveis globais.
+    """Escolhe o melhor backend disponivel e ajusta as variaveis globais.
 
-    Devolve o módulo a ser usado como 'xp' (numpy ou cupy) e imprime um resumo.
+    Devolve o modulo a ser usado como 'xp' (numpy ou cupy) e imprime um resumo.
     """
     global BACKEND, GPU_NOME, xp, torch
 
-    # 1) CuPy — melhor caso: arrays na VRAM com a API parecida com o NumPy
+    # 1) CuPy - melhor caso: arrays na VRAM com a API parecida com o NumPy
     try:
         cupy = importlib.import_module("cupy")
         if _numa_gpu_valida(cupy):
@@ -65,7 +65,7 @@ def detectar_backend():
     except Exception:
         pass
 
-    # 2) PyTorch com CUDA (Colab também oferece essa opção)
+    # 2) PyTorch com CUDA (Colab tambem oferece essa opcao)
     try:
         import torch as _torch
         torch = _torch
@@ -103,7 +103,7 @@ def _resumo():
     print("=" * 64)
     print(f" Backend de processamento: {BACKEND}")
     if BACKEND == "NumPy (CPU/RAM)":
-        print(" Nenhuma GPU acessível aqui — os dados ficam na RAM do host.")
+        print(" Nenhuma GPU acessivel aqui - os dados ficam na RAM do host.")
         print(" (No Colab com T4 GPU, este mesmo script usaria a VRAM.)")
     else:
         print(f" Dispositivo: {GPU_NOME}  (dados na VRAM)")
@@ -111,16 +111,16 @@ def _resumo():
 
 
 def info():
-    """Devolve o estado atual como dicionário.
+    """Devolve o estado atual como dicionario.
 
-    Use esta função (em vez de importar as variáveis) porque o backend é
+    Use esta funcao (em vez de importar as variaveis) porque o backend e
     definido apenas quando `detectar_backend()` roda.
     """
     return {"backend": BACKEND, "dispositivo": GPU_NOME, "xp": xp}
 
 
 # ---------------------------------------------------------------------------
-# Wrappers mínimos: expõem só o que a Aula 03 usa e simplificam o exemplo.
+# Wrappers minimos: expoem so o que a Aula 03 usa e simplificam o exemplo.
 # ---------------------------------------------------------------------------
 class _TorchXP:
     def __init__(self, torch):

@@ -1,16 +1,16 @@
 # ============================================================================
-# coletor.py — coleta de métricas de sistema e GPU (versão Windows nativa)
+# coletor.py - coleta de metricas de sistema e GPU (versao Windows nativa)
 # ----------------------------------------------------------------------------
-# Diferente da versão Docker, este arquivo roda DIRETO no Windows, então
+# Diferente da versao Docker, este arquivo roda DIRETO no Windows, entao
 # consegue ler a GPU AMD de verdade (usando os contadores de desempenho do
-# Windows via PowerShell/CIM) — do mesmo jeito que o laboratorio_windows.
+# Windows via PowerShell/CIM) - do mesmo jeito que o laboratorio_windows.
 #
 #   - CPU e RAM: psutil (real).
-#   - GPU AMD: PowerShell/CIM (utilização e VRAM reais; temperatura estimada).
+#   - GPU AMD: PowerShell/CIM (utilizacao e VRAM reais; temperatura estimada).
 #   - GPU NVIDIA: nvidia-smi, se existir.
 #   - Sem GPU: modo simulado.
 #
-# O comando PowerShell é passado como STRING INLINE (-Command), então não
+# O comando PowerShell e passado como STRING INLINE (-Command), entao nao
 # depende de ExecutionPolicy nem cria arquivos .ps1.
 # ============================================================================
 
@@ -26,7 +26,7 @@ import psutil
 
 
 # ---------------------------------------------------------------------------
-# DETECÇÃO DO BACKEND DE GPU (uma vez, na importação)
+# DETECCAO DO BACKEND DE GPU (uma vez, na importacao)
 # ---------------------------------------------------------------------------
 def _detectar_backend():
     if os.environ.get("GPU_BACKEND", "auto") == "simulado":
@@ -50,7 +50,7 @@ def nome_backend():
 
 
 # ---------------------------------------------------------------------------
-# CPU E RAM (REAIS) — via psutil
+# CPU E RAM (REAIS) - via psutil
 # ---------------------------------------------------------------------------
 def _cpu_pct(intervalo=0.5):
     return round(psutil.cpu_percent(interval=intervalo), 0)
@@ -63,8 +63,8 @@ def _ram():
 
 
 def _cpu_temp():
-    # No Windows o psutil não expõe sensores de temperatura; tentamos mesmo
-    # assim (funciona em alguns Linux) e devolvemos None se não houver.
+    # No Windows o psutil nao expoe sensores de temperatura; tentamos mesmo
+    # assim (funciona em alguns Linux) e devolvemos None se nao houver.
     try:
         temps = psutil.sensors_temperatures()
     except (AttributeError, NotImplementedError):
@@ -76,7 +76,7 @@ def _cpu_temp():
 
 
 # ---------------------------------------------------------------------------
-# GPU REAL — AMD no Windows (PowerShell/CIM, inline)
+# GPU REAL - AMD no Windows (PowerShell/CIM, inline)
 # ---------------------------------------------------------------------------
 def _gpu_amd_windows():
     ps = "powershell.exe" if shutil.which("powershell.exe") else "powershell"
@@ -118,7 +118,7 @@ def _gpu_amd_windows():
         capture_output=True, text=True, timeout=15,
     ).stdout.strip().splitlines()
     if not saida:
-        raise RuntimeError("PowerShell não retornou dados da GPU")
+        raise RuntimeError("PowerShell nao retornou dados da GPU")
     nome, temp, util, mem, tot = [c.strip() for c in saida[-1].split("|")]
 
     def _num(v):
@@ -133,13 +133,13 @@ def _gpu_amd_windows():
         "gpu_util_pct": _num(util),
         "vram_usada_mb": _num(mem),
         "vram_total_mb": _num(tot),
-        # A potência não é exposta pelo driver AMD no Windows.
+        # A potencia nao e exposta pelo driver AMD no Windows.
         "gpu_potencia_w": None,
     }
 
 
 # ---------------------------------------------------------------------------
-# GPU REAL — NVIDIA (nvidia-smi)
+# GPU REAL - NVIDIA (nvidia-smi)
 # ---------------------------------------------------------------------------
 def _gpu_nvidia():
     campos = "name,temperature.gpu,utilization.gpu,memory.used,memory.total,power.draw"
@@ -149,7 +149,7 @@ def _gpu_nvidia():
         capture_output=True, text=True, timeout=5,
     ).stdout.strip().splitlines()
     if not saida:
-        raise RuntimeError("nvidia-smi não retornou dados")
+        raise RuntimeError("nvidia-smi nao retornou dados")
     nome, temp, util, vram, vtot, pot = [c.strip() for c in saida[0].split(",")]
 
     def _num(v):
@@ -188,10 +188,10 @@ def _gpu_simulada(tempo_s):
 
 
 # ---------------------------------------------------------------------------
-# INTERFACE PÚBLICA
+# INTERFACE PUBLICA
 # ---------------------------------------------------------------------------
 def coletar(tempo_s=None):
-    """Coleta UMA amostra completa (sistema + GPU) e devolve um dicionário."""
+    """Coleta UMA amostra completa (sistema + GPU) e devolve um dicionario."""
     if tempo_s is None:
         tempo_s = time.time()
 
@@ -223,9 +223,9 @@ def coletar(tempo_s=None):
 
 
 def especificacoes():
-    """Dados fixos da máquina, para os cartões do topo do painel."""
+    """Dados fixos da maquina, para os cartoes do topo do painel."""
     try:
-        # Nome da CPU no Windows costuma vir com espaços extras.
+        # Nome da CPU no Windows costuma vir com espacos extras.
         nome_cpu = platform.processor().strip()
         return {
             "host": platform.node() or "PC",

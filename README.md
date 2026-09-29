@@ -94,9 +94,9 @@ pip install -r requirements.txt
 | **08** | Manipulação de Memória em CUDA (Tiling, Coalescing, Profiling) | [Notebook](aulas/bloco2/aula08/notebook_colab/aula08_tiling.ipynb), [Apresentação](aulas/bloco2/aula08/apresentacao_aula08.html), [Atividade](aulas/bloco2/aula08/atividade.md), [`scripts/`](aulas/bloco2/aula08/scripts) ([`matmul_tiling.py`](aulas/bloco2/aula08/scripts/matmul_tiling.py), [`matmul_global.py`](aulas/bloco2/aula08/scripts/matmul_global.py), [`coalescing.py`](aulas/bloco2/aula08/scripts/coalescing.py), [`profiling_ocupacao.py`](aulas/bloco2/aula08/scripts/profiling_ocupacao.py)), [Guia da Aula](aulas/bloco2/aula08/README.md) |
 | **09** | Alternativas ao CUDA: OpenCL (+ LLMs locais) | [Notebook](aulas/bloco2/aula09/notebook_colab/aula09_opencl.ipynb), [Apresentação](aulas/bloco2/aula09/apresentacao_aula09.html), [Atividade](aulas/bloco2/aula09/atividade.md), [Laboratório Windows](aulas/bloco2/aula09/laboratorio_windows/README.md), [Tutoriais Ollama/WebUI](aulas/bloco2/aula09/tutorials), [Guia da Aula](aulas/bloco2/aula09/README.md) |
 | **10** | Introdução ao ROCm e GPUs AMD (HIP, PyTorch & Docker) | [Notebook](aulas/bloco2/aula10/notebook_colab/aula10_rocm.ipynb), [Apresentação](aulas/bloco2/aula10/apresentacao_aula10.html), [Atividade](aulas/bloco2/aula10/atividade.md), [Laboratório Windows](aulas/bloco2/aula10/laboratorio_windows/README.md), [Lab ROCm/Docker](aulas/bloco2/aula10/laboratorio_rocm-docker/README.md), [Guia da Aula](aulas/bloco2/aula10/README.md) |
-| **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (CNN, Mixed Precision/AMP, TCO) | [`atividade_aula11.py`](aulas/bloco2/aula11/atividade_aula11.py), [Guia da Aula](aulas/bloco2/aula11/README.md) |
-| **12** | Prática no Colab e Projeto Integrador | [`aula12_pratica_colab.ipynb`](aulas/bloco2/aula12/aula12_pratica_colab.ipynb), [Guia Colab](aulas/bloco2/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
-| **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [`aula13_implementacao_modelo_paralelo.ipynb`](aulas/bloco2/aula13/aula13_implementacao_modelo_paralelo.ipynb), [Guia Colab](aulas/bloco2/aula13/README.md) |
+| **11** | Aplicação de Modelos em GPUs NVIDIA e AMD (CNN, Mixed Precision/AMP, TCO) | [Notebook](aulas/bloco2/aula11/notebook_colab/aula11_aplicacao_modelos.ipynb), [Apresentação](aulas/bloco2/aula11/apresentacao_aula11.html), [Atividade](aulas/bloco2/aula11/atividade.md), [Laboratório Windows](aulas/bloco2/aula11/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco2/aula11/README.md) |
+| **12** | Laboratório Prático e Revisão Interativa (5 experimentos) | [Notebook](aulas/bloco2/aula12/notebook_colab/aula12_pratica_colab.ipynb), [Apresentação](aulas/bloco2/aula12/apresentacao_aula12.html), [Atividade](aulas/bloco2/aula12/atividade.md), [Guia da Aula](aulas/bloco2/aula12/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
+| **13** | Implementação de um Modelo Paralelo Simples (Síntese Bloco 2) | [Notebook](aulas/bloco2/aula13/notebook_colab/aula13_implementacao_modelo_paralelo.ipynb), [Apresentação](aulas/bloco2/aula13/apresentacao_aula13.html), [Atividade](aulas/bloco2/aula13/atividade.md), [Guia da Aula](aulas/bloco2/aula13/README.md) |
 
 ### Bloco 3 — Automação
 
@@ -168,7 +168,8 @@ senac-tecnico-ia/
 │   │   │                                      notebook_colab/, atividade.md, laboratorio_windows/
 │   ├── bloco2/                              → Bloco 2 · Programação GPU (aulas 07–13)
 │   │   ├── README.md
-│   │   └── aula07/ ... aula13/              → notebook_colab/ + scripts/ (modo referência)
+│   │   └── aula07/ ... aula13/              → apresentacao_*.html, README.md, notebook_colab/,
+│   │                                          atividade.md, laboratorio_windows/ ou scripts/
 │   ├── bloco3/                              → Bloco 3 · Automação (aulas 14–19)
 │   │   ├── README.md
 │   │   └── aula14/ ... aula19/              → notebook_colab/, laboratorio_windows/, scripts_linux/

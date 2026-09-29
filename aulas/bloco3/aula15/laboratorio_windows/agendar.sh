@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # ============================================================================
-# agendar.sh — mostra como agendar a fila/monitor (equivalente ao cron/systemd)
+# agendar.sh - mostra como agendar a fila/monitor (equivalente ao cron/systemd)
 # ----------------------------------------------------------------------------
 # Uso:  ./agendar.sh
 #
-# No Git Bash do Windows NÃO existe o comando "cron" nem o systemd. Este script:
-#   1. Simula algumas execuções em sequência (para a aula ver o efeito).
+# No Git Bash do Windows NAO existe o comando "cron" nem o systemd. Este script:
+#   1. Simula algumas execucoes em sequencia (para a aula ver o efeito).
 #   2. Mostra as linhas de crontab prontas para um servidor Linux.
-#   3. Mostra um unit systemd de exemplo (produção) e o Agendador de Tarefas
+#   3. Mostra um unit systemd de exemplo (producao) e o Agendador de Tarefas
 #      do Windows como alternativa nativa.
 # ============================================================================
 
@@ -18,35 +18,35 @@ set -euo pipefail
 preparar_dirs
 
 echo "==================================================================="
-echo " AGENDAMENTO — o Windows/Git Bash não tem 'cron' nem 'systemd'"
+echo " AGENDAMENTO - o Windows/Git Bash nao tem 'cron' nem 'systemd'"
 echo "==================================================================="
 echo ""
 
-# ── 1. Simulação local ──────────────────────────────────────────────────────
+# -- 1. Simulacao local ------------------------------------------------------
 echo ">>> Simulando agendamento (3 ciclos de monitoramento):"
 for ciclo in $(seq 1 3); do
-    echo "[$(date '+%H:%M:%S')] execução #$ciclo: ./fila_gpu.sh 2 Job-Cron \"python train_job.py --nome Job-Cron --epocas 1\""
+    echo "[$(date '+%H:%M:%S')] execucao #$ciclo: ./fila_gpu.sh 2 Job-Cron \"python train_job.py --nome Job-Cron --epocas 1\""
     ./fila_gpu.sh 2 "Job-Cron-$ciclo" "python train_job.py --nome Job-Cron-$ciclo --epocas 1"
     sleep 1
 done
 echo ""
 
-# ── 2. crontab (Linux) ─────────────────────────────────────────────────────
+# -- 2. crontab (Linux) -----------------------------------------------------
 echo "-------------------------------------------------------------------"
 echo " EM UM SERVIDOR LINUX REAL (crontab -e):"
 echo "-------------------------------------------------------------------"
 cat <<'EOF'
-# Monitorar a GPU a cada 5 min no horário comercial (seg-sex)
+# Monitorar a GPU a cada 5 min no horario comercial (seg-sex)
 */5 8-20 * * 1-5  /opt/gpu/monitor_gpu_proc.sh 1 1 >> /var/log/gpu_monitor.log 2>&1
 
-# Rodar a fila diária de treinos às 02h (baixa prioridade)
+# Rodar a fila diaria de treinos as 02h (baixa prioridade)
 0 2 * * *  /opt/gpu/fila_gpu.sh 3 Treino-Noturno "python3 /data/train_job.py --epocas 20" >> /var/log/gpu_fila.log 2>&1
 EOF
 echo ""
 
-# ── 3. systemd (Linux, produção) ───────────────────────────────────────────
+# -- 3. systemd (Linux, producao) -------------------------------------------
 echo "-------------------------------------------------------------------"
-echo " EM PRODUÇÃO, ISOLAMENTO COM SYSTEMD (/etc/systemd/system/gpu-job@.service):"
+echo " EM PRODUCAO, ISOLAMENTO COM SYSTEMD (/etc/systemd/system/gpu-job@.service):"
 echo "-------------------------------------------------------------------"
 cat <<'EOF'
 [Unit]
@@ -75,13 +75,13 @@ echo "  sudo systemctl start gpu-job@experimento-01"
 echo "  journalctl -u gpu-job@experimento-01 -f"
 echo ""
 
-# ── 4. Agendador de Tarefas (Windows) ──────────────────────────────────────
+# -- 4. Agendador de Tarefas (Windows) --------------------------------------
 echo "-------------------------------------------------------------------"
-echo " NO WINDOWS (PowerShell — Agendador de Tarefas):"
+echo " NO WINDOWS (PowerShell - Agendador de Tarefas):"
 echo "-------------------------------------------------------------------"
 cat <<'EOF'
 schtasks /Create /TN "MonitorGPU15" /SC DAILY /ST 08:00 ^
   /TR "\"C:\Program Files\Git\bin\bash.exe\" -lc \"cd /c/caminho/laboratorio_windows && ./monitor_gpu_proc.sh 1 1\""
 EOF
 echo ""
-echo "Simulação concluída."
+echo "Simulacao concluida."

@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# arquitetura_instrucoes.py — RISC vs. CISC na prática
+# arquitetura_instrucoes.py - RISC vs. CISC na pratica
 # ----------------------------------------------------------------------------
-# OBJETIVO: mostrar como a arquitetura instrucional da máquina se apresenta:
+# OBJETIVO: mostrar como a arquitetura instrucional da maquina se apresenta:
 #
-#   - RISC (ARM): instruções simples e de tamanho FIXO. Ex.: Raspberry Pi,
+#   - RISC (ARM): instrucoes simples e de tamanho FIXO. Ex.: Raspberry Pi,
 #     smartphones, Apple Silicon.
-#   - CISC (x86/x64): instruções complexas e de tamanho VARIÁVEL. Ex.: PCs
+#   - CISC (x86/x64): instrucoes complexas e de tamanho VARIAVEL. Ex.: PCs
 #     Intel/AMD e servidores.
 #
-# O script detecta a plataforma e explica o que você veria em cada uma. No
-# Colab/Linux (x86) ele também mostra as instruções SIMD que o Python usa.
+# O script detecta a plataforma e explica o que voce veria em cada uma. No
+# Colab/Linux (x86) ele tambem mostra as instrucoes SIMD que o Python usa.
 #
 # Uso:  python arquitetura_instrucoes.py
 # ============================================================================
@@ -26,7 +26,7 @@ except (AttributeError, ValueError):
 
 
 def classificar(maquina):
-    """Traduz o nome da máquina (platform.machine) em RISC, CISC ou desconhecido."""
+    """Traduz o nome da maquina (platform.machine) em RISC, CISC ou desconhecido."""
     m = maquina.lower()
     if any(t in m for t in ("x86", "amd64", "i386", "i686")):
         return "CISC (x86/x64)", "Intel/AMD"
@@ -36,15 +36,15 @@ def classificar(maquina):
 
 
 def instrucoes_simd():
-    """Devolve os conjuntos de instruções SIMD conhecidos nesta máquina.
+    """Devolve os conjuntos de instrucoes SIMD conhecidos nesta maquina.
 
-    Tenta a API pública do NumPy primeiro e, se não existir, cai para o
-    atributo interno (compatível com versões antigas), sem emitir aviso.
+    Tenta a API publica do NumPy primeiro e, se nao existir, cai para o
+    atributo interno (compativel com versoes antigas), sem emitir aviso.
     """
     flags = []
     recursos = None
     try:
-        # API pública (NumPy >= 2.0). Retorna None se não suportado.
+        # API publica (NumPy >= 2.0). Retorna None se nao suportado.
         from numpy.lib._utils_impl import __cpu_features__ as recursos
     except Exception:
         try:
@@ -97,7 +97,7 @@ def main():
     if flags:
         print("   " + ", ".join(flags))
     else:
-        print("   (nao detectados) — o NumPy ainda usa a melhor opcao da CPU")
+        print("   (nao detectados) - o NumPy ainda usa a melhor opcao da CPU")
 
     print()
     print("Como inspecionar no laboratorio (Colab/Linux):")

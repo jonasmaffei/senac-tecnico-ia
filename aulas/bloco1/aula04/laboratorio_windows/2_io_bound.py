@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# io_bound.py — Quando THREADING ajuda: tarefas de I/O
+# io_bound.py - Quando THREADING ajuda: tarefas de I/O
 # ----------------------------------------------------------------------------
 # OBJETIVO: mostrar o outro lado do GIL. Em tarefas I/O-bound (rede, disco),
-# o Python LIBERA o GIL enquanto espera a resposta. Então as threads ficam
+# o Python LIBERA o GIL enquanto espera a resposta. Entao as threads ficam
 # livres para esperar ao mesmo tempo -> ganho real.
 #
-# É o oposto do processos_threads.py (CPU-bound). A regra geral:
+# E o oposto do processos_threads.py (CPU-bound). A regra geral:
 #   - CPU-bound -> processos (multiprocessing)
 #   - I/O-bound -> threads (threading), ou asyncio
 #
-# Aqui simulamos a latência de rede com time.sleep(), que também libera o GIL
-# (é uma espera, não cálculo). Assim o exemplo roda offline e é previsível.
+# Aqui simulamos a latencia de rede com time.sleep(), que tambem libera o GIL
+# (e uma espera, nao calculo). Assim o exemplo roda offline e e previsivel.
 #
 # Uso:  python io_bound.py
-# Requer: apenas a biblioteca padrão
+# Requer: apenas a biblioteca padrao
 # ============================================================================
 
 import sys
@@ -27,14 +27,14 @@ try:
 except (AttributeError, ValueError):
     pass
 
-LATENCIA = 0.5   # segundos que cada "requisição" leva (latência simulada)
-N_TAREFAS = 6    # quantas requisições
+LATENCIA = 0.5   # segundos que cada "requisicao" leva (latencia simulada)
+N_TAREFAS = 6    # quantas requisicoes
 
 
 def requisicao_simulada(identificador, resultados):
     """Simula uma chamada de rede: espera LATENCIA e registra o resultado.
 
-    Durante o sleep, o Python libera o GIL: outras threads podem avançar.
+    Durante o sleep, o Python libera o GIL: outras threads podem avancar.
     Guardamos o resultado numa lista compartilhada para conferir no final.
     """
     time.sleep(LATENCIA)              # espera de I/O (libera o GIL)
@@ -42,9 +42,9 @@ def requisicao_simulada(identificador, resultados):
 
 
 def main():
-    print(f"{N_TAREFAS} 'requisições', cada uma com {LATENCIA}s de latência\n")
+    print(f"{N_TAREFAS} 'requisicoes', cada uma com {LATENCIA}s de latencia\n")
 
-    # ── 1) Sequencial: espera uma após a outra ──────────────────────────────
+    # -- 1) Sequencial: espera uma apos a outra ------------------------------
     resultados = []
     inicio = time.perf_counter()
     for i in range(N_TAREFAS):
@@ -52,7 +52,7 @@ def main():
     t_seq = time.perf_counter() - inicio
     print(f"Sequencial (I/O): {t_seq:6.2f}s")
 
-    # ── 2) Threading: dispara todas ao mesmo tempo ──────────────────────────
+    # -- 2) Threading: dispara todas ao mesmo tempo --------------------------
     resultados = []
     inicio = time.perf_counter()
     threads = [threading.Thread(target=requisicao_simulada, args=(i, resultados))

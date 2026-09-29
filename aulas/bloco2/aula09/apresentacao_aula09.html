@@ -283,28 +283,26 @@
     <h2><span class="num">4.</span>Kernel OpenCL com PyOpenCL</h2>
     <div class="grid cols-2">
       <div>
-        <div class="code-wrap">
-          <span class="badge">OpenCL C</span>
-          <pre><code>__kernel void soma(
-  __global const float* a,
-  __global const float* b,
-  __global       float* c) {
-    int i = get_global_id(0);
-    c[i] = a[i] + b[i];
-}</code></pre>
+        <h3 style="margin-bottom:8px">A ideia</h3>
+        <p>O kernel é escrito em <strong>OpenCL C</strong> (uma string) e compilado em tempo de
+          execução (<strong>JIT</strong>) para o dispositivo alvo — por isso o mesmo código é
+          portável entre GPUs de marcas diferentes.</p>
+        <div class="code-wrap" style="margin-top:10px">
+          <span class="badge">conceito</span>
+          <pre><code>i = get_global_id(0)   # índice da thread
+c[i] = a[i] + b[i]     # 1 thread = 1 elemento</code></pre>
         </div>
-        <p>Escrito em <strong>OpenCL C</strong> (string) e compilado em tempo de execução
-          (<strong>JIT</strong>) para o dispositivo alvo — por isso é portável.</p>
+        <p>É o mesmo modelo mental do CUDA: cada thread trata <strong>um</strong> item.</p>
       </div>
       <div>
-        <h3 style="margin-bottom:8px">Fluxo</h3>
-        <ul class="clean">
-          <li><code>cl.Context</code> + <code>cl.CommandQueue</code></li>
-          <li><code>cl.Program(ctx, src).build()</code> — compila JIT</li>
-          <li><code>cl.Buffer</code> — aloca a/b/c no device</li>
-          <li><code>kernel(fila, (global,), (local,), ...)</code></li>
-          <li><code>fila.finish()</code> + <code>enqueue_copy</code></li>
-        </ul>
+        <h3 style="margin-bottom:8px">Fluxo (5 passos)</h3>
+        <ol class="clean">
+          <li>Criar <strong>contexto</strong> e fila de comandos.</li>
+          <li><strong>Compilar</strong> o programa (JIT) para a GPU.</li>
+          <li><strong>Alocar</strong> os buffers a, b e c no device.</li>
+          <li><strong>Lançar</strong> o kernel com global/local size.</li>
+          <li><strong>Sincronizar</strong> e copiar o resultado de volta.</li>
+        </ol>
         <div class="note" style="margin-top:12px">
           <span class="ico">📄</span>
           <span>Rode <code>scripts/primeiro_kernel.py</code> (comentado linha a linha).</span>
@@ -324,14 +322,14 @@
     <h2><span class="num">5.</span>CPU vs. GPU e o work-group</h2>
     <div class="grid cols-2">
       <div>
-        <p>O <code>local_size</code> (work-group) é o equivalente ao bloco CUDA. Vamos variá-lo e
-          medir com <strong>eventos OpenCL</strong> (precisão de nanossegundos).</p>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>evento = kernel(fila, (global,), (local,), ...)
-evento.wait()
-t = evento.profile.end - evento.profile.start</code></pre>
-        </div>
+        <p>O <code>local_size</code> (work-group) é o equivalente ao bloco CUDA. Variamos esse
+          valor e medimos o tempo com <strong>eventos OpenCL</strong> — o próprio device
+          cronometra com precisão de nanossegundos.</p>
+        <ul class="clean" style="margin-top:10px">
+          <li><strong>global_size</strong>: total de threads.</li>
+          <li><strong>local_size</strong>: threads por grupo.</li>
+          <li>Deve ser <strong>múltiplo</strong> de <code>local_size</code>.</li>
+        </ul>
       </div>
       <div>
         <h3 style="margin-bottom:8px">Resultado de referência</h3>

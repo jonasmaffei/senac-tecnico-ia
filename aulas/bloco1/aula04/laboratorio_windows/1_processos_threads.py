@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# processos_threads.py — Sequencial vs. Threading vs. Multiprocessing
+# processos_threads.py - Sequencial vs. Threading vs. Multiprocessing
 # ----------------------------------------------------------------------------
-# OBJETIVO: mostrar, na prática, o efeito do GIL do Python numa tarefa CPU-bound.
+# OBJETIVO: mostrar, na pratica, o efeito do GIL do Python numa tarefa CPU-bound.
 #
 #   - Sequencial: uma tarefa de cada vez.
-#   - Threading: várias threads, MAS o GIL só deixa uma rodar bytecode por vez
+#   - Threading: varias threads, MAS o GIL so deixa uma rodar bytecode por vez
 #     -> quase nenhum ganho em tarefas que dependem de CPU.
-#   - Multiprocessing: cada tarefa num PROCESSO separado, com memória própria
-#     -> contorna o GIL e dá speedup REAL.
+#   - Multiprocessing: cada tarefa num PROCESSO separado, com memoria propria
+#     -> contorna o GIL e da speedup REAL.
 #
-# É a base do DataLoader do PyTorch: para pré-processar imagens (CPU-bound),
-# ele usa PROCESSOS (workers), não threads.
+# E a base do DataLoader do PyTorch: para pre-processar imagens (CPU-bound),
+# ele usa PROCESSOS (workers), nao threads.
 #
 # Roda em qualquer ambiente (Windows, Linux, Colab):
 #   python processos_threads.py
-# Requer: apenas a biblioteca padrão
+# Requer: apenas a biblioteca padrao
 # ============================================================================
 
 import math
@@ -31,16 +31,16 @@ try:
 except (AttributeError, ValueError):
     pass
 
-LIMITE = 500_000       # até que número procurar primos (pesado o bastante p/ medir)
+LIMITE = 500_000       # ate que numero procurar primos (pesado o bastante p/ medir)
 N_TAREFAS = 4          # quantas vezes repetimos a tarefa
 N_PROCESSOS = max(2, min(N_TAREFAS, (os.cpu_count() or 2)))
 
 
 def calcular_primos(limite):
-    """Tarefa CPU-bound: conta quantos primos existem até `limite`.
+    """Tarefa CPU-bound: conta quantos primos existem ate `limite`.
 
-    O laço testa a divisibilidade de cada número — trabalho pesado de CPU,
-    sem I/O. É exatamente o tipo de tarefa em que o GIL atrapalha.
+    O laco testa a divisibilidade de cada numero - trabalho pesado de CPU,
+    sem I/O. E exatamente o tipo de tarefa em que o GIL atrapalha.
     """
     primos = 0
     for n in range(2, limite):
@@ -50,7 +50,7 @@ def calcular_primos(limite):
 
 
 def executar_sequencial():
-    """Uma tarefa de cada vez (referência para comparar o speedup)."""
+    """Uma tarefa de cada vez (referencia para comparar o speedup)."""
     inicio = time.perf_counter()
     for _ in range(N_TAREFAS):
         calcular_primos(LIMITE)
@@ -58,7 +58,7 @@ def executar_sequencial():
 
 
 def executar_threading():
-    """Threads: leves e com memória compartilhada, mas limitadas pelo GIL."""
+    """Threads: leves e com memoria compartilhada, mas limitadas pelo GIL."""
     inicio = time.perf_counter()
     threads = [threading.Thread(target=calcular_primos, args=(LIMITE,))
                for _ in range(N_TAREFAS)]
@@ -70,7 +70,7 @@ def executar_threading():
 
 
 def executar_multiprocessing():
-    """Processos: cada um com sua memória; contorna o GIL -> speedup real."""
+    """Processos: cada um com sua memoria; contorna o GIL -> speedup real."""
     inicio = time.perf_counter()
     # Pool cria N_PROCESSOS processos e distribui as tarefas entre eles.
     with multiprocessing.Pool(processes=N_PROCESSOS) as pool:
@@ -79,10 +79,10 @@ def executar_multiprocessing():
 
 
 def main():
-    # O bloco "if __name__ == '__main__'" é OBRIGATÓRIO no Windows para o
+    # O bloco "if __name__ == '__main__'" e OBRIGATORIO no Windows para o
     # multiprocessing (o novo processo reimporta este arquivo).
-    print(f"CPU(s) disponível(is): {os.cpu_count()} | usando {N_PROCESSOS} processos")
-    print(f"{N_TAREFAS} tarefas, cada uma contando primos até {LIMITE:,}\n")
+    print(f"CPU(s) disponivel(is): {os.cpu_count()} | usando {N_PROCESSOS} processos")
+    print(f"{N_TAREFAS} tarefas, cada uma contando primos ate {LIMITE:,}\n")
 
     t_seq = executar_sequencial()
     print(f"Sequencial      : {t_seq:6.2f}s")
@@ -96,7 +96,7 @@ def main():
     print(f"Speedup Threading      : {t_seq / t_thr:.2f}x")
     print(f"Speedup Multiprocessing: {t_seq / t_mp:.2f}x")
     print()
-    print("Conclusão: para CPU-bound, paralelize com PROCESSOS, não threads.")
+    print("Conclusao: para CPU-bound, paralelize com PROCESSOS, nao threads.")
     print("O DataLoader do PyTorch usa workers (processos) por esse motivo.")
 
 

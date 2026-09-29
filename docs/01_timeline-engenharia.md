@@ -97,9 +97,10 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **Conceito/Fundamento:** Rodar o treinamento de uma pequena rede convolucional (CNN simples: `Conv2d` → ReLU → `AdaptiveAvgPool` → `Linear`, entrada 224×224) e comparar o comportamento em **NVIDIA (CUDA)** e **AMD (ROCm)**, medindo throughput e o ganho do Mixed Precision. O código é agnóstico de hardware (`dispositivo = "cuda" if torch.cuda.is_available() else "cpu"`).
 * **O que se aprende:** Métricas objetivas de treino (throughput em imgs/s, tempo total), detecção automática do backend (`torch.version.hip` distingue ROCm de CUDA), otimização com Mixed Precision (`torch.amp.autocast('cuda')` + `torch.amp.GradScaler`), importância do **warm-up** e do `torch.cuda.synchronize()` para medir corretamente, e análise de negócios (custo de aluguel na nuvem, facilidade de uso vs. economia, TCO).
 * **Conexão com a Aula 10:** Consolida o Bloco 2. Coloca em prática a execução do **mesmo** modelo PyTorch nos dois ecossistemas, fundamentando a decisão executiva com dados empíricos de desempenho e custo.
+* **Prática:** notebook no Colab (com **5 exercícios**) e `laboratorio_windows/` portável (`lib_treino.py`, benchmark FP32/FP16 e comparativo de custo TCO) com **modo de referência** quando não há GPU.
 * **O problema que fica em aberto:** Já sabemos medir um treino real; mas onde, afinal, o ganho da GPU **compensa** — e onde o overhead a torna pior que a CPU?
 
-### Aula 12: Prática no Colab e Projeto Integrador
+### Aula 12: Laboratório Prático e Revisão Interativa
 * **Conceito/Fundamento:** Laboratório prático interativo no Google Colab, em 5 experimentos com formulários (`@title`), revisitando toda a trilha: (1) multiplicação de matrizes CPU vs GPU; (2) custo de transferir RAM ➔ VRAM (PCIe); (3) filtro de imagem paralelo (simulação visual de CUDA/tiling); (4) monitor de VRAM via `nvidia-smi`; (5) classificador de sentimentos de clientes (aplicação real).
 * **O que se aprende:** Uso de widgets/formulários interativos do Colab, medição de latência PCIe, prototipagem rápida e introdução ao Projeto Integrador (pesquisa aplicada).
 * **Conexão com a Aula 11:** Valida interativamente, num só notebook, os conceitos de todo o curso antes do encerramento do Bloco 2.

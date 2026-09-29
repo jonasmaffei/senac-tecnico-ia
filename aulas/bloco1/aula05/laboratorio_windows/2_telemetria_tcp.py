@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# telemetria_tcp.py — Servidor TCP que recebe métricas de GPU (JSON)
+# telemetria_tcp.py - Servidor TCP que recebe metricas de GPU (JSON)
 # ----------------------------------------------------------------------------
-# OBJETIVO: simular o fluxo real de um cluster de GPUs: cada nó envia suas
-# métricas (temperatura, VRAM, utilização) para um servidor central via TCP.
+# OBJETIVO: simular o fluxo real de um cluster de GPUs: cada no envia suas
+# metricas (temperatura, VRAM, utilizacao) para um servidor central via TCP.
 #
-# É o mesmo padrão usado por frameworks de treinamento distribuído: o TCP
-# garante que os dados cheguem completos e na ordem — obrigatório quando a
-# ordem importa (ex.: sincronização de gradientes).
+# E o mesmo padrao usado por frameworks de treinamento distribuido: o TCP
+# garante que os dados cheguem completos e na ordem - obrigatorio quando a
+# ordem importa (ex.: sincronizacao de gradientes).
 #
-# Como rodar (loopback; em máquinas diferentes troque 127.0.0.1 pelo IP do
+# Como rodar (loopback; em maquinas diferentes troque 127.0.0.1 pelo IP do
 # servidor):
 #   Terminal 1:  python telemetria_tcp.py servidor
 #   Terminal 2:  python telemetria_tcp.py cliente
 #
 # Uso:  python telemetria_tcp.py [servidor|cliente]
-# Requer: apenas a biblioteca padrão
+# Requer: apenas a biblioteca padrao
 # ============================================================================
 
 import json
@@ -56,7 +56,7 @@ def ler_gpu():
             }
     except Exception:
         pass
-    # Exemplo no mesmo formato (didático, quando não há GPU NVIDIA)
+    # Exemplo no mesmo formato (didatico, quando nao ha GPU NVIDIA)
     return {
         "nome": "NVIDIA Tesla T4 (simulado)",
         "temp_c": 72,
@@ -67,22 +67,22 @@ def ler_gpu():
 
 
 def servidor():
-    """Escuta na porta TCP e imprime as métricas recebidas de cada nó."""
+    """Escuta na porta TCP e imprime as metricas recebidas de cada no."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as srv:
         srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         srv.bind((HOST, PORTA))
-        srv.listen(5)                          # aceita até 5 conexões na fila
+        srv.listen(5)                          # aceita ate 5 conexoes na fila
         print(f"Servidor de telemetria aguardando em {HOST}:{PORTA}...")
         print("(rode em outro terminal:  python telemetria_tcp.py cliente)")
 
         while True:
-            conn, addr = srv.accept()          # bloqueia até um nó conectar
+            conn, addr = srv.accept()          # bloqueia ate um no conectar
             with conn:
                 dados = conn.recv(4096).decode()
                 if not dados:
                     continue
                 metricas = json.loads(dados)    # TCP garantiu o JSON completo
-                print(f"\nConexão de {addr[0]}:{addr[1]}")
+                print(f"\nConexao de {addr[0]}:{addr[1]}")
                 print(f"  GPU  : {metricas['nome']}")
                 print(f"  Temp : {metricas['temp_c']} C")
                 print(f"  VRAM : {metricas['vram_usada_gb']:.1f}/{metricas['vram_total_gb']:.1f} GB")
@@ -90,31 +90,31 @@ def servidor():
 
 
 def cliente(repeticoes=3):
-    """Envia as métricas da GPU para o servidor, algumas vezes."""
+    """Envia as metricas da GPU para o servidor, algumas vezes."""
     for _ in range(repeticoes):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as cli:
                 cli.connect((HOST, PORTA))
                 cli.send(json.dumps(ler_gpu()).encode())
-            print("Métricas enviadas.")
+            print("Metricas enviadas.")
         except ConnectionRefusedError:
-            print("Servidor indisponível. Rode primeiro:  python telemetria_tcp.py servidor")
+            print("Servidor indisponivel. Rode primeiro:  python telemetria_tcp.py servidor")
             return
         time.sleep(0.5)
 
 
 def demo_interna():
-    """Quando ninguém passa argumento: sobe o servidor numa thread e envia 1x.
+    """Quando ninguem passa argumento: sobe o servidor numa thread e envia 1x.
 
-    Facilita testar tudo num único comando (útil no laboratório/Colab).
+    Facilita testar tudo num unico comando (util no laboratorio/Colab).
     """
-    print("Modo demonstração: servidor + cliente no mesmo processo.\n")
+    print("Modo demonstracao: servidor + cliente no mesmo processo.\n")
     t = threading.Thread(target=servidor, daemon=True)  # servidor em segundo plano
     t.start()
     time.sleep(0.5)
     cliente(repeticoes=1)
     time.sleep(0.5)
-    print("\n[OK] Demonstração concluída.")
+    print("\n[OK] Demonstracao concluida.")
 
 
 if __name__ == "__main__":

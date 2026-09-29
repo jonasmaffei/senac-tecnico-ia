@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-# lib_hw.py — Descobrir o hardware REAL desta máquina (CPU, RAM e GPU)
+# lib_hw.py - Descobrir o hardware REAL desta maquina (CPU, RAM e GPU)
 # ----------------------------------------------------------------------------
-# Biblioteca compartilhada pelos scripts do laboratório. Roda no Windows, no
-# Linux e no Colab. Não depende de GPU: se não houver, informa 'simulado'.
+# Biblioteca compartilhada pelos scripts do laboratorio. Roda no Windows, no
+# Linux e no Colab. Nao depende de GPU: se nao houver, informa 'simulado'.
 #
 # Uso:
 #   import lib_hw
@@ -23,7 +23,7 @@ except (AttributeError, ValueError):
 
 
 def info_cpu():
-    """Modelo do processador e nº de núcleos (físicos e lógicos)."""
+    """Modelo do processador e no de nucleos (fisicos e logicos)."""
     modelo = platform.processor() or platform.machine() or "CPU"
     logicos = os.cpu_count() or 1
     fisicos = None
@@ -36,7 +36,7 @@ def info_cpu():
 
 
 def info_ram():
-    """RAM total/usada em GB (via psutil, se disponível)."""
+    """RAM total/usada em GB (via psutil, se disponivel)."""
     try:
         import psutil
         m = psutil.virtual_memory()
@@ -63,7 +63,7 @@ def info_gpu_windows():
 
 
 def info_gpu():
-    """Melhor esforço para nomear a GPU: nvidia-smi → Windows → desconhecida."""
+    """Melhor esforco para nomear a GPU: nvidia-smi -> Windows -> desconhecida."""
     # 1) NVIDIA
     smi = shutil.which("nvidia-smi") or shutil.which("nvidia-smi.exe")
     if smi:
@@ -82,12 +82,12 @@ def info_gpu():
             return gpus[0]
     # 3) AMD no Linux
     if shutil.which("rocminfo"):
-        return "GPU AMD (rocminfo disponível)"
-    return "não identificada"
+        return "GPU AMD (rocminfo disponivel)"
+    return "nao identificada"
 
 
 def detectar_backend():
-    """Qual 'engine' de cálculo dá para usar: CuPy → PyTorch CUDA → DirectML → NumPy."""
+    """Qual 'engine' de calculo da para usar: CuPy -> PyTorch CUDA -> DirectML -> NumPy."""
     try:
         import cupy  # noqa: F401
         if cupy.cuda.runtime.getDeviceCount() > 0:
@@ -109,7 +109,7 @@ def detectar_backend():
 
 
 def resumo():
-    """Devolve tudo num dicionário."""
+    """Devolve tudo num dicionario."""
     cpu = info_cpu()
     return {
         "sistema": f"{platform.system()} {platform.release()}",

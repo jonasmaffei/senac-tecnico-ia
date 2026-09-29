@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# monitor_memoria.py — Medindo antes de otimizar
+# monitor_memoria.py - Medindo antes de otimizar
 # ----------------------------------------------------------------------------
-# OBJETIVO: "antes de otimizar, é preciso medir". Este script mostra:
+# OBJETIVO: "antes de otimizar, e preciso medir". Este script mostra:
 #
-#   1. O painel do nvidia-smi (nome, VRAM usada/total, utilização), se houver;
-#   2. A memória usada/instalada no host (psutil, se instalado);
-#   3. Um exemplo simulado no MESMO formato, quando não há GPU NVIDIA.
+#   1. O painel do nvidia-smi (nome, VRAM usada/total, utilizacao), se houver;
+#   2. A memoria usada/instalada no host (psutil, se instalado);
+#   3. Um exemplo simulado no MESMO formato, quando nao ha GPU NVIDIA.
 #
-# É o passo de DIAGNÓSTICO da situação de aprendizagem (GPU a 40%): antes de
-# propor melhoria, olhamos os números.
+# E o passo de DIAGNOSTICO da situacao de aprendizagem (GPU a 40%): antes de
+# propor melhoria, olhamos os numeros.
 #
 # Uso:  python monitor_memoria.py
-# Requer: (nenhum obrigatório) — nvidia-smi e psutil são usados se existirem
+# Requer: (nenhum obrigatorio) - nvidia-smi e psutil sao usados se existirem
 # ============================================================================
 
 import shutil
@@ -31,7 +31,7 @@ def painel_nvidia_smi():
     if shutil.which("nvidia-smi") is None:
         return False
 
-    # Pedimos só os campos que interessam, em CSV sem cabeçalho e sem unidades.
+    # Pedimos so os campos que interessam, em CSV sem cabecalho e sem unidades.
     comando = [
         "nvidia-smi",
         "--query-gpu=index,name,memory.used,memory.total,utilization.gpu,temperature.gpu",
@@ -54,11 +54,11 @@ def painel_nvidia_smi():
 
 
 def memoria_host():
-    """Mostra a memória do host (RAM) usando psutil, se estiver instalado."""
+    """Mostra a memoria do host (RAM) usando psutil, se estiver instalado."""
     try:
         import psutil
     except ImportError:
-        print("Detalhes da memória do host: instale o psutil")
+        print("Detalhes da memoria do host: instale o psutil")
         print("   (no Colab:  !pip install psutil -q)")
         return
     info = psutil.virtual_memory()
@@ -69,12 +69,12 @@ def memoria_host():
 
 def main():
     print("=" * 72)
-    print(" Diagnóstico de memória — medir antes de otimizar")
+    print(" Diagnostico de memoria - medir antes de otimizar")
     print("=" * 72)
 
     tem_gpu = painel_nvidia_smi()
     if not tem_gpu:
-        print("Sem nvidia-smi neste ambiente — exemplo SIMULADO (Tesla T4):")
+        print("Sem nvidia-smi neste ambiente - exemplo SIMULADO (Tesla T4):")
         print(f"  {'idx':>3} | {'nome':<22} | {'VRAM usada':>10} | {'VRAM total':>10} | {'util%':>5} | {'temp':>4}")
         print("  " + "-" * 68)
         print(f"  {'0':>3} | {'Tesla T4':<22} | {'1234':>7} MB | {'15360':>7} MB | {'40':>5} | {'52':>3}C")
@@ -84,9 +84,9 @@ def main():
     print()
     print("Leitura do painel:")
     print("  - VRAM 'usada' baixa + 'util%' baixa (ex.: 40%) = GPU ociosa.")
-    print("  - Causa comum: o host não entrega os dados rápido (gargalo PCIe,")
+    print("  - Causa comum: o host nao entrega os dados rapido (gargalo PCIe,")
     print("    batches mal dimensionados, DataLoader lento).")
-    print("  - Ação: aumentar o batch (ou usar mais workers de dados) para")
+    print("  - Acao: aumentar o batch (ou usar mais workers de dados) para")
     print("    ocupar a VRAM e manter a GPU alimentada.")
 
 

@@ -1,11 +1,11 @@
 # ============================================================================
-# servidor.py — webservice de monitoramento em tempo real (versão Windows)
+# servidor.py - webservice de monitoramento em tempo real (versao Windows)
 # ----------------------------------------------------------------------------
-# Este é o programa que você executa no Windows: enquanto ele estiver rodando,
-# coleta métricas continuamente e as publica em http://localhost:5000.
+# Este e o programa que voce executa no Windows: enquanto ele estiver rodando,
+# coleta metricas continuamente e as publica em http://localhost:5000.
 #
-#   1. Uma thread em segundo plano coleta métricas a cada N segundos e guarda
-#      as últimas amostras em memória (deque).
+#   1. Uma thread em segundo plano coleta metricas a cada N segundos e guarda
+#      as ultimas amostras em memoria (deque).
 #   2. O painel fica em  http://localhost:5000/
 #   3. A API JSON fica em http://localhost:5000/api/metricas
 #   4. O fluxo em tempo real (SSE) fica em http://localhost:5000/api/stream.
@@ -25,19 +25,19 @@ from flask import Flask, Response, jsonify, render_template
 import coletor
 
 # ---------------------------------------------------------------------------
-# CONFIGURAÇÃO (pode ser ajustada por variáveis de ambiente)
+# CONFIGURACAO (pode ser ajustada por variaveis de ambiente)
 # ---------------------------------------------------------------------------
 INTERVALO = int(os.environ.get("INTERVALO", "2"))
 MAX_AMOSTRAS = int(os.environ.get("MAX_AMOSTRAS", "900"))
 
-# A raiz do projeto é a pasta ACIMA de app/ (onde este arquivo está). Assim o
-# CSV é gravado em <projeto>/reports/metricas.csv, independentemente de qual
-# diretório o programa foi iniciado.
+# A raiz do projeto e a pasta ACIMA de app/ (onde este arquivo esta). Assim o
+# CSV e gravado em <projeto>/reports/metricas.csv, independentemente de qual
+# diretorio o programa foi iniciado.
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_ARQUIVO = os.environ.get("CSV_ARQUIVO", os.path.join(RAIZ, "reports", "metricas.csv"))
 
-# A pasta do script entra no sys.path, então "import coletor" funciona mesmo
-# rodando de qualquer diretório. O template é procurado em app/templates.
+# A pasta do script entra no sys.path, entao "import coletor" funciona mesmo
+# rodando de qualquer diretorio. O template e procurado em app/templates.
 app = Flask(__name__)
 
 historico = deque(maxlen=MAX_AMOSTRAS)
@@ -60,7 +60,7 @@ def loop_coleta():
 
 
 def gravar_csv(amostra):
-    """Acrescenta a amostra em reports/metricas.csv (histórico persistente)."""
+    """Acrescenta a amostra em reports/metricas.csv (historico persistente)."""
     try:
         os.makedirs(os.path.dirname(CSV_ARQUIVO) or ".", exist_ok=True)
         novo = not os.path.exists(CSV_ARQUIVO)
@@ -137,16 +137,16 @@ def health():
 
 
 # ---------------------------------------------------------------------------
-# INICIALIZAÇÃO
+# INICIALIZACAO
 # ---------------------------------------------------------------------------
 def main():
     thread = threading.Thread(target=loop_coleta, daemon=True)
     thread.start()
 
     print("=" * 60)
-    print(" Monitoramento em tempo real (Windows) — Aula 14")
+    print(" Monitoramento em tempo real (Windows) - Aula 14")
     print(f" Backend de GPU: {coletor.nome_backend()}")
-    print(f" Intervalo: {INTERVALO}s | Histórico: {MAX_AMOSTRAS} amostras")
+    print(f" Intervalo: {INTERVALO}s | Historico: {MAX_AMOSTRAS} amostras")
     print(f" CSV: {CSV_ARQUIVO}")
     print(" Abra no navegador: http://localhost:5000")
     print(" Pressione Ctrl+C para encerrar o monitoramento.")

@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 # ============================================================================
-# lib_gpu15.sh — funções compartilhadas do laboratório de Gestão de Processos
+# lib_gpu15.sh - funcoes compartilhadas do laboratorio de Gestao de Processos
 # ----------------------------------------------------------------------------
-# Este arquivo NÃO é executado sozinho: é "carregado" pelos outros scripts com:
+# Este arquivo NAO e executado sozinho: e "carregado" pelos outros scripts com:
 #     source ./lib_gpu15.sh
 #
-# Compatível com Git Bash (Windows), WSL e Linux. Junta três responsabilidades:
-#   1. LOCK  — exclusão mútua portable (flock quando existe, senão mkdir).
-#   2. GPU   — leitura de processos/utilização da GPU (AMD/Windows, NVIDIA ou simulado).
-#   3. FS    — pastas de trabalho (fila, locks, logs) dentro de ./reports.
+# Compativel com Git Bash (Windows), WSL e Linux. Junta tres responsabilidades:
+#   1. LOCK  - exclusao mutua portable (flock quando existe, senao mkdir).
+#   2. GPU   - leitura de processos/utilizacao da GPU (AMD/Windows, NVIDIA ou simulado).
+#   3. FS    - pastas de trabalho (fila, locks, logs) dentro de ./reports.
 #
-# IMPORTANTE (Windows): o Git Bash NÃO tem o comando flock nem nvidia-smi.
-# Por isso o lock usa a operação atômica `mkdir` (que é universal) e a GPU é
+# IMPORTANTE (Windows): o Git Bash NAO tem o comando flock nem nvidia-smi.
+# Por isso o lock usa a operacao atomica `mkdir` (que e universal) e a GPU e
 # lida pelos contadores de desempenho do Windows via PowerShell inline (sem .ps1).
 # ============================================================================
 
-# Força o fuso de Brasília (BRT, UTC-3). Usamos "BRT3" e não "America/Sao_Paulo"
-# porque o Git Bash do Windows não traz a base tzdata completa.
+# Forca o fuso de Brasilia (BRT, UTC-3). Usamos "BRT3" e nao "America/Sao_Paulo"
+# porque o Git Bash do Windows nao traz a base tzdata completa.
 export TZ="BRT3"
 
 # ---------------------------------------------------------------------------
-# PASTAS DE TRABALHO (tudo dentro de ./reports, para não sujar a raiz)
+# PASTAS DE TRABALHO (tudo dentro de ./reports, para nao sujar a raiz)
 # ---------------------------------------------------------------------------
 export DIR_RELATORIOS="${DIR_RELATORIOS:-./reports}"
 export DIR_FILA="${DIR_FILA:-$DIR_RELATORIOS/fila}"
@@ -32,7 +32,7 @@ preparar_dirs() {
 }
 
 # ---------------------------------------------------------------------------
-# DETECÇÃO DE BACKEND DE GPU
+# DETECCAO DE BACKEND DE GPU
 # ---------------------------------------------------------------------------
 BACKEND="simulado"
 
@@ -60,23 +60,23 @@ nome_backend() {
 aviso_backend() {
     echo ">> Backend de GPU: $(nome_backend)"
     if [ "$BACKEND" = "simulado" ]; then
-        echo "   Nenhuma GPU detectada — usando dados SIMULADOS."
+        echo "   Nenhuma GPU detectada - usando dados SIMULADOS."
     fi
 }
 
 # ===========================================================================
-# LOCK PORTÁVEL — exclusão mútua
+# LOCK PORTAVEL - exclusao mutua
 # ---------------------------------------------------------------------------
-# O lock é um DIRETÓRIO. Criar diretório é uma operação ATÔMICA no sistema de
-# arquivos: se dois processos tentam ao mesmo tempo, só um consegue. É o mesmo
-# princípio do flock -x, mas funciona também no Git Bash do Windows.
+# O lock e um DIRETORIO. Criar diretorio e uma operacao ATOMICA no sistema de
+# arquivos: se dois processos tentam ao mesmo tempo, so um consegue. E o mesmo
+# principio do flock -x, mas funciona tambem no Git Bash do Windows.
 #
-# Dentro do diretório-guarda guardamos o arquivo "pid" com o PID dono do lock.
-# Se o dono morreu (job interrompido), o lock fica obsoleto e é limpo.
+# Dentro do diretorio-guarda guardamos o arquivo "pid" com o PID dono do lock.
+# Se o dono morreu (job interrompido), o lock fica obsoleto e e limpo.
 # ===========================================================================
 
-# Tenta adquirir o lock. Devolve 0 se conseguiu, 1 se já estava ocupado.
-# NÃO espera (non-blocking), igual ao `flock -n`.
+# Tenta adquirir o lock. Devolve 0 se conseguiu, 1 se ja estava ocupado.
+# NAO espera (non-blocking), igual ao `flock -n`.
 lock_tentar() {
     local nome="${1:-gpu}"
     local dir="$DIR_LOCKS/${nome}.lock"
@@ -88,7 +88,7 @@ lock_tentar() {
     return 1
 }
 
-# Remove um lock obsoleto (dono já morreu). Devolve 0 se removeu algo.
+# Remove um lock obsoleto (dono ja morreu). Devolve 0 se removeu algo.
 lock_limpar_obsoleto() {
     local nome="${1:-gpu}"
     local dir="$DIR_LOCKS/${nome}.lock"
@@ -97,23 +97,23 @@ lock_limpar_obsoleto() {
     dono=$(cat "$dir/pid" 2>/dev/null || echo "")
     # kill -0 testa se o processo ainda existe sem enviar sinal.
     if [ -n "$dono" ] && kill -0 "$dono" 2>/dev/null; then
-        return 1   # dono vivo: o lock é legítimo
+        return 1   # dono vivo: o lock e legitimo
     fi
     echo "[$(date '+%H:%M:%S')] Lock obsoleto de PID '${dono:-?}' removido." >&2
     rm -rf "$dir"
     return 0
 }
 
-# Libera o lock (só se formos o dono).
+# Libera o lock (so se formos o dono).
 lock_liberar() {
     local nome="${1:-gpu}"
-    # Versão flock: o descritor 200 é fechado, liberando o lock automaticamente.
+    # Versao flock: o descritor 200 e fechado, liberando o lock automaticamente.
     if command -v flock >/dev/null 2>&1; then
         exec 200>&- 2>/dev/null || true
         rm -f "$DIR_LOCKS/${nome}.pid"
         return 0
     fi
-    # Versão por diretório
+    # Versao por diretorio
     local dir="$DIR_LOCKS/${nome}.lock"
     local dono
     dono=$(cat "$dir/pid" 2>/dev/null || echo "")
@@ -125,8 +125,8 @@ lock_liberar() {
 # Adquire o lock, esperando a vez. Timeout opcional em segundos (0 = infinito).
 # Uso: lock_adquirir "gpu" [timeout_s]
 #
-# Onde existe `flock` (Linux/WSL), usamos o próprio; no Git Bash do Windows,
-# caímos no lock por diretório (mkdir atômico). Ambos bloqueiam até conseguir.
+# Onde existe `flock` (Linux/WSL), usamos o proprio; no Git Bash do Windows,
+# caimos no lock por diretorio (mkdir atomico). Ambos bloqueiam ate conseguir.
 lock_adquirir() {
     local nome="${1:-gpu}"
     local timeout="${2:-0}"
@@ -134,7 +134,7 @@ lock_adquirir() {
     if command -v flock >/dev/null 2>&1; then
         # Abre o descritor de arquivo 200 apontando para o arquivo de lock e
         # pede o lock exclusivo. Como o `exec` roda no shell atual, o descritor
-        # permanece aberto e o lock é mantido até o script terminar.
+        # permanece aberto e o lock e mantido ate o script terminar.
         local arq="$DIR_LOCKS/${nome}.flock"
         exec 200>"$arq"
         if [ "$timeout" -gt 0 ]; then
@@ -146,7 +146,7 @@ lock_adquirir() {
         return 0
     fi
 
-    # Fallback portátil (Windows/Git Bash): lock por diretório + limpeza de órfãos
+    # Fallback portatil (Windows/Git Bash): lock por diretorio + limpeza de orfaos
     local inicio
     inicio=$(date +%s)
     while true; do
@@ -216,12 +216,12 @@ $eng | Where-Object { $_.Name -match "pid_(\d+)" -and $_.Name -like "*engtype_3D
 }
 
 _proc_amd_linux() {
-    # rocm-smi (ROCm <= 5) lista os PIDs; a VRAM por processo não é trivial.
+    # rocm-smi (ROCm <= 5) lista os PIDs; a VRAM por processo nao e trivial.
     rocm-smi --showpids 2>/dev/null | awk '/ /{print $1"|?|AMD|N/A|?"}' | head -20
 }
 
 _proc_simulado() {
-    # Descobre por conta própria quem está segurando o lock e mostra esse PID.
+    # Descobre por conta propria quem esta segurando o lock e mostra esse PID.
     local dir="$DIR_LOCKS/gpu.lock"
     if [ -d "$dir" ]; then
         local dono
@@ -292,7 +292,7 @@ _resumo_amd_linux() {
 }
 
 _resumo_simulado() {
-    # Gera um resumo estável para a aula funcionar sem GPU.
+    # Gera um resumo estavel para a aula funcionar sem GPU.
     local util=0
     if [ -d "$DIR_LOCKS/gpu.lock" ]; then util=87; else util=3; fi
     echo "0|$util|2048|12272"

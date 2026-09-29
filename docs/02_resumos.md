@@ -126,17 +126,20 @@
 * **Matriz de Trade-offs para Decisão Técnica:**
   * **NVIDIA (CUDA):** ecossistema maduro (cuDNN/cuBLAS), menor tempo de setup, porém maior custo por GPU.
   * **AMD (ROCm):** 100% open-source, maior densidade de VRAM por chip (ex.: MI300X com 192 GB), melhor relação custo/desempenho, exigindo suporte via contêineres Docker recomendados.
+* **Estrutura (padrão canônico):** apresentação `.html` só conceito, `notebook_colab/` (com **Exercícios (5)**), `laboratorio_windows/` portável (`lib_treino.py`, `1_benchmark_treino.py`, `2_comparar_ecossistemas.py`) e `atividade.md`.
 
-#### Aula 12: Prática no Colab e Projeto Integrador
+#### Aula 12: Laboratório Prático e Revisão Interativa
 * **Laboratório Interativo (5 experimentos):** notebook no Colab com formulários (`@title`) que revisita a trilha — (1) multiplicação de matrizes CPU vs GPU; (2) custo de transferir RAM ➔ VRAM (PCIe); (3) filtro de imagem paralelo (simulação visual de CUDA/tiling); (4) monitor de VRAM via `nvidia-smi`; (5) classificador de sentimentos de clientes (aplicação real de NLP). 
 * **Prototipagem Rápida:** uso de widgets e formulários interativos do Colab para alterar parâmetros e ver o resultado na hora.
-* **Projeto Integrador:** a aula também apresenta o trabalho final (pesquisa aplicada que amarra a UC; detalhes em `aulas/projeto-integrador/README.md`).
+* **Projeto Integrador:** a aula também referencia o trabalho final (pesquisa aplicada que amarra a UC; detalhes em `aulas/projeto-integrador/README.md`).
+* **Estrutura (padrão canônico):** apresentação `.html` só conceito, `notebook_colab/` (com **Exercícios (5)**) e `atividade.md`. Sem `laboratorio_windows/` (os experimentos dependem de GPU/Colab).
 
 #### Aula 13: Implementação de um Modelo Paralelo Simples (Síntese do Bloco 2)
 * **Comparativo Quádruplo:** Implementação e medição das 4 abordagens para soma vetorial e produto escalar (Python Puro, CPU NumPy, GPU CUDA Numba e GPU CuPy).
 * **Redução Paralela em Shared Memory:** Implementação de *Tree Reduction* dentro do bloco CUDA para produto escalar em Numba com acúmulo via `cuda.atomic.add`.
 * **Análise de Speedup & Overhead:** Diagnóstico empírico demonstrando que para $N < 100K$ o overhead de transferência PCIe e lançamento de kernels torna a GPU mais lenta que a CPU ($<1\times$), enquanto para $N \ge 10M$ o speedup atinge ganhos expressivos ($>20\times$).
 * **Extras:** varredura de $N \in [10K, 100K, 1M, 10M, 100M]$, gráficos de tempo e speedup com Matplotlib, comparação `np.linalg.norm` vs. `cp.linalg.norm`, mini-relatório gerado automaticamente e fechamento com o questionário das Aulas 8 a 13.
+* **Estrutura (padrão canônico):** apresentação `.html` só conceito, `notebook_colab/` (com **Exercícios (5)**) e `atividade.md`. Sem `laboratorio_windows/` (o benchmark exige GPU/Colab).
 
 #### Aula 14: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
 * **Monitoramento com `nvidia-smi`:** A opção `--query-gpu` extrai métricas estruturadas (`temperature.gpu`, `utilization.gpu`, `utilization.memory`, `memory.used`, `power.draw`, `power.limit`, clocks e `fan.speed`). A flag `--format=csv,noheader,nounits` produz saída ideal para scripts.

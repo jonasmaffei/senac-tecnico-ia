@@ -2,10 +2,10 @@
 REM ============================================================================
 REM iniciar.bat - atalho para rodar o monitoramento no Windows
 REM ----------------------------------------------------------------------------
-REM Uso: dê um duplo clique neste arquivo, OU no Prompt de Comando:
+REM Uso: de um duplo clique neste arquivo, OU no Prompt de Comando:
 REM     iniciar.bat
 REM
-REM Ele instala as dependências (se necessário), sobe o servidor e abre o
+REM Ele instala as dependencias (se necessario), sobe o servidor e abre o
 REM navegador em http://localhost:5000. Feche a janela para parar.
 REM ============================================================================
 

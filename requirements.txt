@@ -1,28 +1,28 @@
 # ============================================================
-# Dependências — Introdução a Arquitetura de Computadores (Senac)
+# Dependencias - Introducao a Arquitetura de Computadores (Senac)
 # Instale com: pip install -r requirements.txt
 # ============================================================
 
-# --- Obrigatórias (funcionam em qualquer máquina) ---
+# --- Obrigatorias (funcionam em qualquer maquina) ---
 numpy>=1.24.0
 pandas>=2.0.0
 matplotlib>=3.7.0
 
-# --- Integração com Google Sheets (Aula 14) ---
-# Só são necessárias para publicar métricas de GPU na planilha.
+# --- Integracao com Google Sheets (Aula 14) ---
+# So sao necessarias para publicar metricas de GPU na planilha.
 google-auth>=2.0.0
 google-api-python-client>=2.0.0
 
 # --- Requerem GPU NVIDIA com drivers CUDA instalados ---
-# PyTorch: instale pela página oficial https://pytorch.org/get-started
-# O comando varia conforme sua versão de CUDA. Exemplo para CUDA 12.4:
+# PyTorch: instale pela pagina oficial https://pytorch.org/get-started
+# O comando varia conforme sua versao de CUDA. Exemplo para CUDA 12.4:
 #   pip install torch --index-url https://download.pytorch.org/whl/cu124
 torch>=2.0.0
 
 # Numba: compilador JIT com suporte a kernels CUDA
 numba>=0.57.0
 
-# CuPy: NumPy acelerado por GPU (escolha a versão compatível com seu CUDA)
+# CuPy: NumPy acelerado por GPU (escolha a versao compativel com seu CUDA)
 # Exemplo para CUDA 12.x:
 #   pip install cupy-cuda12x
 # cupy-cuda12x>=12.0.0

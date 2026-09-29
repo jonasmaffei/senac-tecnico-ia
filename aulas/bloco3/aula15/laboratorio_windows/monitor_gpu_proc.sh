@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # ============================================================================
-# monitor_gpu_proc.sh — monitora processos, GPU e fila em tempo real
+# monitor_gpu_proc.sh - monitora processos, GPU e fila em tempo real
 # ----------------------------------------------------------------------------
 # Uso:  ./monitor_gpu_proc.sh [vezes] [intervalo_s]
 # Ex.:  ./monitor_gpu_proc.sh          (infinito, 3 s)
-#       ./monitor_gpu_proc.sh 5 2      (5 atualizações a cada 2 s)
+#       ./monitor_gpu_proc.sh 5 2      (5 atualizacoes a cada 2 s)
 #
 # Mostra, a cada ciclo:
-#   - quem está usando a GPU (PID, usuário, processo, VRAM/utilização);
-#   - o resumo da placa (utilização e VRAM);
-#   - o estado atual da fila (quem está executando e quem espera);
+#   - quem esta usando a GPU (PID, usuario, processo, VRAM/utilizacao);
+#   - o resumo da placa (utilizacao e VRAM);
+#   - o estado atual da fila (quem esta executando e quem espera);
 #   - o dono do lock da GPU.
 # ============================================================================
 
@@ -19,16 +19,16 @@ source ./lib_gpu15.sh
 set -euo pipefail
 preparar_dirs
 
-VEZES="${1:-0}"       # 0 = fica em loop até Ctrl+C
+VEZES="${1:-0}"       # 0 = fica em loop ate Ctrl+C
 INTERVALO="${2:-3}"
 
 uma_volta() {
     echo "=============================================================="
-    echo " Monitor de GPU — $(date '+%Y-%m-%d %H:%M:%S') (Brasília)"
+    echo " Monitor de GPU - $(date '+%Y-%m-%d %H:%M:%S') (Brasilia)"
     echo " Backend: $(nome_backend)"
     echo "=============================================================="
 
-    echo "── Processos usando a GPU ──"
+    echo "-- Processos usando a GPU --"
     local achou=0
     while IFS='|' read -r pid user nome vram util; do
         [ -z "$pid" ] && continue
@@ -39,7 +39,7 @@ uma_volta() {
     [ "$achou" -eq 0 ] && echo "  (nenhum processo dedicado na GPU agora)"
 
     echo ""
-    echo "── Resumo da GPU ──"
+    echo "-- Resumo da GPU --"
     while IFS='|' read -r idx util mem tot; do
         [ -z "$idx" ] && continue
         if [ "$tot" != "N/A" ] && [ "$tot" -gt 0 ] 2>/dev/null; then
@@ -51,7 +51,7 @@ uma_volta() {
     done < <(resumo_gpu)
 
     echo ""
-    echo "── Fila de jobs (ordem de execução) ──"
+    echo "-- Fila de jobs (ordem de execucao) --"
     if [ -n "$(ls -A "$DIR_FILA" 2>/dev/null)" ]; then
         ls "$DIR_FILA" | sort | nl -w3 -s'. '
     else
@@ -59,7 +59,7 @@ uma_volta() {
     fi
 
     echo ""
-    echo "── Lock da GPU ──"
+    echo "-- Lock da GPU --"
     if [ -d "$DIR_LOCKS/gpu.lock" ]; then
         echo "  Ocupado por PID $(cat "$DIR_LOCKS/gpu.lock/pid" 2>/dev/null) desde $(cat "$DIR_LOCKS/gpu.lock/inicio" 2>/dev/null)"
     elif [ -f "$DIR_LOCKS/gpu.pid" ]; then
@@ -76,7 +76,7 @@ if [ "$VEZES" -gt 0 ]; then
         [ "$i" -lt "$VEZES" ] && sleep "$INTERVALO"
     done
 else
-    echo "Monitor contínuo (Ctrl+C para sair). Intervalo: ${INTERVALO}s"
+    echo "Monitor continuo (Ctrl+C para sair). Intervalo: ${INTERVALO}s"
     while true; do
         uma_volta
         sleep "$INTERVALO"

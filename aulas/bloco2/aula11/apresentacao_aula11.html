@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 11 — Aplicação de Modelos de IA (NVIDIA vs AMD)</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .big { font-size: 1.75rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+  }
+  pre code {
+    background: none; border: none; padding: 0; color: #dbe1ff;
+    font-size: .8rem; line-height: 1.55; white-space: pre; display: block;
+  }
+  pre.scroll { max-height: 340px; overflow-y: auto; }
+
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge {
+    position: absolute; top: 8px; left: 10px; font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
+    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .code-wrap pre { padding-top: 30px; }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  .terminal {
+    background: #05070f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto;
+  }
+  .terminal .bad { color: #ff8080; }
+  .terminal .warn { color: #ffd27a; }
+  .terminal .dim { color: #5c6a97; }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide .big-badge { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 18px; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 2 · Programação GPU</div>
+</div>
+
+<main id="deck">
+  <!-- 01 — Título + situação -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 11</div>
+    <h1>Aplicação de Modelos de IA (NVIDIA vs AMD)</h1>
+    <p class="lead">Medir o treinamento de um modelo de visão computacional, comparar o
+      desempenho entre GPUs <strong>NVIDIA</strong> e <strong>AMD</strong> e decidir com
+      <strong>dados</strong> — não com opinião.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">2 — Programação GPU</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">100 min</div></div>
+      <div class="meta"><div class="k">Ambiente</div><div class="v">Google Colab (GPU) + referência sem GPU</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🔥</span> Situação de aprendizagem</h3>
+        <p>A startup <strong>"IA Entregas"</strong> vai alugar GPUs na nuvem por 3 anos. O
+          diretor financeiro quer saber: <strong>NVIDIA ou AMD?</strong></p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎯</span> Seu papel</h3>
+        <p>Você é o <strong>consultor de tecnologia</strong>: roda o benchmark, lê os números e
+          recomenda a melhor escolha técnica e financeira.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Objetivo + pipeline -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e o elo da corrente</h2>
+    <p><strong>Objetivo:</strong> treinar e comparar um modelo de imagem, medindo
+      <strong>throughput</strong>, <strong>VRAM</strong> e <strong>tempo por época</strong>, e
+      avaliar o impacto do <em>mixed precision</em> (FP16).</p>
+    <div class="pipeline" style="margin-top:8px">
+      <div class="pipe-step"><span class="step-ico">🧠</span><span class="step-title">Modelo</span><span class="step-sub">CNN de visão</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">🏋️</span><span class="step-title">Treino</span><span class="step-sub">batches sintéticos</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">⚡</span><span class="step-title">Mixed Precision</span><span class="step-sub">FP32 vs. FP16</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">Métricas</span><span class="step-sub">imgs/s · VRAM · época</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">💰</span><span class="step-title">Decisão</span><span class="step-sub">NVIDIA ou AMD</span></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:22px; align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (100 min)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: o dilema de compra da startup</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Teoria: métricas de benchmark em IA</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: <em>mixed precision</em> (FP16)</span></div>
+          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Atividade: treino FP32 vs. FP16 no Colab</span></div>
+          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Comparação NVIDIA (CUDA) × AMD (ROCm)</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Discussão em grupo e síntese</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🖥️</span> Onde roda esta aula</h3>
+          <p>No <strong>Colab</strong> com GPU (T4) o treino roda de verdade. Sem GPU, o script
+            mostra os <strong>números de referência</strong> — o mesmo código Python.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Throughput (imgs/s) · VRAM · Tempo por época · Mixed Precision (FP16) · CUDA × ROCm · TCO</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Métricas -->
+  <section class="slide">
+    <div class="kicker">Teoria · Como medir</div>
+    <h2><span class="num">1.</span>O que significam os números?</h2>
+    <p>Treinar um modelo é como uma <strong>transportadora</strong>: o que importa é quantos
+      pacotes saem por minuto e quanto ocupa o caminhão.</p>
+    <table style="max-width:860px;margin-top:8px">
+      <thead><tr><th>Métrica</th><th>O que é</th><th>Analogia</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Throughput (imgs/s)</strong></td><td>Imagens processadas por segundo</td><td class="yes">pacotes por minuto</td></tr>
+        <tr><td><strong>VRAM (MB)</strong></td><td>Memória da GPU em uso</td><td class="mid">espaço no caminhão</td></tr>
+        <tr><td><strong>Tempo por época (s)</strong></td><td>Tempo para ler todo o dataset uma vez</td><td class="mid">duração da viagem</td></tr>
+        <tr><td><strong>Mixed Precision</strong></td><td>Usa números menores (FP16) nos cálculos</td><td class="yes">dobrar a carga útil</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">💡</span>
+      <span>Quanto <strong>maior</strong> o throughput e <strong>menor</strong> o tempo por
+        época, melhor — e mais barato fica o aluguel da GPU.</span>
+    </div>
+  </section>
+
+  <!-- 04 — Mixed precision -->
+  <section class="slide">
+    <div class="kicker">Teoria · Otimização</div>
+    <h2><span class="num">2.</span>Mixed Precision: por que FP16 acelera?</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>Os cálculos em <strong>FP32</strong> (32 bits) usam mais memória e banda. Em
+          <strong>FP16</strong> os números ocupam <strong>metade</strong> do espaço — cabe mais
+          batch, a memória trafega menos e as unidades de tensor rodam mais rápido.</p>
+        <div class="terminal" style="margin-top:10px">
+<span class="dim"># PyTorch liga o FP16 com poucas linhas</span>
+scaler = GradScaler()          <span class="dim"># evita underflow</span>
+with autocast():               <span class="dim"># usa FP16 onde vale a pena</span>
+    perda = criterio(modelo(x), y)
+        </div>
+        <p>O <strong>GradScaler</strong> controla a escala do gradiente para não perder precisão.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Ganho esperado (T4)</h3>
+        <table>
+          <thead><tr><th>Modo</th><th>Imgs/s</th></tr></thead>
+          <tbody>
+            <tr><td>FP32 (padrão)</td><td class="no">~180</td></tr>
+            <tr><td><strong>FP16 (AMP)</strong></td><td class="yes"><strong>~340</strong></td></tr>
+            <tr><td><strong>Speedup</strong></td><td class="yes"><strong>~1.9×</strong></td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>O script mede os dois modos e faz <strong>warm-up</strong> antes de cronometrar.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — Demo benchmark portátil -->
+  <section class="slide">
+    <div class="kicker">Demonstração · Na prática</div>
+    <h2><span class="num">3.</span>O benchmark, passo a passo</h2>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:8px">O que o script faz</h3>
+        <ol class="clean">
+          <li><strong>Detecta</strong> a GPU (CUDA, ROCm ou CPU).</li>
+          <li><strong>Warm-up</strong> — a 1ª iteração compila kernels e é mais lenta.</li>
+          <li><strong>Sincroniza</strong> antes e depois de cronometrar.</li>
+          <li>Roda <strong>FP32</strong> e <strong>FP16</strong> e calcula o <em>speedup</em>.</li>
+        </ol>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Saída esperada</h3>
+        <div class="terminal">
+<span class="dim">$ python 1_benchmark_treino.py</span>
+GPU detectada : Tesla T4 (CUDA)
+Modo FP32     : 180.4 imgs/s
+Modo FP16     : 341.2 imgs/s
+<span class="yes">Speedup       : 1.89x</span>
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Comentado linha a linha em <code>laboratorio_windows/</code> e no notebook.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 — NVIDIA vs AMD -->
+  <section class="slide">
+    <div class="kicker">Teoria · Ecossistema e custo</div>
+    <h2><span class="num">4.</span>NVIDIA × AMD: o que pesa na decisão</h2>
+    <table style="max-width:900px">
+      <thead><tr><th>Critério</th><th>NVIDIA (CUDA)</th><th>AMD (ROCm)</th></tr></thead>
+      <tbody>
+        <tr><td>Ecossistema</td><td class="yes">maduro, todo framework suporta</td><td class="mid">em crescimento</td></tr>
+        <tr><td>Facilidade de uso</td><td class="yes">documentação e exemplos abundantes</td><td class="mid">setup mais trabalhoso</td></tr>
+        <tr><td>Custo/hora na nuvem</td><td class="mid">mais caro</td><td class="yes">tende a ser menor</td></tr>
+        <tr><td>Portabilidade</td><td class="mid">código amarrado ao CUDA</td><td class="yes">PyTorch roda via HIP</td></tr>
+        <tr><td>Mão de obra</td><td class="yes">fácil contratar</td><td class="mid">equipe precisa se adaptar</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">💡</span>
+      <span>A pergunta não é "qual é mais rápida", mas <strong>"qual entrega o melhor
+        resultado por real gasto"</strong> — considerando a equipe que você já tem.</span>
+    </div>
+  </section>
+
+  <!-- 07 — Atividade -->
+  <section class="slide">
+    <div class="kicker">Atividade Prática</div>
+    <h2><span class="num">5.</span>Decidir com dados</h2>
+    <div class="grid cols-2">
+      <div>
+        <h3 style="margin-bottom:8px">No Colab</h3>
+        <ul class="clean">
+          <li>Rode o treino em <strong>FP32</strong> e <strong>FP16</strong>.</li>
+          <li>Anote <strong>throughput</strong>, <strong>VRAM</strong> e <strong>tempo</strong>.</li>
+          <li>Calcule o <strong>speedup</strong> do mixed precision.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Pesquisa de custo</h3>
+        <ul class="clean">
+          <li>Preço/hora de uma <strong>NVIDIA T4/A10G</strong> na nuvem.</li>
+          <li>Preço de uma alternativa <strong>AMD (MI300X)</strong>.</li>
+          <li>Vale trocar? Pese <strong>economia × adaptação</strong> da equipe.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">📄</span>
+      <span>Roteiro completo e questões em <code>atividade.md</code>; código em
+        <code>laboratorio_windows/</code> e no notebook.</span>
+    </div>
+  </section>
+
+  <!-- 08 — Discussão -->
+  <section class="slide">
+    <div class="kicker">Discussão em Grupo</div>
+    <h2><span class="num">6.</span>Debate — grupos de 3 a 4</h2>
+    <div class="debate"><div class="q">1</div><p>O FP16 deu ~1.9× de ganho. Por que então não
+      treinamos <strong>tudo</strong> em FP16?</p></div>
+    <div class="debate"><div class="q">2</div><p>A AMD tem preço/hora menor. Que
+      <strong>custos escondidos</strong> podem aparecer ao trocar o ecossistema?</p></div>
+    <div class="debate"><div class="q">3</div><p>Otimizar o software antes de comprar mais
+      GPUs pode sair mais barato? Dê um exemplo com os números da aula.</p></div>
+    <div class="debate"><div class="q">4</div><p>Se o mesmo código roda em CUDA e ROCm, o que
+      ainda prende as empresas ao ecossistema NVIDIA?</p></div>
+  </section>
+
+  <!-- 09 — Síntese -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa</div>
+    <h2><span class="num">7.</span>O que levar para casa</h2>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">📊</span> Medir</h3>
+        <p>Throughput, VRAM e tempo por época são a base de qualquer decisão de infraestrutura.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">⚡</span> Otimizar</h3>
+        <p>Mixed precision entrega ganho de graça — antes de gastar com mais hardware.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">💰</span> Decidir</h3>
+        <p>A melhor GPU é a que entrega resultado por real gasto, com a equipe que você tem.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:20px">
+      <span class="ico">📝</span>
+      <span><strong>Tarefa:</strong> relatório de 1–2 páginas — "Qual marca eu recomendaria
+        para a IA Entregas hoje e por quê?", usando os números medidos.</span>
+    </div>
+    <div class="note" style="margin-top:10px">
+      <span class="ico">🔗</span>
+      <span><strong>Próxima (Aula 12):</strong> o experimento no Colab e o Projeto Integrador.</span>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 09</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

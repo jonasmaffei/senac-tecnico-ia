@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-# lib_cuda.py — Detecção do ambiente CUDA (numba) com fallback seguro
+# lib_cuda.py - Deteccao do ambiente CUDA (numba) com fallback seguro
 # ----------------------------------------------------------------------------
-# Aulas de CUDA precisam de uma GPU NVIDIA. Como nem todo laboratório tem uma
-# (o nosso usa GPU AMD), este módulo centraliza a detecção e permite que os
-# scripts mostrem o CONCEITO e números de referência mesmo sem GPU.
+# Aulas de CUDA precisam de uma GPU NVIDIA. Como nem todo laboratorio tem uma
+# (o nosso usa GPU AMD), este modulo centraliza a deteccao e permite que os
+# scripts mostrem o CONCEITO e numeros de referencia mesmo sem GPU.
 #
 # Uso:
 #   import lib_cuda
@@ -19,7 +19,7 @@ import sys
 
 
 def tem_numba():
-    """Numba está instalado? (necessário para escrever kernels CUDA em Python)."""
+    """Numba esta instalado? (necessario para escrever kernels CUDA em Python)."""
     try:
         import numba  # noqa: F401
         return True
@@ -28,7 +28,7 @@ def tem_numba():
 
 
 def tem_cuda():
-    """Existe uma GPU NVIDIA acessível pelo numba.cuda?"""
+    """Existe uma GPU NVIDIA acessivel pelo numba.cuda?"""
     if not tem_numba():
         return False
     try:
@@ -50,27 +50,27 @@ def nome_gpu():
 
 
 def resumo():
-    """Imprime um cabeçalho dizendo se há CUDA e qual a GPU."""
+    """Imprime um cabecalho dizendo se ha CUDA e qual a GPU."""
     print("=" * 64)
     if tem_cuda():
-        print(f" CUDA disponível: {nome_gpu()}")
-        print(" Kernels via numba.cuda serão executados na GPU.")
+        print(f" CUDA disponivel: {nome_gpu()}")
+        print(" Kernels via numba.cuda serao executados na GPU.")
     else:
-        print(" CUDA indisponível neste ambiente (sem GPU NVIDIA).")
-        print(" Os scripts mostram o conceito e números de REFERÊNCIA.")
-        print(" No Google Colab com T4 GPU, o mesmo código roda na GPU.")
+        print(" CUDA indisponivel neste ambiente (sem GPU NVIDIA).")
+        print(" Os scripts mostram o conceito e numeros de REFERENCIA.")
+        print(" No Google Colab com T4 GPU, o mesmo codigo roda na GPU.")
     print("=" * 64)
 
 
 def explicar_sem_gpu():
-    """Mensagem didática padrão para quando não há CUDA."""
-    print("Numba/CUDA indisponível — sem GPU NVIDIA acessível aqui.")
-    print("Os números abaixo são de REFERÊNCIA (Tesla T4) para você comparar.")
+    """Mensagem didatica padrao para quando nao ha CUDA."""
+    print("Numba/CUDA indisponivel - sem GPU NVIDIA acessivel aqui.")
+    print("Os numeros abaixo sao de REFERENCIA (Tesla T4) para voce comparar.")
     print("Para medir de verdade: Runtime > Change runtime type > T4 GPU.")
 
 
 def cabecalho_ascii():
-    """No console do Windows (cp1252), força UTF-8 e evita erro de encoding."""
+    """No console do Windows (cp1252), forca UTF-8 e evita erro de encoding."""
     try:
         sys.stdout.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):

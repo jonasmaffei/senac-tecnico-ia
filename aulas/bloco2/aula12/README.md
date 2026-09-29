@@ -1,49 +1,89 @@
-# 📖 Guia Passo a Passo: Como Abrir e Rodar o Notebook da Aula 12 no Google Colab
+# 🧠 Aula 12 — Laboratório Prático e Revisão Interativa
+
+**Objetivo:** revisar, **na prática**, os conceitos das aulas 1 a 11 num único notebook
+interativo do Google Colab — CPU × GPU, gargalo PCIe, tiling, VRAM e uma IA real de análise de
+sentimentos.
 
 ---
 
-## 🚀 Opção 1: Abrir Direto via GitHub (Mais Rápido e Recomendado)
+## 🎯 Situação de aprendizagem
 
-1. Acesse o site do [Google Colab](https://colab.research.google.com/).
-2. Faça login com a sua conta Google (Gmail).
-3. Na janela pop-up que abrir, selecione a aba **GitHub**.
-4. No campo de busca, cole a URL do repositório da turma:
-   ```text
-   https://github.com/jonasmaffei/senac-tecnico-ia
-   ```
-5. O Colab irá listar os arquivos do repositório. Clique em:
-   `aulas/bloco2/aula12/aula12_pratica_colab.ipynb`
-6. Pronto! O notebook abrirá na sua tela.
+Depois de aprender os fundamentos e a programar na GPU, é hora de **juntar as peças**. Cinco
+experimentos interativos (com sliders e menus) mostram os conceitos em ação, e no final um
+modelo pré-treinado analisa avaliações de clientes **de verdade**.
 
 ---
 
-## 💻 Opção 2: Fazer Download do Arquivo e Subir no Colab (Upload)
+## 🗂️ Conteúdo
 
-Se você já baixou o repositório ou o arquivo `.ipynb` para o seu computador:
+| Item | O que é |
+| :--- | :--- |
+| [`apresentacao_aula12.html`](apresentacao_aula12.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com os 5 experimentos + **5 exercícios** |
+| [`atividade.md`](atividade.md) | Roteiro de experimentos, análise e discussão |
+| [`../../projeto-integrador/`](../../projeto-integrador/README.md) | **Projeto Integrador** (pesquisa aplicada) |
 
-1. Acesse o site do [Google Colab](https://colab.research.google.com/).
-2. Na janela inicial, clique na aba **Fazer upload** (ou **Upload**).
-3. Clique em **Escolher arquivo** e selecione o arquivo `aula12_pratica_colab.ipynb` no seu computador.
-4. Aguarde o carregamento e o notebook abrirá automaticamente.
+### Estrutura da aula
+
+```
+aula12/
+  apresentacao_aula12.html
+  README.md
+  notebook_colab/aula12_pratica_colab.ipynb
+  atividade.md
+```
+
+> ℹ️ Esta aula **não tem `laboratorio_windows/`**: os experimentos dependem de **GPU** (Colab).
+> Sem GPU, o notebook mostra os avisos e roda o que não depende dela.
 
 ---
 
-## ⚙️ PASSO CRÍTICO: Ativar a GPU no Google Colab
+## 🚀 Como rodar
 
-Por padrão, o Google Colab roda usando apenas o processador tradicional (**CPU**). Como nosso foco é testar a aceleração para IA, você **deve ativar a GPU** antes de rodar os exercícios:
+### No Google Colab
 
-1. No menu superior do Colab, clique em **Ambiente de execução** (ou *Runtime*).
-2. Clique na opção **Alterar tipo de ambiente de execução** (ou *Change runtime type*).
-3. Na janela que abrir, localize a opção **Acelerador de hardware** (ou *Hardware accelerator*).
-4. Mude de **None/CPU** para **T4 GPU** (ou GPU disponível gratuitamente).
-5. Clique no botão **Salvar** (ou *Save*).
-6. No canto superior direito, verifique se aparece um ícone verde mostrando **RAM / GPU**.
+1. Abra `notebook_colab/aula12_pratica_colab.ipynb` pelo **GitHub** no Colab
+   (`https://github.com/jonasmaffei/senac-tecnico-ia`).
+2. *Ambiente de execução ➔ Alterar tipo de ambiente ➔ **T4 GPU*** ➔ *Salvar*.
+3. Rode as células na ordem, mexendo nos **sliders e menus**.
 
 ---
 
-## 🟢 Como Executar os Blocos da Aula
+## 🔑 Os 5 experimentos
 
-* Cada bloco cinza com código possui um botão de **Play ▶️** no lado esquerdo superior do bloco.
-* Para rodar uma etapa, basta passar o mouse por cima do bloco de código e clicar no botão **Play ▶️**.
-* Você também pode usar o atalho do teclado: selecione o bloco e pressione **`Ctrl + Enter`** (ou `Cmd + Enter` no Mac).
-* **Campos Interativos (Formulários):** Alguns blocos possuem **sliders (barras deslizantes)** e **caixas de texto**. Altere os valores na interface e clique no botão de **Play ▶️** novamente para ver o resultado mudar!
+| # | Experimento | Conceito | Aulas |
+| :---: | :--- | :--- | :---: |
+| 1 | Multiplicação massiva de matrizes | CPU × GPU (SIMD) | 1–2 |
+| 2 | Custo de transferir dados (RAM → VRAM) | Gargalo PCIe | 3 |
+| 3 | Filtro de imagem paralelo | Tiling (blocos/threads) | 7–8 |
+| 4 | Monitor de VRAM (`nvidia-smi`) | VRAM / OOM | 9–10 |
+| 5 | Classificador de feedbacks | Inferência com modelo pré-treinado | 11 |
+
+> 💡 O Experimento 5 usa `transformers` (pré-instalado no Colab) e baixa um modelo multilíngue
+> de análise de sentimentos da Hugging Face.
+
+---
+
+## 🧪 Atividade guiada
+
+Rode os 5 experimentos e registre os resultados. Roteiro de análise em
+[`atividade.md`](atividade.md).
+
+---
+
+## 💬 Discussão em grupo
+
+Em grupos de 3–4:
+
+1. Qual experimento mais surpreendeu o grupo? Por quê?
+2. Em que situação a **CPU** seria a escolha certa, mesmo havendo GPU?
+3. Que cuidados tomar antes de rodar um modelo grande no Colab gratuito?
+4. Como os 5 experimentos se conectam ao **Projeto Integrador**?
+
+---
+
+## 🔗 Relação com o curso
+
+- Esta aula **amarra** o Bloco 2: cada experimento reusa um conceito das aulas 1 a 11 num único
+  ambiente interativo, servindo de **revisão** antes da síntese.
+- **Próxima (Aula 13):** implementar um modelo paralelo simples — a síntese final do bloco.

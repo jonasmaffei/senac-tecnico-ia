@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 # ============================================================================
-# lib_gpu06.sh — funções compartilhadas do laboratório de Linux+GPU
+# lib_gpu06.sh - funcoes compartilhadas do laboratorio de Linux+GPU
 # ----------------------------------------------------------------------------
-# Este arquivo NÃO é executado sozinho: os outros scripts o carregam com
+# Este arquivo NAO e executado sozinho: os outros scripts o carregam com
 #     source ./lib_gpu06.sh
 #
-# Compatível com Git Bash (Windows), WSL e Linux. Ele resolve três coisas:
-#   1. Cores de terminal (com fallback quando não há suporte).
-#   2. Detecção do backend de GPU (NVIDIA, AMD no Windows, Linux OU simulado).
-#   3. Leitura de temperatura/utilização/VRAM da GPU de forma portável.
+# Compativel com Git Bash (Windows), WSL e Linux. Ele resolve tres coisas:
+#   1. Cores de terminal (com fallback quando nao ha suporte).
+#   2. Deteccao do backend de GPU (NVIDIA, AMD no Windows, Linux OU simulado).
+#   3. Leitura de temperatura/utilizacao/VRAM da GPU de forma portavel.
 #
-# IMPORTANTE (laboratório Windows/AMD): o Git Bash NÃO tem nvidia-smi/rocm-smi,
-# então a GPU AMD é lida pelos CONTADORES DE DESEMPENHO do Windows via
-# PowerShell inline (sem arquivo .ps1, que o laboratório bloqueia).
+# IMPORTANTE (laboratorio Windows/AMD): o Git Bash NAO tem nvidia-smi/rocm-smi,
+# entao a GPU AMD e lida pelos CONTADORES DE DESEMPENHO do Windows via
+# PowerShell inline (sem arquivo .ps1, que o laboratorio bloqueia).
 # ============================================================================
 
-# Fuso de Brasília (UTC-3). Usamos "BRT3" porque o Git Bash do Windows não
+# Fuso de Brasilia (UTC-3). Usamos "BRT3" porque o Git Bash do Windows nao
 # traz a base tzdata completa ("America/Sao_Paulo" cairia para GMT).
 export TZ="BRT3"
 
 # ---------------------------------------------------------------------------
-# CORES (desligadas automaticamente se o terminal não suportar)
+# CORES (desligadas automaticamente se o terminal nao suportar)
 # ---------------------------------------------------------------------------
 if [ -t 1 ]; then
     VERMELHO=$'\033[0;31m'; VERDE=$'\033[0;32m'; AMARELO=$'\033[1;33m'
@@ -30,10 +30,10 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# DETECÇÃO DE BACKEND
+# DETECCAO DE BACKEND
 # ---------------------------------------------------------------------------
-# Permite forçar o backend para testes:  GPU06_BACKEND=simulado bash 2_status_gpu.sh
-# (útil para testar o alerta de temperatura sem nenhuma GPU).
+# Permite forcar o backend para testes:  GPU06_BACKEND=simulado bash 2_status_gpu.sh
+# (util para testar o alerta de temperatura sem nenhuma GPU).
 BACKEND="${GPU06_BACKEND:-auto}"
 
 if [ "$BACKEND" = "auto" ]; then
@@ -57,20 +57,20 @@ nome_backend() {
         nvidia)      echo "NVIDIA (nvidia-smi)" ;;
         amd_linux)   echo "AMD Linux (rocm-smi)" ;;
         amd_windows) echo "AMD no Windows (contadores de desempenho)" ;;
-        *)           echo "simulado (nenhuma GPU acessível)" ;;
+        *)           echo "simulado (nenhuma GPU acessivel)" ;;
     esac
 }
 
 anunciar_backend() {
     echo "${AZUL}>> Backend de GPU:${SEM_COR} $(nome_backend)"
     if [ "$BACKEND" = "simulado" ]; then
-        echo "   Nenhuma GPU detectada — usando dados SIMULADOS no mesmo formato."
+        echo "   Nenhuma GPU detectada - usando dados SIMULADOS no mesmo formato."
     fi
     echo
 }
 
 # ---------------------------------------------------------------------------
-# LEITURA DA GPU — devolve uma linha por GPU: "gpu|nome|temp|util|vram_usada|vram_total"
+# LEITURA DA GPU - devolve uma linha por GPU: "gpu|nome|temp|util|vram_usada|vram_total"
 # ---------------------------------------------------------------------------
 ler_gpu() {
     case "$BACKEND" in
@@ -84,14 +84,14 @@ ler_gpu() {
 _gpu_nvidia() {
     local smi="nvidia-smi"
     command -v nvidia-smi >/dev/null 2>&1 || smi="nvidia-smi.exe"
-    # Um único comando traz tudo; separamos com '|' para ficar fácil de ler.
+    # Um unico comando traz tudo; separamos com '|' para ficar facil de ler.
     "$smi" --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total \
            --format=csv,noheader,nounits 2>/dev/null | \
     awk -F',' '{gsub(/ /,""); print $1"|"$2"|"$3"|"$4"|"$5"|"$6}'
 }
 
 _gpu_amd_linux() {
-    # rocm-smi --csv traz uma linha por GPU; extraímos uso e VRAM.
+    # rocm-smi --csv traz uma linha por GPU; extraimos uso e VRAM.
     rocm-smi --showtemp --showuse --showmeminfo vram --csv 2>/dev/null | \
     awk -F',' 'NR>1 {
         gsub(/[^0-9.]/,"",$3); gsub(/[^0-9.]/,"",$4);
@@ -101,8 +101,8 @@ _gpu_amd_linux() {
 
 _gpu_amd_windows() {
     # Sem nvidia-smi: lemos os contadores de desempenho do Windows via
-    # PowerShell inline. A "temperatura" não é exposta de forma simples no
-    # Windows, então mostramos 'N/A' (honesto) em vez de um valor falso.
+    # PowerShell inline. A "temperatura" nao e exposta de forma simples no
+    # Windows, entao mostramos 'N/A' (honesto) em vez de um valor falso.
     local ps="powershell.exe"
     command -v powershell.exe >/dev/null 2>&1 || ps="powershell"
 
@@ -145,12 +145,12 @@ _gpu_simulado() {
 }
 
 # ---------------------------------------------------------------------------
-# INSpeção de hardware (vale para qualquer SO)
+# INSpecao de hardware (vale para qualquer SO)
 # ---------------------------------------------------------------------------
 listar_pci_gpu() {
     if command -v lspci >/dev/null 2>&1; then
         lspci 2>/dev/null | grep -iE 'vga|3d|display|nvidia|amd|radeon'
     else
-        echo "(lspci não existe no Git Bash — no Linux ele lista a placa no barramento)"
+        echo "(lspci nao existe no Git Bash - no Linux ele lista a placa no barramento)"
     fi
 }

@@ -446,14 +446,11 @@ if (threadIdx.x % 2 == 0) {
       resultado expõe o GIL.</p>
     <div class="grid cols-2">
       <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code># processo isolado (contorna o GIL)
-Pool(processes=4).starmap(f, args)
-
-# threads (o GIL segura CPU-bound)
-[t.start() for t in threads]
-[t.join()  for t in threads]</code></pre>
+        <div class="terminal">
+<span class="dim">$ python processos_threads.py</span>
+Sequencial       :  9.21 s
+Threading (GIL)  :  9.18 s  <span class="dim">(sem ganho)</span>
+Multiprocessing  :  3.42 s  <span class="yes">(speedup: 2.7x)</span>
         </div>
       </div>
       <div>
@@ -483,11 +480,10 @@ Pool(processes=4).starmap(f, args)
         <p>Em tarefas <strong>I/O-bound</strong> (rede, disco), o Python
           <strong>libera o GIL</strong> enquanto espera. Aí as threads esperam
           <strong>em paralelo</strong> — ganho real.</p>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code># durante o I/O o GIL é liberado
-threads = [Thread(target=baixar, args=(u,))
-           for u in urls]</code></pre>
+        <div class="terminal">
+<span class="dim">$ python io_bound.py</span>
+Sequencial (I/O) :  3.04 s
+Threading (I/O)  :  0.51 s  <span class="yes">(6x mais rapido)</span>
         </div>
       </div>
       <div>

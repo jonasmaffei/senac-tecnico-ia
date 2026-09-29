@@ -441,14 +441,15 @@
       (SISD) e todos de uma vez (SIMD). O ganho é o que a GPU faz em escala gigante.</p>
     <div class="grid cols-2">
       <div>
-        <h3 style="margin-bottom:10px">A ideia em 1 linha</h3>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code># 1 por vez          ->  c = [a[i] + b[i] for i in range(N)]
-# todos de uma vez   ->  c = a_np + b_np   (SIMD)</code></pre>
+        <h3 style="margin-bottom:10px">Resultado medido</h3>
+        <div class="terminal">
+<span class="dim">$ python benchmark_simd.py</span>
+Sequencial (1 por vez)  : 812 ms
+Vetorizado (NumPy)      :  19 ms  <span class="yes">(42x mais rapido)</span>
+<span class="dim"># resultado identico ao fim</span>
         </div>
-        <p>O script mede os dois e mostra o <strong>speedup</strong>. Na CPU do laboratório (com
-          AVX/SSE) o ganho já é grande; no Colab com GPU, o mesmo código testa também a placa.</p>
+        <p>Na CPU do laboratório (com AVX/SSE) o ganho já é grande; no Colab com GPU, o mesmo
+          código testa também a placa.</p>
       </div>
       <div>
         <h3 style="margin-bottom:10px">O que o script faz</h3>

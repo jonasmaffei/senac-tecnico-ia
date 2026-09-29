@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# fft_benchmark.py — FFT: CPU (NumPy) vs. GPU (CuPy) — o caso do áudio
+# fft_benchmark.py - FFT: CPU (NumPy) vs. GPU (CuPy) - o caso do audio
 # ----------------------------------------------------------------------------
 # OBJETIVO: resolver o problema da startup: calcular a Transformada de Fourier
-# (FFT) de milhões de amostras de áudio.
+# (FFT) de milhoes de amostras de audio.
 #
 #   - CPU (NumPy):  np.fft.fft  -> mede o tempo na RAM
-#   - GPU (CuPy):   cp.fft.fft  -> mesmo código, dados na VRAM
+#   - GPU (CuPy):   cp.fft.fft  -> mesmo codigo, dados na VRAM
 #
-# A FFT é a operação central do pré-processamento de áudio para
+# A FFT e a operacao central do pre-processamento de audio para
 # reconhecimento de fala. O speedup mostra por que ela roda na GPU.
 #
-# Requer CuPy (Colab com GPU). Sem CuPy, mede só o CPU e mostra a referência.
+# Requer CuPy (Colab com GPU). Sem CuPy, mede so o CPU e mostra a referencia.
 #
 # Uso:  python fft_benchmark.py
 # Requer: numpy (cupy opcional)
@@ -28,7 +28,7 @@ except (AttributeError, ValueError):
 
 import numpy as np
 
-N = 2 ** 22   # ~4 milhões de pontos
+N = 2 ** 22   # ~4 milhoes de pontos
 
 
 def medir_cpu(sinal):
@@ -40,26 +40,26 @@ def medir_cpu(sinal):
 
 def main():
     print("=" * 64)
-    print(" FFT — CPU (NumPy) vs. GPU (CuPy)")
+    print(" FFT - CPU (NumPy) vs. GPU (CuPy)")
     print("=" * 64)
 
     sinal_cpu = np.random.randn(N).astype(np.float32)
     _, tempo_cpu = medir_cpu(sinal_cpu)
     print(f"CPU (NumPy FFT): {tempo_cpu*1000:8.2f} ms  ({N:,} pontos)")
 
-    # ── GPU via CuPy, se disponível ────────────────────────────────────────
+    # -- GPU via CuPy, se disponivel ----------------------------------------
     try:
         import cupy as cp
     except ImportError:
-        print("\nCuPy não instalado neste ambiente.")
-        print("Referência no Colab com T4: GPU ~18 ms vs. CPU ~1200 ms (~66x).")
+        print("\nCuPy nao instalado neste ambiente.")
+        print("Referencia no Colab com T4: GPU ~18 ms vs. CPU ~1200 ms (~66x).")
         print("Instalar: pip install cupy-cuda12x")
         return
 
     try:
         sinal_gpu = cp.asarray(sinal_cpu)              # RAM -> VRAM
 
-        # Warm-up: a 1ª execução inclui compilação/alocação; descartamos.
+        # Warm-up: a 1a execucao inclui compilacao/alocacao; descartamos.
         _ = cp.fft.fft(sinal_gpu)
         cp.cuda.Stream.null.synchronize()
 
@@ -69,14 +69,14 @@ def main():
         tempo_gpu = time.perf_counter() - inicio
 
         print(f"GPU (CuPy FFT) : {tempo_gpu*1000:8.2f} ms")
-        print(f"Speedup        : {tempo_cpu/tempo_gpu:.1f}x mais rápido!")
+        print(f"Speedup        : {tempo_cpu/tempo_gpu:.1f}x mais rapido!")
 
-        # Validação: as duas FFTs devem coincidir (com tolerância).
+        # Validacao: as duas FFTs devem coincidir (com tolerancia).
         fft_cpu_ref = cp.asarray(np.fft.fft(sinal_cpu))
         assert cp.allclose(fft_cpu_ref, fft_gpu, atol=1e-1), "FFT divergiu!"
-        print("[OK] FFT CPU == FFT GPU (dentro da tolerância).")
+        print("[OK] FFT CPU == FFT GPU (dentro da tolerancia).")
     except Exception as erro:
-        print(f"\nNão foi possível medir na GPU: {erro}")
+        print(f"\nNao foi possivel medir na GPU: {erro}")
 
 
 if __name__ == "__main__":

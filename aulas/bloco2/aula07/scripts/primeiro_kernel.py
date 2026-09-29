@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# primeiro_kernel.py — Fluxo completo de um programa CUDA
+# primeiro_kernel.py - Fluxo completo de um programa CUDA
 # ----------------------------------------------------------------------------
 # OBJETIVO: ver as 5 etapas de qualquer programa CUDA, do host ao device:
 #
 #   1. CPU aloca arrays na VRAM       <- cuda.to_device()
-#   2. CPU lança o kernel             <- kernel[blocos, threads](...)
+#   2. CPU lanca o kernel             <- kernel[blocos, threads](...)
 #   3. GPU executa N threads em paralelo
-#   4. CPU aguarda a sincronização    <- cuda.synchronize()
+#   4. CPU aguarda a sincronizacao    <- cuda.synchronize()
 #   5. CPU copia o resultado de volta <- copy_to_host()
 #
-# Fazemos duas operações simples e muito usadas em pré-processamento de áudio:
+# Fazemos duas operacoes simples e muito usadas em pre-processamento de audio:
 #   - somar dois vetores (kernel elementwise);
-#   - escalar e calcular média móvel de um sinal.
+#   - escalar e calcular media movel de um sinal.
 #
 # Requer GPU NVIDIA (numba.cuda). Sem GPU, mostra o resultado esperado.
 #
@@ -37,8 +37,8 @@ def soma_vetores():
 
     @cuda.jit
     def soma_vetores_gpu(a, b, c):
-        idx = cuda.grid(1)                 # índice global desta thread
-        if idx < c.shape[0]:               # proteção contra o fim do vetor
+        idx = cuda.grid(1)                 # indice global desta thread
+        if idx < c.shape[0]:               # protecao contra o fim do vetor
             c[idx] = a[idx] + b[idx]
 
     N = 10_000_000
@@ -67,7 +67,7 @@ def soma_vetores():
 
 
 def escalar_e_media():
-    """Escala um sinal e calcula uma média móvel (cada thread, uma janela)."""
+    """Escala um sinal e calcula uma media movel (cada thread, uma janela)."""
     from numba import cuda
     import numpy as np
 
@@ -79,7 +79,7 @@ def escalar_e_media():
 
     @cuda.jit
     def media_movel_gpu(sinal, janela, resultado):
-        # Cada thread calcula a média de uma janela que começa no seu índice.
+        # Cada thread calcula a media de uma janela que comeca no seu indice.
         idx = cuda.grid(1)
         inicio = idx
         fim = min(idx + janela, sinal.shape[0])
@@ -92,7 +92,7 @@ def escalar_e_media():
     N = 1_000_000
     sinal = np.sin(np.linspace(0, 100, N)).astype(np.float32)
     sinal_d = cuda.to_device(sinal)
-    escalado_d = cuda.device_array(N, dtype=np.float32)   # aloca só na VRAM
+    escalado_d = cuda.device_array(N, dtype=np.float32)   # aloca so na VRAM
     media_d = cuda.device_array(N, dtype=np.float32)
 
     tpb = 256
@@ -103,7 +103,7 @@ def escalar_e_media():
 
     print(f"\nOriginal  [0] = {sinal[0]:.4f}")
     print(f"Escalado  [0] = {escalado_d.copy_to_host()[0]:.4f} (x2.5)")
-    print(f"Média móv [0] = {media_d.copy_to_host()[0]:.4f}")
+    print(f"Media mov [0] = {media_d.copy_to_host()[0]:.4f}")
 
 
 def main():
@@ -116,7 +116,7 @@ def main():
     if lib_cuda.tem_cuda():
         print("\n--- 1) Soma de vetores ---")
         soma_vetores()
-        print("\n--- 2) Escala e média móvel ---")
+        print("\n--- 2) Escala e media movel ---")
         escalar_e_media()
     else:
         lib_cuda.explicar_sem_gpu()

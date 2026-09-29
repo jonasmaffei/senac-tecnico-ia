@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# 2_benchmark.py — Sequencial vs. vetorizado (medido na máquina real)
+# 2_benchmark.py - Sequencial vs. vetorizado (medido na maquina real)
 # ----------------------------------------------------------------------------
-# OBJETIVO: mostrar, na prática, por que a CPU sozinha não escala para as
-# operações matriciais da IA — e por que o paralelismo (SIMD/GPU) é decisivo.
+# OBJETIVO: mostrar, na pratica, por que a CPU sozinha nao escala para as
+# operacoes matriciais da IA - e por que o paralelismo (SIMD/GPU) e decisivo.
 #
-# Uso (no laboratório Windows):
+# Uso (no laboratorio Windows):
 #     python 2_benchmark.py
 #     python 2_benchmark.py 300      # matriz 300x300 (demora mais)
 # ============================================================================
@@ -21,7 +21,7 @@ except (AttributeError, ValueError):
 
 import numpy as np
 
-# Tamanho da matriz N x N. Pode vir por argumento (padrão 200).
+# Tamanho da matriz N x N. Pode vir por argumento (padrao 200).
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 200
 
 A = np.random.rand(N, N).astype(np.float32)
@@ -30,8 +30,8 @@ B = np.random.rand(N, N).astype(np.float32)
 print(f"Multiplicacao de matrizes {N}x{N}")
 print(f"Total de operacoes: {N**3 * 2:,} (multiply-add)\n")
 
-# ── Versao 1: sequencial (3 loops aninhados) ────────────────────────────────
-# Cada resultado C[i,j] é calculado um por vez, como a CPU faria em um núcleo.
+# -- Versao 1: sequencial (3 loops aninhados) --------------------------------
+# Cada resultado C[i,j] e calculado um por vez, como a CPU faria em um nucleo.
 inicio = time.time()
 C = np.zeros((N, N), dtype=np.float32)
 for i in range(N):
@@ -43,21 +43,21 @@ for i in range(N):
 tempo_seq = time.time() - inicio
 print(f"Sequencial (3 loops): {tempo_seq:.2f}s")
 
-# ── Versao 2: vetorizada (NumPy delega para o BLAS) ─────────────────────────
-# Bibliotecas otimizadas exploram paralelismo de hardware (vários núcleos +
-# instruções SIMD) — é o "espírito" do que a GPU faz em escala massiva.
+# -- Versao 2: vetorizada (NumPy delega para o BLAS) -------------------------
+# Bibliotecas otimizadas exploram paralelismo de hardware (varios nucleos +
+# instrucoes SIMD) - e o "espirito" do que a GPU faz em escala massiva.
 inicio = time.time()
 C_np = A @ B
 tempo_np = time.time() - inicio
 print(f"Vetorizado (NumPy):   {tempo_np:.6f}s")
 
-# ── Validacao ───────────────────────────────────────────────────────────────
+# -- Validacao ---------------------------------------------------------------
 assert np.allclose(C, C_np, atol=1e-2), "Resultados divergem!"
-print(f"\n[OK] Resultados conferem — Speedup: {tempo_seq / tempo_np:,.0f}x")
-print("-> Em redes neurais, essas matrizes têm milhões de linhas.")
-print("   Sem paralelismo, o treinamento é inviável.")
+print(f"\n[OK] Resultados conferem - Speedup: {tempo_seq / tempo_np:,.0f}x")
+print("-> Em redes neurais, essas matrizes tem milhoes de linhas.")
+print("   Sem paralelismo, o treinamento e inviavel.")
 
-# ── Se houver GPU via CuPy, mede também na VRAM ─────────────────────────────
+# -- Se houver GPU via CuPy, mede tambem na VRAM -----------------------------
 try:
     import cupy as cp
     if cp.cuda.runtime.getDeviceCount() > 0:

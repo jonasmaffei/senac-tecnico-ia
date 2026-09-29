@@ -6,7 +6,7 @@ print()
 print("Dispositivo /dev/dxg:")
 
 if os.path.exists("/dev/dxg"):
-    print("GPU-PV disponível dentro do container!")
-    print("✓ /dev/dxg encontrado")
+    print("GPU-PV disponivel dentro do container!")
+    print("OK /dev/dxg encontrado")
 else:
-    print("✗ /dev/dxg NÃO encontrado")
+    print("X /dev/dxg NAO encontrado")

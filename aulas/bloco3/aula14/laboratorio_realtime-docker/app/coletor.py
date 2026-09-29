@@ -1,17 +1,17 @@
 # ============================================================================
-# coletor.py — coleta de métricas de sistema e GPU
+# coletor.py - coleta de metricas de sistema e GPU
 # ----------------------------------------------------------------------------
 # Faz a ponte entre o sistema operacional e o webservice:
 #
 #   - CPU e RAM: lidas de verdade com a biblioteca psutil (funciona no
-#     container Linux do Docker sem nenhuma permissão especial).
-#   - GPU: no container Docker do Windows (WSL 2) não há acesso à placa AMD.
-#     Por isso simulamos a GPU com valores plausíveis. Se o container rodar em
-#     uma máquina Linux com GPU NVIDIA exposta (docker run --gpus all), ele
+#     container Linux do Docker sem nenhuma permissao especial).
+#   - GPU: no container Docker do Windows (WSL 2) nao ha acesso a placa AMD.
+#     Por isso simulamos a GPU com valores plausiveis. Se o container rodar em
+#     uma maquina Linux com GPU NVIDIA exposta (docker run --gpus all), ele
 #     passa a usar o nvidia-smi de verdade automaticamente.
 #
-# A função principal é `coletar()`, que devolve UM dicionário (uma "amostra")
-# no mesmo espírito do CSV do laboratório_windows.
+# A funcao principal e `coletar()`, que devolve UM dicionario (uma "amostra")
+# no mesmo espirito do CSV do laboratorio_windows.
 # ============================================================================
 
 import os
@@ -25,10 +25,10 @@ import psutil
 
 
 # ---------------------------------------------------------------------------
-# DETECÇÃO DO BACKEND DE GPU (feita uma vez, na importação)
+# DETECCAO DO BACKEND DE GPU (feita uma vez, na importacao)
 # ---------------------------------------------------------------------------
 def _detectar_backend():
-    # Procura o nvidia-smi no PATH do container. Só existe se a GPU NVIDIA
+    # Procura o nvidia-smi no PATH do container. So existe se a GPU NVIDIA
     # tiver sido exposta ao Docker com --gpus all.
     if os.environ.get("GPU_BACKEND", "auto") == "simulado":
         return "simulado"
@@ -41,20 +41,20 @@ BACKEND_GPU = _detectar_backend()
 
 
 def nome_backend():
-    """Texto amigável sobre como a GPU está sendo lida."""
+    """Texto amigavel sobre como a GPU esta sendo lida."""
     return "NVIDIA (nvidia-smi)" if BACKEND_GPU == "nvidia" else "simulado"
 
 
 # ---------------------------------------------------------------------------
-# CPU E RAM (REAIS) — via psutil
+# CPU E RAM (REAIS) - via psutil
 # ---------------------------------------------------------------------------
 def _cpu_pct(intervalo=0.5):
-    # psutil.cpu_percent precisa de um intervalo para medir a variação de uso.
+    # psutil.cpu_percent precisa de um intervalo para medir a variacao de uso.
     return round(psutil.cpu_percent(interval=intervalo), 0)
 
 
 def _ram():
-    # Em MB (mesmo formato do laboratório_windows).
+    # Em MB (mesmo formato do laboratorio_windows).
     mem = psutil.virtual_memory()
     total = round(mem.total / (1024 * 1024))
     usada = round((mem.total - mem.available) / (1024 * 1024))
@@ -62,8 +62,8 @@ def _ram():
 
 
 def _cpu_temp():
-    # A temperatura da CPU nem sempre é exposta no container. Tentamos os
-    # sensores do psutil e, se não houver, devolvemos None (o gráfico some).
+    # A temperatura da CPU nem sempre e exposta no container. Tentamos os
+    # sensores do psutil e, se nao houver, devolvemos None (o grafico some).
     try:
         temps = psutil.sensors_temperatures()
     except (AttributeError, NotImplementedError):
@@ -80,18 +80,18 @@ def _cpu_temp():
 
 
 # ---------------------------------------------------------------------------
-# GPU SIMULADA — valores que variam de forma parecida com uso real
+# GPU SIMULADA - valores que variam de forma parecida com uso real
 # ---------------------------------------------------------------------------
 def _gpu_simulada(tempo_s):
-    # Utilização: combina uma onda (carga subindo e descendo) com ruído leve.
+    # Utilizacao: combina uma onda (carga subindo e descendo) com ruido leve.
     util = 35 + 30 * abs((tempo_s % 120) / 120 - 0.5) * 2 + random.randint(-5, 5)
     util = max(0, min(100, round(util)))
-    # Temperatura acompanha a utilização (mais uso -> mais quente).
+    # Temperatura acompanha a utilizacao (mais uso -> mais quente).
     temp = round(42 + util * 0.45)
     # VRAM cresce com a carga.
     vram_total = 12272
     vram = round(vram_total * (0.15 + util / 100 * 0.5))
-    # Potência estimada.
+    # Potencia estimada.
     potencia = round(40 + util * 1.1)
     return {
         "gpu_nome": "GPU Simulada (Docker)",
@@ -104,7 +104,7 @@ def _gpu_simulada(tempo_s):
 
 
 # ---------------------------------------------------------------------------
-# GPU REAL — NVIDIA via nvidia-smi (só em Linux com --gpus all)
+# GPU REAL - NVIDIA via nvidia-smi (so em Linux com --gpus all)
 # ---------------------------------------------------------------------------
 def _gpu_nvidia():
     # Pede os campos exatamente no formato CSV que sabemos interpretar.
@@ -117,7 +117,7 @@ def _gpu_nvidia():
         capture_output=True, text=True, timeout=5,
     ).stdout.strip().splitlines()
     if not saida:
-        raise RuntimeError("nvidia-smi não retornou dados")
+        raise RuntimeError("nvidia-smi nao retornou dados")
     nome, temp, util, vram, vtot, pot = [c.strip() for c in saida[0].split(",")]
 
     def _num(v):
@@ -138,10 +138,10 @@ def _gpu_nvidia():
 
 
 # ---------------------------------------------------------------------------
-# INTERFACE PÚBLICA
+# INTERFACE PUBLICA
 # ---------------------------------------------------------------------------
 def coletar(tempo_s=None):
-    """Coleta UMA amostra completa (sistema + GPU) e devolve um dicionário."""
+    """Coleta UMA amostra completa (sistema + GPU) e devolve um dicionario."""
     if tempo_s is None:
         tempo_s = time.time()
 
@@ -152,7 +152,7 @@ def coletar(tempo_s=None):
         try:
             gpu = _gpu_nvidia()
         except Exception:
-            # Se o nvidia-smi falhar, não derruba o serviço: cai no simulado.
+            # Se o nvidia-smi falhar, nao derruba o servico: cai no simulado.
             gpu = _gpu_simulada(tempo_s)
     else:
         gpu = _gpu_simulada(tempo_s)
@@ -169,7 +169,7 @@ def coletar(tempo_s=None):
 
 
 def especificacoes():
-    """Dados fixos da máquina, para os cartões do topo do painel."""
+    """Dados fixos da maquina, para os cartoes do topo do painel."""
     try:
         import platform
         nucleos = psutil.cpu_count(logical=False) or 0

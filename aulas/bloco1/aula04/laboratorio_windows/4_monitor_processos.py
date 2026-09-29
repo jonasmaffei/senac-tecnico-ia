@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# monitor_processos.py — Ver processos e threads (htop/nvtop pela CPU/GPU)
+# monitor_processos.py - Ver processos e threads (htop/nvtop pela CPU/GPU)
 # ----------------------------------------------------------------------------
-# OBJETIVO: "enxergar" processos e threads, como o htop faz — mas em Python,
-# então funciona também no Windows:
+# OBJETIVO: "enxergar" processos e threads, como o htop faz - mas em Python,
+# entao funciona tambem no Windows:
 #
 #   - PID e contagem de threads do processo atual;
 #   - lista as threads ativas (threading.enumerate);
-#   - nº de núcleos lógicos/físicos da CPU;
+#   - no de nucleos logicos/fisicos da CPU;
 #   - top processos por uso de CPU (psutil, se instalado);
 #   - lembrete do que observar no htop (CPU) e no nvtop (GPU).
 #
 # Uso:  python monitor_processos.py
-# Requer: (nenhum obrigatório) — psutil opcional
+# Requer: (nenhum obrigatorio) - psutil opcional
 # ============================================================================
 
 import os
@@ -28,7 +28,7 @@ except (AttributeError, ValueError):
 
 
 def info_processo_atual():
-    """Mostra o PID do processo, nº de threads e os nomes das threads."""
+    """Mostra o PID do processo, no de threads e os nomes das threads."""
     print("Processo atual:")
     print(f"  PID            : {os.getpid()}")
     print(f"  Threads ativas : {threading.active_count()}")
@@ -37,7 +37,7 @@ def info_processo_atual():
 
 
 def info_cpu():
-    """Núcleos lógicos/físicos: quantos paralelismos reais a CPU oferece."""
+    """Nucleos logicos/fisicos: quantos paralelismos reais a CPU oferece."""
     logicos = os.cpu_count()
     fisicos = None
     try:
@@ -46,12 +46,12 @@ def info_cpu():
     except ImportError:
         pass
     print("\nCPU:")
-    print(f"  Núcleos lógicos: {logicos}")
-    print(f"  Núcleos físicos: {fisicos if fisicos else '(instale psutil para ver)'}")
+    print(f"  Nucleos logicos: {logicos}")
+    print(f"  Nucleos fisicos: {fisicos if fisicos else '(instale psutil para ver)'}")
 
 
 def top_processos(quantidade=5):
-    """Lista os processos que mais usam CPU (como a 1ª tela do htop)."""
+    """Lista os processos que mais usam CPU (como a 1a tela do htop)."""
     try:
         import psutil
     except ImportError:
@@ -59,7 +59,7 @@ def top_processos(quantidade=5):
         print("   (no Colab:  !pip install psutil -q)")
         return
 
-    # A primeira chamada de cpu_percent é sempre 0; ignoramos e reconsultamos.
+    # A primeira chamada de cpu_percent e sempre 0; ignoramos e reconsultamos.
     for p in psutil.process_iter(["pid", "name"]):
         try:
             p.cpu_percent(None)
@@ -91,7 +91,7 @@ def top_processos(quantidade=5):
 
 def main():
     print("=" * 66)
-    print(" Processos e threads — o que o htop mostra, em Python")
+    print(" Processos e threads - o que o htop mostra, em Python")
     print("=" * 66)
 
     info_processo_atual()
@@ -100,13 +100,13 @@ def main():
 
     print()
     print("O que observar nas ferramentas interativas (Colab/Linux):")
-    print("  htop  -> uso de CADA núcleo na CPU, lista de processos e threads")
+    print("  htop  -> uso de CADA nucleo na CPU, lista de processos e threads")
     print("           (tecle 'H' para mostrar/ocultar threads).")
-    print("  nvtop -> uso da GPU e VRAM, temperatura, potência e processos.")
+    print("  nvtop -> uso da GPU e VRAM, temperatura, potencia e processos.")
     print()
-    print("Dica didática: rode o processos_threads.py e observe no htop que")
-    print("o multiprocessing acende VÁRIOS núcleos, enquanto o threading")
-    print("mantém praticamente UM núcleo ocupado por causa do GIL.")
+    print("Dica didatica: rode o processos_threads.py e observe no htop que")
+    print("o multiprocessing acende VARIOS nucleos, enquanto o threading")
+    print("mantem praticamente UM nucleo ocupado por causa do GIL.")
 
 
 if __name__ == "__main__":

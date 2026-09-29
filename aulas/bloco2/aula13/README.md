@@ -1,56 +1,102 @@
-# 📖 Guia Passo a Passo: Como Abrir e Rodar o Notebook da Aula 13 no Google Colab
+# 🧠 Aula 13 — Implementação de um Modelo Paralelo Simples (Síntese do Bloco 2)
+
+**Objetivo:** implementar e comparar a **soma vetorial** e o **produto escalar** em **4 versões**
+— Python puro, NumPy, Numba CUDA e CuPy — medindo o **speedup** e consolidando o Bloco 2 com
+gráficos e um mini-relatório técnico.
 
 ---
 
-## 🚀 Opção 1: Abrir Direto via GitHub (Mais Rápido e Recomendado)
+## 🎯 Situação de aprendizagem
 
-1. Acesse o site do [Google Colab](https://colab.research.google.com/).
-2. Faça login com a sua conta Google (Gmail).
-3. Na janela pop-up que abrir, selecione a aba **GitHub**.
-4. No campo de busca, cole a URL do repositório da turma:
-   ```text
-   https://github.com/jonasmaffei/senac-tecnico-ia
-   ```
-5. O Colab irá listar os arquivos do repositório. Clique em:
-   `aulas/bloco2/aula13/aula13_implementacao_modelo_paralelo.ipynb`
-6. Pronto! O notebook abrirá na sua tela.
+O setor pediu uma **prova técnica**: mostrar, com números, **quanto** a GPU realmente acelera um
+workload simples — e a partir de qual tamanho de problema ela passa a compensar a CPU. Você vai
+escrever a mesma operação em 4 níveis de abstração e compará-las.
 
 ---
 
-## 💻 Opção 2: Fazer Download do Arquivo e Subir no Colab (Upload)
+## 🗂️ Conteúdo
 
-Se você já baixou o repositório ou o arquivo `.ipynb` para o seu computador:
+| Item | O que é |
+| :--- | :--- |
+| [`apresentacao_aula13.html`](apresentacao_aula13.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** com a implementação das 4 versões + **5 exercícios** |
+| [`atividade.md`](atividade.md) | Roteiro de análise, mini-relatório e questionário (8–13) |
 
-1. Acesse o site do [Google Colab](https://colab.research.google.com/).
-2. Na janela inicial, clique na aba **Fazer upload** (ou **Upload**).
-3. Clique em **Escolher arquivo** e selecione o arquivo `aula13_implementacao_modelo_paralelo.ipynb` no seu computador.
-4. Aguarde o carregamento e o notebook abrirá automaticamente.
+### Estrutura da aula
+
+```
+aula13/
+  apresentacao_aula13.html
+  README.md
+  notebook_colab/aula13_implementacao_modelo_paralelo.ipynb
+  atividade.md
+```
+
+> ℹ️ Esta aula **não tem `laboratorio_windows/`**: o benchmark exige **GPU** (Colab). O notebook
+> detecta a ausência de GPU e mostra os números de referência.
 
 ---
 
-## ⚙️ PASSO CRÍTICO: Ativar a GPU no Google Colab
+## 🚀 Como rodar
 
-Por padrão, o Google Colab roda usando apenas o processador tradicional (**CPU**). Como nosso foco é testar a aceleração paralela em GPU (CUDA Numba e CuPy), você **deve ativar a GPU** antes de rodar as medições:
+### No Google Colab
 
-1. No menu superior do Colab, clique em **Ambiente de execução** (ou *Runtime*).
-2. Clique na opção **Alterar tipo de ambiente de execução** (ou *Change runtime type*).
-3. Na janela que abrir, localize a opção **Acelerador de hardware** (ou *Hardware accelerator*).
-4. Mude de **None/CPU** para **T4 GPU** (ou GPU disponível gratuitamente).
-5. Clique no botão **Salvar** (ou *Save*).
-6. No canto superior direito, verifique se aparece um ícone verde mostrando **RAM / GPU**.
+1. Abra `notebook_colab/aula13_implementacao_modelo_paralelo.ipynb` pelo **GitHub** no Colab
+   (`https://github.com/jonasmaffei/senac-tecnico-ia`).
+2. *Ambiente de execução ➔ Alterar tipo de ambiente ➔ **T4 GPU*** ➔ *Salvar*.
+3. Rode as células na ordem.
 
 ---
 
-## 🟢 Conteúdo do Notebook da Aula 13
+## 🔑 As 4 versões
 
-No notebook `aula13_implementacao_modelo_paralelo.ipynb`, você encontrará:
-1. **Introdução Teórica & Modelo SIMT vs SIMD**
-2. **Versão 1 — CPU Python Puro** (Soma vetorial e Produto escalar)
-3. **Versão 2 — CPU com NumPy** (Vetorização e BLAS otimizado)
-4. **Versão 3 — GPU com CUDA Numba** (Kernels customizados com redução em Shared Memory)
-5. **Versão 4 — GPU com CuPy** (NumPy acelerado na GPU)
-6. **Benchmark Completo e Coleta de Métricas** (Varredura de $N \in [10K, 100K, 1M, 10M, 100M]$)
-7. **Visualização Gráfica Interativa** (Tempos absolutos e Speedup com Matplotlib)
-8. **Tarefa Final do Bloco 2 & Seção Extra (`np.linalg.norm` vs `cp.linalg.norm`)**
-9. **Mini-Relatório Técnico e Conclusão**
-10. **Questionário de Consolidação (Aulas 8 a 13)** — as 18 questões estão em [`questionarios/questionario-aulas-8-13.md`](../../../questionarios/questionario-aulas-8-13.md). Entrega por e-mail para `03049691093@senacrs.edu.br` (assunto: `Questionario aulas 8 a 13`).
+| Versão | Onde roda | Característica |
+| :--- | :--- | :--- |
+| **Python puro** | CPU | laço interpretado — baseline lento |
+| **NumPy** | CPU | vetorizado, usa BLAS |
+| **Numba CUDA** | GPU | kernel explícito; controle das threads e shared memory |
+| **CuPy** | GPU | API idêntica ao NumPy, rodando na VRAM |
+
+### O que se aprende medindo
+
+- **SIMD (CPU) × SIMT (GPU):** poucos núcleos potentes × milhares de threads simples.
+- **Launch overhead + PCIe:** em N pequeno a GPU **perde**; a partir de um limiar, ela dispara.
+- **Redução:** o produto escalar e a norma (`np.linalg.norm` × `cp.linalg.norm`) exigem reduzir
+  muitos valores a um só — típico de workload que favorece a GPU.
+
+---
+
+## 🧪 Atividade guiada
+
+Rode o notebook, preencha a tabela de tempos e responda ao roteiro em
+[`atividade.md`](atividade.md). No fim, o notebook gera um **mini-relatório automático**.
+
+---
+
+## 💬 Discussão em grupo
+
+Em grupos de 3–4:
+
+1. Em que cenário real usaríamos cada uma das 4 versões?
+2. Vale a pena escrever um kernel CUDA "na mão" (Numba) em vez de usar CuPy? Quando?
+3. Que cuidados tomar ao comparar tempos de CPU e GPU (warm-up, sincronização)?
+4. Como esse benchmark se conecta ao **Projeto Integrador**?
+
+---
+
+## 📝 Questionário de Consolidação (Aulas 8 a 13)
+
+As **18 questões** de revisão estão em
+[`questionarios/questionario-aulas-8-13.md`](../../../questionarios/questionario-aulas-8-13.md).
+
+**Entrega:** envie as respostas por e-mail para `03049691093@senacrs.edu.br` com o assunto
+`Questionario aulas 8 a 13`.
+
+---
+
+## 🔗 Relação com o curso
+
+- **Aulas 7–10** ensinaram *como* programar a GPU (CUDA, OpenCL, ROCm). Esta aula **sintetiza**
+  o bloco: implementa o mesmo problema em 4 níveis e **mede** quando vale a pena.
+- **Próximo bloco (Aula 14):** automação — monitorar e agendar tarefas de GPU sem digitar
+  comandos todo dia.

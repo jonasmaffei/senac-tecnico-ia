@@ -287,15 +287,14 @@ Thread 2 -> dados[64]
         </div>
       </div>
       <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>tile_A[ty, tx] = A[row, kr]
-cuda.syncthreads()   # carregou
-for k in range(TILE):
-    soma += tile_A[ty,k]*tile_B[k,tx]
-cuda.syncthreads()   # antes de recarregar</code></pre>
-        </div>
-        <div class="note">
+        <h3 style="margin-bottom:8px">O padrão</h3>
+        <ol class="clean">
+          <li><strong>Carregar</strong> um bloco (tile) da VRAM para a <strong>SRAM</strong>.</li>
+          <li><strong>Sincronizar</strong> — esperar todas as threads copiarem.</li>
+          <li><strong>Calcular</strong> com a SRAM (rápida), reutilizando os dados.</li>
+          <li><strong>Sincronizar</strong> antes de recarregar o próximo tile.</li>
+        </ol>
+        <div class="note" style="margin-top:10px">
           <span class="ico">🔁</span>
           <span>Cada elemento é lido ~<strong>TILE vezes menos</strong> da VRAM.</span>
         </div>
@@ -310,13 +309,9 @@ cuda.syncthreads()   # antes de recarregar</code></pre>
     <div class="grid cols-2">
       <div>
         <h3 style="margin-bottom:10px">Versão ingênua</h3>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>for k in range(K):
-    soma += A[row,k] * B[k,col]
-# cada iteração lê da VRAM</code></pre>
-        </div>
-        <p>Latência de ~500 ciclos <strong>por</strong> multiplicação → o gargalo.</p>
+        <p>Cada multiplicação vai direto à <strong>VRAM</strong>. Como a latência é de ~500
+          ciclos <strong>por</strong> acesso, o kernel passa a maior parte do tempo esperando
+          memória — esse é o gargalo.</p>
       </div>
       <div>
         <h3 style="margin-bottom:8px">Resultado esperado (T4, N=512)</h3>
@@ -343,17 +338,10 @@ cuda.syncthreads()   # antes de recarregar</code></pre>
     <h2><span class="num">5.</span>Medindo antes de otimizar</h2>
     <div class="grid cols-2">
       <div>
-        <div class="code-wrap">
-          <span class="badge">conceito</span>
-          <pre><code>inicio = cuda.event()
-fim = cuda.event()
-inicio.record()
-kernel[...](...)
-fim.record(); fim.synchronize()
-t = cuda.event_elapsed_time(inicio, fim)</code></pre>
-        </div>
-        <p><code>cuda.event</code> cronometra na <strong>própria GPU</strong> — mais preciso que
-          o relógio da CPU.</p>
+        <p>O cronômetro da CPU mede o <strong>lançamento</strong>, não a execução. Para medir o
+          tempo real do kernel, usamos <strong>eventos na própria GPU</strong>: marca-se o início,
+          roda-se o kernel e marca-se o fim — a GPU devolve o tempo decorrido, imune à
+          latência do host.</p>
       </div>
       <div>
         <h3 style="margin-bottom:10px">Ferramentas</h3>

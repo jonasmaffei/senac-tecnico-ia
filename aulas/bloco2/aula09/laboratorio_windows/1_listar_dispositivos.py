@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# listar_dispositivos.py — Descobrir plataformas e dispositivos OpenCL
+# listar_dispositivos.py - Descobrir plataformas e dispositivos OpenCL
 # ----------------------------------------------------------------------------
-# OBJETIVO: o primeiro passo de qualquer programa OpenCL é descobrir o que
-# existe no hardware. A hierarquia é:
+# OBJETIVO: o primeiro passo de qualquer programa OpenCL e descobrir o que
+# existe no hardware. A hierarquia e:
 #
 #   Platform (drivers do fabricante: NVIDIA, AMD, Intel, ...)
-#     └── Device (CPU, GPU ou acelerador dentro da plataforma)
+#     +-- Device (CPU, GPU ou acelerador dentro da plataforma)
 #
 # Aqui listamos todas as plataformas e, para cada uma, os dispositivos com
-# nº de compute units, memória global (VRAM) e frequência máxima.
+# no de compute units, memoria global (VRAM) e frequencia maxima.
 #
 # Uso:  python listar_dispositivos.py
-# Requer: pyopencl (opcional — sem ele, explica o conceito)
+# Requer: pyopencl (opcional - sem ele, explica o conceito)
 # ============================================================================
 
 import sys
@@ -29,7 +29,7 @@ import lib_opencl
 def main():
     lib_opencl.cabecalho_ascii()
     print("=" * 64)
-    print(" OpenCL: plataformas e dispositivos disponíveis")
+    print(" OpenCL: plataformas e dispositivos disponiveis")
     print("=" * 64)
 
     cl = lib_opencl.carregar()
@@ -39,7 +39,7 @@ def main():
         print("Conceito da hierarquia:")
         print("  Platform = conjunto de drivers do fabricante (NVIDIA/AMD/Intel)")
         print("  Device   = CPU, GPU ou acelerador onde o kernel executa")
-        print("Referência: plataforma Intel com 1 GPU integrada + 1 CPU,")
+        print("Referencia: plataforma Intel com 1 GPU integrada + 1 CPU,")
         print("ou plataforma AMD/NVIDIA com 1 GPU dedicada.")
         return
 
@@ -51,7 +51,7 @@ def main():
 
     for plataforma, dispositivos in plataformas:
         print(f"\nPlataforma: {plataforma.name}")
-        print(f"  Versão    : {plataforma.version}")
+        print(f"  Versao    : {plataforma.version}")
         if not dispositivos:
             print("  (nenhum dispositivo exposto por esta plataforma)")
             continue
@@ -60,7 +60,7 @@ def main():
             print(f"  [{tipo}] {dispositivo.name}")
             print(f"     Compute units : {dispositivo.max_compute_units}")
             print(f"     Mem global    : {dispositivo.global_mem_size // (1024**3)} GB")
-            print(f"     Frequência    : {dispositivo.max_clock_frequency} MHz")
+            print(f"     Frequencia    : {dispositivo.max_clock_frequency} MHz")
             print(f"     Max work-group: {dispositivo.max_work_group_size}")
 
 

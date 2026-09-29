@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-# lib_cuda.py — Detecção do ambiente CUDA (numba) com fallback seguro
+# lib_cuda.py - Deteccao do ambiente CUDA (numba) com fallback seguro
 # ----------------------------------------------------------------------------
-# Mesmo padrão da Aula 07. Como o laboratório usa GPU AMD (sem CUDA), este
-# módulo permite que os scripts da Aula 08 mostrem o CONCEITO e números de
-# referência mesmo quando não há GPU NVIDIA.
+# Mesmo padrao da Aula 07. Como o laboratorio usa GPU AMD (sem CUDA), este
+# modulo permite que os scripts da Aula 08 mostrem o CONCEITO e numeros de
+# referencia mesmo quando nao ha GPU NVIDIA.
 #
 # Uso:
 #   import lib_cuda
@@ -49,18 +49,18 @@ def nome_gpu():
 def resumo():
     print("=" * 64)
     if tem_cuda():
-        print(f" CUDA disponível: {nome_gpu()}")
-        print(" Kernels via numba.cuda serão executados na GPU.")
+        print(f" CUDA disponivel: {nome_gpu()}")
+        print(" Kernels via numba.cuda serao executados na GPU.")
     else:
-        print(" CUDA indisponível neste ambiente (sem GPU NVIDIA).")
-        print(" Os scripts mostram o conceito e números de REFERÊNCIA.")
-        print(" No Google Colab com T4 GPU, o mesmo código roda na GPU.")
+        print(" CUDA indisponivel neste ambiente (sem GPU NVIDIA).")
+        print(" Os scripts mostram o conceito e numeros de REFERENCIA.")
+        print(" No Google Colab com T4 GPU, o mesmo codigo roda na GPU.")
     print("=" * 64)
 
 
 def explicar_sem_gpu():
-    print("Numba/CUDA indisponível — sem GPU NVIDIA acessível aqui.")
-    print("Os números abaixo são de REFERÊNCIA (Tesla T4) para você comparar.")
+    print("Numba/CUDA indisponivel - sem GPU NVIDIA acessivel aqui.")
+    print("Os numeros abaixo sao de REFERENCIA (Tesla T4) para voce comparar.")
     print("Para medir de verdade: Runtime > Change runtime type > T4 GPU.")
 
 

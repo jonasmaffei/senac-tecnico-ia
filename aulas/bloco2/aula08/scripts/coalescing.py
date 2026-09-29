@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ============================================================================
-# coalescing.py — Acessos coalescidos vs. não-coalescidos à memória global
+# coalescing.py - Acessos coalescidos vs. nao-coalescidos a memoria global
 # ----------------------------------------------------------------------------
 # OBJETIVO: entender por que a FORMA de acessar a VRAM importa tanto.
 #
-#   Coalescido (bom): threads consecutivas do warp acessam endereços
-#     consecutivos -> a GPU junta tudo numa única transação de 128 bytes.
+#   Coalescido (bom): threads consecutivas do warp acessam enderecos
+#     consecutivos -> a GPU junta tudo numa unica transacao de 128 bytes.
 #
-#   Não-coalescido (ruim): threads acessam endereços espalhados (stride grande)
-#     -> cada acesso vira uma transação separada. Pode ser até ~32x mais lento.
+#   Nao-coalescido (ruim): threads acessam enderecos espalhados (stride grande)
+#     -> cada acesso vira uma transacao separada. Pode ser ate ~32x mais lento.
 #
-# Requer GPU NVIDIA. Sem GPU, mostra o conceito e os tempos de referência.
+# Requer GPU NVIDIA. Sem GPU, mostra o conceito e os tempos de referencia.
 #
 # Uso:  python coalescing.py
 # ============================================================================
@@ -33,18 +33,18 @@ def testar():
     import numpy as np
     import time
 
-    # ── Kernel coalescido: thread i lê o elemento i (endereços seguidos) ────
+    # -- Kernel coalescido: thread i le o elemento i (enderecos seguidos) ----
     @cuda.jit
     def acesso_coalescido(dados, resultado):
         idx = cuda.grid(1)
         if idx < dados.shape[0]:
             resultado[idx] = dados[idx] * 2.0
 
-    # ── Kernel não-coalescido: thread i lê um endereço distante (stride) ────
+    # -- Kernel nao-coalescido: thread i le um endereco distante (stride) ----
     @cuda.jit
     def acesso_strided(dados, resultado, stride):
         idx = cuda.grid(1)
-        src = (idx * stride) % dados.shape[0]     # endereço espalhado
+        src = (idx * stride) % dados.shape[0]     # endereco espalhado
         if idx < resultado.shape[0]:
             resultado[idx] = dados[src] * 2.0
 
@@ -78,7 +78,7 @@ def testar():
 def main():
     lib_cuda.cabecalho_ascii()
     print("=" * 64)
-    print(" Coalescing: como acessar a VRAM sem desperdiçar transações")
+    print(" Coalescing: como acessar a VRAM sem desperdicar transacoes")
     print("=" * 64)
     lib_cuda.resumo()
 
@@ -87,11 +87,11 @@ def main():
     else:
         lib_cuda.explicar_sem_gpu()
         print()
-        print("Regra: threads CONSECUTIVAS devem acessar endereços CONSECUTIVOS.")
-        print("Coalescido    -> 1 transação de 128B por warp")
-        print("Não-coalescido -> até 32 transações separadas (até ~32x mais lento)")
+        print("Regra: threads CONSECUTIVAS devem acessar enderecos CONSECUTIVOS.")
+        print("Coalescido    -> 1 transacao de 128B por warp")
+        print("Nao-coalescido -> ate 32 transacoes separadas (ate ~32x mais lento)")
         print()
-        print("Referência (T4, N=10M): coalescido ~0.3 ms vs. strided muito maior.")
+        print("Referencia (T4, N=10M): coalescido ~0.3 ms vs. strided muito maior.")
 
 
 if __name__ == "__main__":
