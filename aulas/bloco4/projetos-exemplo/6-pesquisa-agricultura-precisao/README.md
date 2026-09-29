@@ -56,7 +56,7 @@ considerando latência, energia e custo?
 
 ## 🎤 Apresentação (A23)
 
-Pitch de 5 min: problema → arquitetura borda/nuvem → resultados → decisão e conexão com o PI.
+Pitch: problema → arquitetura borda/nuvem → resultados → decisão e conexão com o PI.
 
 ## 🔗 Conexão com o PI (A24)
 

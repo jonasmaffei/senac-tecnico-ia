@@ -1,6 +1,5 @@
 # 🌙 Aula 18 + 19 — Concorrência e Energia na GPU
 
-**Duração:** ≈120 min.
 **Objetivo:** operar a GPU com **justiça** (1 job por vez + fila com prioridade) e com
 **eficiência** (medir e limitar a energia).
 
@@ -72,19 +71,6 @@ chmod +x *.sh
 sudo ./set_power_limit.sh 200      # define PL=200W
 ./benchmark_energetico.sh 250 200 150 100
 ```
-
----
-
-## 🧭 Roteiro (≈120 min)
-
-| Tempo | Bloco |
-| :---: | :--- |
-| 10 min | Abertura: os dois problemas (OOM + energia) |
-| 25 min | **Parte 1** — race condition, lock e fila com prioridade |
-| 25 min | **Prática 1** — 4 jobs disputando a GPU (serialização) |
-| 25 min | **Parte 2** — TDP, throttling, Power Limit e NVML |
-| 25 min | **Prática 2** — benchmark de eficiência (imgs/J) |
-| 10 min | Síntese: integrar as duas partes |
 
 ---
 

@@ -25,7 +25,7 @@ Monitor de GPU em CSV com intervalo maior (ex.: 20 s) — a carga é mais estáv
 
 ## 4. Apresentar (Aula 23)
 
-Pitch de 5 min. Comparação:
+Pitch: Comparação:
 
 | Métrica | CPU | GPU |
 | :--- | :--- | :--- |

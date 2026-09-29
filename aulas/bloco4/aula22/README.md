@@ -49,4 +49,4 @@ definir as métricas de operação (temperatura, potência, utilização) e cita
 
 1. Rodar o monitor junto de um treino e salvar o CSV.
 2. Ajustar o limite de temperatura e testar o alerta.
-3. Preparar o **pitch de 5 min** do projeto.
+3. Preparar o **pitch** do projeto.

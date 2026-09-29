@@ -14,7 +14,7 @@ O treino acabou e os resultados estão prontos. Chegou a hora de **apresentar** 
    python relatorio_final.py
    ```
 2. Substitua os dados de exemplo pelos **reais** do seu projeto.
-3. Monte o **pitch de 5 min**:
+3. Monte o **pitch**:
    - Problema → Solução → Demo → Resultados → Lições + PI.
 4. Treine a apresentação cronometrando o tempo.
 

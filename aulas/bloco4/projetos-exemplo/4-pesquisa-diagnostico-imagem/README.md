@@ -56,7 +56,7 @@ processar esses exames em lote, considerando desempenho, custo, energia e sobera
 
 ## 🎤 Apresentação (A23)
 
-Pitch de 5 min: problema → arquitetura proposta → demonstração (opcional) → resultados →
+Pitch: problema → arquitetura proposta → demonstração (opcional) → resultados →
 decisão e conexão com o PI.
 
 ## 🔗 Conexão com o PI (A24)

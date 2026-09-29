@@ -55,7 +55,7 @@ central é: **como reduzir o consumo energético sem sacrificar o tempo de trein
 
 ## 🎤 Apresentação (A23)
 
-Pitch de 5 min: problema → estratégia de energia → resultados → economia e conexão com o PI.
+Pitch: problema → estratégia de energia → resultados → economia e conexão com o PI.
 
 ## 🔗 Conexão com o PI (A24)
 

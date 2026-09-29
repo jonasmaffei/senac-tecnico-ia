@@ -1,6 +1,6 @@
 # 🎤 Aula 23 — Apresentação e Análise dos Projetos
 
-**Objetivo:** comunicar os resultados — preparar o **pitch de 5 minutos** e gerar o
+**Objetivo:** comunicar os resultados — preparar o **pitch** do projeto e gerar o
 **relatório final** (baseline × GPU) do projeto.
 
 > 🧭 **Bloco 4 — Projeto Final.** Continua a [Aula 22](../aula22/README.md).
@@ -26,15 +26,10 @@ python relatorio_final.py     # gera relatorio_final.png
 
 ---
 
-## 🎤 Pitch de 5 minutos
+## 🎤 Pitch do projeto
 
-| Tempo | Bloco |
-| :---: | :--- |
-| 0:00–0:45 | **Problema** — qual problema e por que a GPU |
-| 0:45–1:30 | **Solução** — modelo e stack |
-| 1:30–2:30 | **Demo** — treino + monitor |
-| 2:30–3:30 | **Resultados** — tabela baseline × GPU |
-| 3:30–5:00 | **Lições + PI** |
+Sequência sugerida: **Problema** (qual problema e por que a GPU) → **Solução** (modelo e
+stack) → **Demo** (treino + monitor) → **Resultados** (tabela baseline × GPU) → **Lições + PI**.
 
 ---
 

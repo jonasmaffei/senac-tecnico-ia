@@ -40,4 +40,4 @@ quais ferramentas seriam usadas — sem precisar executar o monitor.
 
 1. Rodar um treino completo com o monitor e salvar o CSV.
 2. Testar o alerta de temperatura.
-3. Preparar o **pitch de 5 min**.
+3. Preparar o **pitch** do projeto.

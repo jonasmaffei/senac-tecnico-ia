@@ -25,7 +25,7 @@ Rodar o `monitor_treinamento.sh` junto do treino (`logs/monitor/`) e alertar aci
 
 ## 4. Apresentar (Aula 23)
 
-Pitch de 5 min: Problema → Solução → Demo → Resultados → Lições + PI. Comparação:
+Pitch: Problema → Solução → Demo → Resultados → Lições + PI. Comparação:
 
 | Métrica | CPU | GPU |
 | :--- | :--- | :--- |

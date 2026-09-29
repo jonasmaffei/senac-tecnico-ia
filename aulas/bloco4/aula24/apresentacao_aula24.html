@@ -205,7 +205,6 @@
     <p class="lead">Articular arquitetura, GPU e automação com o <strong>Projeto Integrador</strong>: identificar pontos de aceleração, integrar a infraestrutura de monitoramento ao repositório do PI e propor um <strong>plano de ação</strong> por domínio.</p>
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">4 — Projeto Final</div></div>
-      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
       <div class="meta"><div class="k">Ferramentas</div><div class="v">Miro, GitHub, Notion, W&amp;B</div></div>
     </div>
     <div class="grid cols-2" style="margin-top:26px">
@@ -223,22 +222,9 @@
   <!-- 02 — Roteiro -->
   <section class="slide">
     <div class="kicker">Visão Geral</div>
-    <h2>Objetivo e roteiro da aula</h2>
+    <h2>Objetivo da aula</h2>
     <p><strong>Objetivo:</strong> articular os conhecimentos da UC com o Projeto Integrador, propondo soluções concretas de otimização e inovação.</p>
-    <div class="grid cols-2" style="align-items:start">
-      <div>
-        <h3 style="margin-bottom:10px">Cronograma (130 min)</h3>
-        <div class="timeline">
-          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: recapitulação dos Blocos 1–4</span></div>
-          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Teoria: pontos de aceleração no PI</span></div>
-          <div class="tl-item"><span class="tl-time">15 min</span><span class="tl-txt">Demo: integrar monitor e W&amp;B ao PI</span></div>
-          <div class="tl-item"><span class="tl-time">30 min</span><span class="tl-txt">Atividade: mapear 3 conexões GPU ↔ PI</span></div>
-          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Apresentação dos mapas de conexão</span></div>
-          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Arquitetura ideal do PI com GPU</span></div>
-          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Síntese final e avaliação formativa</span></div>
-          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Encerramento e orientações finais</span></div>
-        </div>
-      </div>
+    <div class="grid" style="align-items:start">
       <div>
         <div class="card" style="margin-bottom:12px">
           <h3><span class="ico">🔑</span> Conceitos-chave</h3>
@@ -354,7 +340,7 @@
   <!-- 08 — Debate -->
   <section class="slide">
     <div class="kicker">Discussão em Grupo</div>
-    <h2><span class="num">6.</span>Mapa de conexões (2 min por time)</h2>
+    <h2><span class="num">6.</span>Mapa de conexões</h2>
     <div class="debate"><div class="q">1</div><p>Qual componente do PI mais se beneficia de GPU: treino de um modelo, inferência em produção ou pré-processamento? Qual o ganho estimado?</p></div>
     <div class="debate"><div class="q">2</div><p>O repositório do PI já tem código numpy/sklearn/torch em CPU que poderia migrar para GPU? O que muda — só <code>.to('cuda')</code> ou a estrutura dos dados?</p></div>
     <div class="debate"><div class="q">3</div><p>Como o monitor de GPU pode ajudar especificamente o PI? Que thresholds fazem sentido para a carga do projeto?</p></div>

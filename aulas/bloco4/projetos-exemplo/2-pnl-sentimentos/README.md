@@ -25,7 +25,7 @@ Monitor de GPU em CSV; o limite de VRAM é mais crítico aqui (usar ~90%).
 
 ## 4. Apresentar (Aula 23)
 
-Pitch de 5 min. Comparação:
+Pitch: Comparação:
 
 | Métrica | CPU | GPU |
 | :--- | :--- | :--- |

@@ -70,7 +70,7 @@ As etapas que todos seguem:
 | **1. Planejar** | Domínio, problema, dataset, modelo e baseline | 20 |
 | **2. Implementar** | Treinar com AMP (fp16) + DataLoader otimizado | 21 |
 | **3. Monitorar** | Rodar o `monitor_treinamento.sh` junto do treino | 22 |
-| **4. Apresentar** | Pitch de 5 min + relatório (baseline × GPU) | 23 |
+| **4. Apresentar** | Pitch + relatório (baseline × GPU) | 23 |
 | **5. Conectar** | Mapear onde a GPU ajuda no Projeto Integrador | 24 |
 
 > 💡 Índice completo dos exemplos: [`projetos-exemplo/README.md`](projetos-exemplo/README.md).
