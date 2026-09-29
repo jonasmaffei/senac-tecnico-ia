@@ -8,7 +8,7 @@ echo ============================================================
 echo.
 
 if not exist ".venv" (
-    echo [1/2] Criando ambiente virtual Python (.venv)...
+    echo [1/2] Criando ambiente virtual Python ^(.venv^)...
     python -m venv .venv
 )
 
@@ -56,7 +56,7 @@ if "%OPCAO%"=="3" (
 
 if "%OPCAO%"=="4" (
     cls
-    echo Aplicando Power Limit de 180W (se suportado)...
+    echo Aplicando Power Limit de 180W ^(se suportado^)...
     python 4_controle_pl.py 180
     pause
     goto MENU

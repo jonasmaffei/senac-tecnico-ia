@@ -8,7 +8,7 @@ echo ============================================================
 echo.
 
 if not exist ".venv" (
-    echo [1/2] Criando ambiente virtual Python (.venv)...
+    echo [1/2] Criando ambiente virtual Python ^(.venv^)...
     python -m venv .venv
 )
 
@@ -24,8 +24,8 @@ echo     MENU - Laboratorio de Gestao de Processos (Aula 18)
 echo ============================================================
 echo   1. Testar Exclusao Mutua Simples (1_flock_gpu.py)
 echo   2. Enfileirar 1 Job com Prioridade (2_gpu_queue.py)
-echo   3. Testar Fila Concorrente de 4 Jobs (3_teste_fila.py)
-echo   4. Monitorar Processos e Fila ao Vivo (4_monitor_processos_gpu.py)
+echo   3. Testar Fila de 4 Jobs COM monitor ao vivo (3_teste_fila.py)
+echo   4. Monitorar GPU/Lock/Fila por 15s (4_monitor_processos_gpu.py)
 echo   5. Sair
 echo ============================================================
 set /p OPCAO="Escolha uma opcao (1-5): "
@@ -40,7 +40,7 @@ if "%OPCAO%"=="1" (
 
 if "%OPCAO%"=="2" (
     cls
-    echo Enfileirando Job com Prioridade 1 (Alta)...
+    echo Enfileirando Job com Prioridade 1 ^(Alta^)...
     python 2_gpu_queue.py 1 "Job-Manual" train_job.py --nome "Job-Manual" --epocas 2
     pause
     goto MENU
@@ -48,7 +48,7 @@ if "%OPCAO%"=="2" (
 
 if "%OPCAO%"=="3" (
     cls
-    echo Executando Teste de Fila com 4 Jobs Simultaneos...
+    echo Teste de Fila com 4 Jobs ^+ monitor ao vivo...
     python 3_teste_fila.py
     pause
     goto MENU
@@ -56,8 +56,8 @@ if "%OPCAO%"=="3" (
 
 if "%OPCAO%"=="4" (
     cls
-    echo Monitorando Processos e Estado da Fila...
-    python 4_monitor_processos_gpu.py
+    echo Monitorando GPU/Lock/Fila por 15 segundos...
+    python 4_monitor_processos_gpu.py 15 1
     pause
     goto MENU
 )
