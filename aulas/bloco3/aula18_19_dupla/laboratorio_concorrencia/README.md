@@ -1,4 +1,4 @@
-# 🖥️ Laboratório Windows Host: Gestão de Processos e Fila (Aula 18)
+# 🖥️ Laboratório Windows: Concorrência e Fila (Aula 18+19)
 
 Este laboratório permite testar o controle de concorrência, exclusão mútua e filas por prioridade em execuções de GPU diretamente no hospedeiro Windows (sem necessitar de `flock` nativo do Linux ou permissões root de servidor).
 

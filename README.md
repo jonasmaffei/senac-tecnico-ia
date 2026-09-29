@@ -108,9 +108,7 @@ pip install -r requirements.txt
 | **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/bloco3/aula15/notebook_colab/aula15_processos_fila.ipynb), [Apresentação](aulas/bloco3/aula15/apresentacao_aula15.html), [Atividade](aulas/bloco3/aula15/atividade.md), [Laboratório Windows](aulas/bloco3/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco3/aula15/README.md) |
 | **16** | Agentes de Código: Harness, RAG, Skills e Vibe Coding (Antigravity CLI) | [Apresentação](aulas/bloco3/aula16/apresentacao_aula16.html), [Atividade](aulas/bloco3/aula16/atividade.md), [Laboratório Monitoramento](aulas/bloco3/aula16/laboratorio_monitoramento/README.md), [Guia da Aula](aulas/bloco3/aula16/README.md) |
 | **17** | Automação de GPUs — *versão enxuta / complemento da A14* | [Notebook](aulas/bloco3/aula17/notebook_colab/aula17_automacao_gpu_bash.ipynb), [Apresentação](aulas/bloco3/aula17/apresentacao_aula17.html), [Atividade](aulas/bloco3/aula17/atividade.md), [Laboratório Python](aulas/bloco3/aula17/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco3/aula17/README.md) |
-| **18** | Gestão de Fila em GPU — *versão enxuta / complemento da A15* | [Notebook](aulas/bloco3/aula18/notebook_colab/aula18_processos_fila.ipynb), [Apresentação](aulas/bloco3/aula18/apresentacao_aula18.html), [Atividade](aulas/bloco3/aula18/atividade.md), [Laboratório Python](aulas/bloco3/aula18/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco3/aula18/README.md) |
-| **18+19** | **Aula dupla (1 noite):** concorrência + energia | [Guia](aulas/bloco3/aula18_19_dupla/README.md), [Apresentação](aulas/bloco3/aula18_19_dupla/apresentacao_aula18_19.html), [Notebook](aulas/bloco3/aula18_19_dupla/notebook_colab/aula18_19_concorrencia_energia.ipynb), [Atividade](aulas/bloco3/aula18_19_dupla/atividade.md) |
-| **19** | Otimização de Processamento e Uso de Energia em GPUs (TDP, Power Limit, nvidia-ml-py, eficiência) | [Notebook](aulas/bloco3/aula19/notebook_colab/aula19_energia_gpu.ipynb), [Apresentação](aulas/bloco3/aula19/apresentacao_aula19.html), [Atividade](aulas/bloco3/aula19/atividade.md), [Laboratório Windows](aulas/bloco3/aula19/laboratorio_windows/README.md), [Scripts Linux](aulas/bloco3/aula19/scripts_linux/), [Guia da Aula](aulas/bloco3/aula19/README.md) |
+| **18+19** | **Concorrência + Energia na GPU** (aula dupla, 1 noite) | [Guia](aulas/bloco3/aula18_19_dupla/README.md), [Apresentação](aulas/bloco3/aula18_19_dupla/apresentacao_aula18_19.html), [Notebook](aulas/bloco3/aula18_19_dupla/notebook_colab/aula18_19_concorrencia_energia.ipynb), [Atividade](aulas/bloco3/aula18_19_dupla/atividade.md), [Lab concorrência](aulas/bloco3/aula18_19_dupla/laboratorio_concorrencia/README.md), [Lab energia](aulas/bloco3/aula18_19_dupla/laboratorio_energia/README.md), [Scripts Linux](aulas/bloco3/aula18_19_dupla/scripts_linux/) |
 
 ### Bloco 4 — Projeto Final (Aplicação de GPUs na IA)
 
@@ -173,8 +171,8 @@ senac-tecnico-ia/
 │   │                                          atividade.md, laboratorio_windows/ ou scripts/
 │   ├── bloco3/                              → Bloco 3 · Automação (aulas 14–19)
 │   │   ├── README.md
-│   │   ├── aula14/ ... aula19/              → notebook_colab/, laboratorio_windows/, scripts_linux/
-│   │   └── aula18_19_dupla/                 → aula dupla (1 noite): concorrência + energia
+│   │   ├── aula14/ ... aula17/              → notebook_colab/, laboratorio_windows/, scripts_linux/
+│   │   └── aula18_19_dupla/                 → concorrência + energia: notebook, labs e scripts_linux
 │   ├── bloco4/                              → Bloco 4 · Projeto Final (aulas 20–24)
 │   │   ├── README.md
 │   │   ├── aula20/ ... aula24/              → apresentação, atividade e 1 script de exemplo

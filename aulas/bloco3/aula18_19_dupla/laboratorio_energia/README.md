@@ -1,4 +1,4 @@
-# 🖥️ Laboratório Windows Host: Energia e Térmica de GPU (Aula 19)
+# 🖥️ Laboratório Windows: Energia e Térmica de GPU (Aula 18+19)
 
 Este laboratório permite **medir temperatura/potência**, gerar **alertas térmicos**,
 estimar a **eficiência por Power Limit** e demonstrar o **controle programático** da

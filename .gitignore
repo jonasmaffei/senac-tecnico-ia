@@ -75,9 +75,12 @@ aulas/bloco3/aula14/laboratorio_realtime-windows/reports/*
 !aulas/bloco3/aula14/laboratorio_realtime-windows/reports/.gitkeep
 aulas/bloco3/aula14/laboratorio_realtime-windows/**/__pycache__/
 
-# === Laboratório de energia — Aula 19 ===
-aulas/bloco3/aula19/laboratorio_windows/reports/*
-!aulas/bloco3/aula19/laboratorio_windows/reports/.gitkeep
-aulas/bloco3/aula19/laboratorio_windows/**/__pycache__/
+# === Laboratórios da aula dupla 18+19 ===
+aulas/bloco3/aula18_19_dupla/laboratorio_concorrencia/reports/*
+!aulas/bloco3/aula18_19_dupla/laboratorio_concorrencia/reports/.gitkeep
+aulas/bloco3/aula18_19_dupla/laboratorio_concorrencia/**/__pycache__/
+aulas/bloco3/aula18_19_dupla/laboratorio_energia/reports/*
+!aulas/bloco3/aula18_19_dupla/laboratorio_energia/reports/.gitkeep
+aulas/bloco3/aula18_19_dupla/laboratorio_energia/**/__pycache__/
 
 

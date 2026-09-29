@@ -1,12 +1,12 @@
-# 🌙 Aula dupla 18 + 19 — Concorrência e Energia na GPU
+# 🌙 Aula 18 + 19 — Concorrência e Energia na GPU
 
 **Formato:** aula **dupla**, condensada para **uma única noite** (≈120 min).
 **Objetivo:** operar a GPU com **justiça** (1 job por vez + fila com prioridade) e com
 **eficiência** (medir e limitar a energia).
 
-> ⏱️ **Para quem tem só uma noite.** Esta pasta junta o essencial das
-> [Aula 18](../aula18/README.md) (concorrência) e [Aula 19](../aula19/README.md) (energia)
-> num material único. As aulas completas continuam existindo para quem tiver mais tempo.
+> 📌 **Esta é a aula oficial de concorrência + energia do Bloco 3.** Ela reúne o notebook, a
+> apresentação e **os laboratórios** (concorrência e energia) num só lugar. A base conceitual
+> de concorrência vem da [Aula 15](../aula15/README.md) (versão Bash completa).
 
 ---
 
@@ -24,6 +24,9 @@ Vamos resolver ambos: primeiro a **concorrência**, depois a **energia**.
 | :--- | :--- |
 | [`apresentacao_aula18_19.html`](apresentacao_aula18_19.html) | Slides **só conceito** (11 slides; navegue com ← →) |
 | [`notebook_colab/`](notebook_colab) | Notebook único no **Google Colab** (concorrência + energia) + **Exercícios (5)** |
+| [`laboratorio_concorrencia/`](laboratorio_concorrencia/README.md) | **Lab Python** (Windows): lock por diretório + fila por prioridade |
+| [`laboratorio_energia/`](laboratorio_energia/README.md) | **Lab Windows:** monitor térmico, alerta, benchmark de eficiência e Power Limit |
+| [`scripts_linux/`](scripts_linux) | Scripts para **servidor Linux + NVIDIA** (monitorar, definir PL, benchmark, alerta) |
 | [`atividade.md`](atividade.md) | Roteiro da noite, discussão e entrega |
 
 ### Estrutura da pasta
@@ -33,6 +36,9 @@ aula18_19_dupla/
   apresentacao_aula18_19.html
   README.md
   notebook_colab/aula18_19_concorrencia_energia.ipynb
+  laboratorio_concorrencia/     # 1_flock_gpu.py, 2_gpu_queue.py, 3_teste_fila.py, 4_monitor_processos_gpu.py
+  laboratorio_energia/          # lib_energia.py + 1_monitor_thermal, 2_alerta, 3_benchmark, 4_controle_pl
+  scripts_linux/                # monitor_thermal.sh, set_power_limit.sh, benchmark_energetico.sh, alerta_termico.sh
   atividade.md
 ```
 
@@ -48,12 +54,24 @@ aula18_19_dupla/
 
 ### No Windows (laboratório)
 
-Use os laboratórios das aulas originais (a mesma máquina):
+Dê **duplo clique** no `iniciar.bat` de cada laboratório:
 
-- **Concorrência:** [`../aula18/laboratorio_windows/`](../aula18/laboratorio_windows/README.md)
-  (`iniciar.bat` → lança 4 jobs e mostra a serialização por prioridade).
-- **Energia:** [`../aula19/laboratorio_windows/`](../aula19/laboratorio_windows/README.md)
-  (`iniciar.bat` → monitor térmico, alerta, benchmark de eficiência e Power Limit).
+- **Concorrência:** [`laboratorio_concorrencia/iniciar.bat`](laboratorio_concorrencia/iniciar.bat)
+  → lança 4 jobs e mostra a serialização por prioridade.
+- **Energia:** [`laboratorio_energia/iniciar.bat`](laboratorio_energia/iniciar.bat)
+  → monitor térmico, alerta, benchmark de eficiência e Power Limit.
+
+### Em servidor Linux (produção)
+
+Os scripts de energia estão em [`scripts_linux/`](scripts_linux):
+
+```bash
+cd aulas/bloco3/aula18_19_dupla/scripts_linux
+chmod +x *.sh
+./monitor_thermal.sh 5 60          # coleta temp/potência por 60 s
+sudo ./set_power_limit.sh 200      # define PL=200W
+./benchmark_energetico.sh 250 200 150 100
+```
 
 ---
 
@@ -83,6 +101,8 @@ Use os laboratórios das aulas originais (a mesma máquina):
 
 ## 🔗 Relação com o curso
 
-- **Aulas 14/17** (automação) e **15/18** (concorrência) preparam o terreno; aqui usamos o
-  lock e a fila como base para **medir energia sem contaminação**.
-- **Aula 19** aprofunda o tema de energia; esta aula dupla resume o suficiente para **uma noite**.
+- **Aula 15** (Bash) é a referência conceitual de concorrência; aqui o **laboratório de
+  concorrência** traz a versão **Python** (lock por diretório), e o notebook exercita lock +
+  fila.
+- **Aula 14/17** (automação) preparam a telemetria; aqui ela ganha as colunas de **energia**.
+- Encerra o Bloco 3: a GPU passa a ser operada com **justiça** e **eficiência**.

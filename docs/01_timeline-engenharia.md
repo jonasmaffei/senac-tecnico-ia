@@ -137,24 +137,10 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **O que se aprende:** Reuso de `nvidia-smi --query-gpu`, substituição de ferramentas Linux por equivalentes portáveis e o que muda ao trocar Bash por Python.
 * **Conexão com a A14:** Mesmo objetivo, implementação alternativa — evidencia a portabilidade do pipeline.
 
-### Aula 18: Gestão de Fila em GPU — versão enxuta / complemento da Aula 15 (Bloco 3 — Automação)
-> 📌 **Complemento da A15.** Revisão enxuta da concorrência; a referência do tema é a Aula 15 (`flock`/`systemd`).
-
-* **Conceito/Fundamento:** Demo enxuta no Colab + laboratório **Python** com **lock por diretório** (`os.mkdir`, atômico) e **fila por prioridade** (`prioridade_timestamp_nome`), sem `flock`/`systemd`.
-* **O que se aprende:** Exclusão mútua portátil, fila de tickets e `psutil` no lugar do `nvidia-smi pmon`.
-* **Conexão com a A15:** Mesmo problema, solução alternativa para Windows/Colab.
-
-### Aula dupla 18 + 19: Concorrência e Energia na GPU (Bloco 3 — Automação)
-* **Conceito/Fundamento:** Material **condensado para uma noite** que junta o essencial das Aulas 18 (concorrência) e 19 (energia): race condition → lock → fila por prioridade → TDP/throttling → Power Limit → eficiência (imgs/J).
-* **O que se aprende:** Operar 1 GPU com justiça e eficiência; perceber que só se mede energia de forma confiável com a GPU **exclusiva** (o lock vem primeiro).
-* **Conexão:** amarra os dois temas operacionais do Bloco 3 num roteiro único e enxuto.
-
----
-
-### Aula 19: Otimização de Processamento e Uso de Energia em GPUs (Bloco 3 — Automação)
-* **Conceito/Fundamento:** Gerenciamento térmico e energético de GPUs: TDP/TGP, *thermal throttling*, **Power Limit** configurável (`nvidia-smi -pl`), controle programático via **nvidia-ml-py (NVML)** e a métrica de **eficiência (imgs/J)**.
-* **O que se aprende:** Medir temperatura/potência/clocks em tempo real; entender o trade-off entre throughput e consumo; calibrar Power Limits por fase de treino; controlar a GPU por API (sem *parsing* de shell); e criar alertas térmicos que **agem** (reduzem o PL) automaticamente. No **notebook do Colab** (com **5 exercícios**), sem GPU o modelo é **simulado**; no **laboratório Windows**, a GPU AMD é lida de verdade e o restante entra em modo simulado.
-* **Conexão com o Bloco 3:** Fecha a tríade do bloco — automação da telemetria (A17) + gestão da concorrência (A18) + **otimização de energia** (A19) = operação de cluster sustentável.
+### Aula 18+19: Concorrência e Energia na GPU (Bloco 3 — Automação)
+* **Conceito/Fundamento:** Aula **oficial de operação da GPU**, condensada para **uma noite**. Junta **concorrência** (race condition → lock → fila por prioridade) e **energia** (TDP/throttling → Power Limit → eficiência imgs/J), com **lock por diretório** (`os.mkdir`, atômico) em vez de `flock`/`systemd`.
+* **O que se aprende:** Operar 1 GPU com **justiça** e **eficiência**; perceber que só se mede energia de forma confiável com a GPU **exclusiva** (o lock vem primeiro). Inclui laboratórios de concorrência e de energia, além de `scripts_linux/` para produção.
+* **Conexão com o Bloco 3:** Fecha a operação iniciada na A14/15/17 — telemetria (A17) + concorrência + **energia** = cluster operado com segurança e sustentabilidade.
 * **O problema que fica em aberto:** Com energia e concorrência sob controle, como **orquestrar** tudo isso em escala e de forma sustentável a longo prazo?
 
 ---
@@ -207,9 +193,8 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` via `cron`, dashboard e envio ao Google Sheets. |
 | **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |
 | **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
-| **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. *(A17 = versão Python da A14.)* |
-| **A18** | "Como compartilhar 1 GPU entre vários alunos sem colisões e CUDA OOM?" | Exclusão mútua com `flock`, fila de tickets por prioridade e monitoria de processos em tempo real. *(A18 = versão Python da A15; a aula dupla 18+19 condensa A18+A19 numa noite.)* |
-| **A19** | "Como reduzir o consumo energético do cluster sem sacrificar o treino?" | `monitor_thermal.sh`/Power Limit, benchmark de eficiência (imgs/J), controle via `nvidia-ml-py` e alerta térmico no `cron`. |
+| **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Versão enxuta da A14: demo no Colab + laboratório Python cross-platform. |
+| **A18+19** | "Como compartilhar 1 GPU com justiça **e** reduzir o consumo sem sacrificar o treino?" | Lock/fila por prioridade + `monitor_thermal`/Power Limit, benchmark de eficiência (imgs/J) e controle via `nvidia-ml-py`. |
 | **A20–A21** | "Como sair do plano para um modelo treinando com GPU?" | Template de projeto, checklist de prontidão, AMP, gradient checkpointing/accumulation e profiling (`torch.profiler`). |
 | **A22** | "O que fazer quando o treino dura dias sem ninguém olhando?" | Monitor integrado via `subprocess`, alertas Slack/Telegram/e-mail, dashboard pandas+matplotlib e serviço `systemd`. |
 | **A23** | "Como provar o valor da GPU para uma banca?" | Pitch de 5 min, relatório final (W&B + logs GPU), tabela baseline × GPU e rubrica de 100 pontos. |
