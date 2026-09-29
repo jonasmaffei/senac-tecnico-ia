@@ -168,21 +168,35 @@
 * **Vibe coding:** gerar código por linguagem natural, iterando pelo "feeling". Rápido para **prototipar**; **arriscado sem verificação** (testes, build, leitura do *diff*). Regra de ouro: o agente acelera, **você responde** pelo resultado.
 * **Prática (`agy`):** instalação da CLI, abertura do agente na pasta, primeira tarefa (script simples), revisão com `/diff`, e os comandos `/agents`, `/skills`, `/permissions`, `/rewind`. Boas práticas: **explorar → planejar → executar**, loop de verificação e arquivo de regras (`AGENTS.md`).
 
-#### Aula 17: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
+#### Aula 17: Automação de GPUs — versão enxuta / complemento da Aula 14 (Bloco 3 — Automação)
+> 📌 **Complemento da A14.** Revisão enxuta do tema (automação de telemetria): demo no Colab +
+> laboratório **Python cross-platform**. A referência do tema é a Aula 14; os scripts Bash
+> duplicados foram removidos.
+
 * **Monitoramento estruturado:** Uso do `nvidia-smi --query-gpu` com a flag `--format=csv,noheader,nounits` para extração limpa de métricas térmicas (`temperature.gpu`), de energia (`power.draw`, `power.limit`), utilização (`utilization.gpu`, `utilization.memory`), alocação de VRAM (`memory.used`, `memory.total`) e clocks.
 * **Coleta e alertas:** Script `monitor_gpu.sh` para amostragem em loop com timestamp e gravação em arquivo CSV; `alerta_gpu.sh` para monitoria de limiares térmicos ($\ge 80^\circ\text{C}$) e de utilização ($\ge 95\%$) com notificação via e-mail ou webhook de Slack/Discord.
 * **Agendadores de produção:** Comparativo prático entre o `cron` clássico (`crontab -e`) e os `systemd timers` modernos com logging via `journald`, ordem de inicialização (`After=`) e execução persistente pós-boot (`Persistent=true`).
 * **Dashboards visuais:** Renderização de relatórios de 4 gráficos (temperatura, uso de GPU/RAM, VRAM alocada e potência) via `gnuplot` no terminal Linux ou `matplotlib` no Python/Google Colab.
 * **Integração Cloud com Google Sheets:** Publicação de telemetria via Service Account da Google Sheets API (`google-auth`, `google-api-python-client`) para acompanhamento remoto sem necessidade de conexão SSH.
 * **Prática Colab & Windows Host:** Notebook no Colab (`aula17_automacao_gpu_bash.ipynb`) com suporte a modo simulado e 5 exercícios práticos; ambiente local Windows Host (`laboratorio_windows/`) com menu interativo em `iniciar.bat` para execução nativa dos scripts de monitoria e relatórios.
+* **Relação com a A14:** é a **versão Python** do pipeline Bash da Aula 14 (que permanece a referência para servidores Linux). Esta aula reforça a portabilidade entre ambientes.
 
-#### Aula 18: Gestão de Processos e Carga de Trabalho (Bloco 3 — Automação)
+#### Aula 18: Gestão de Fila em GPU — versão enxuta / complemento da Aula 15 (Bloco 3 — Automação)
+> 📌 **Complemento da A15.** Revisão enxuta do problema (1 GPU, N jobs): demo no Colab +
+> laboratório **Python** com **lock por diretório** (sem `flock`/`systemd`). A referência do
+> tema é a Aula 15.
+
 * **Race condition em GPU:** Quando múltiplos jobs disputam a mesma GPU simultaneamente ➔ `CUDA Out of Memory (OOM)` e contaminação de resultados. Solução: exclusão mútua com `flock` + sistema de fila com prioridades.
 * **Exclusão mútua com `flock`:** Lock de arquivo exclusivo (`-x`) para proibir acessos simultâneos. Flags `-n` (non-blocking) e `-w` (timeout). No Windows Host, a equivalência é alcançada com **lock de diretório atômico** (`mkdir`).
 * **Fila com prioridade:** Nomeação de arquivos de ticket (`prioridade_timestamp_job`) onde números menores possuem prioridade máxima de execução. Prevenção de *starvation* via técnica de *aging*.
 * **Monitoramento e diagnósticos:** Acompanhamento ao vivo com `nvidia-smi pmon`, inspeção de locks com `lsof`, e ajuste de prioridades de CPU/IO via `nice`/`ionice`.
 * **Isolamento com `systemd`:** Uso de unidades `.service` para controle de memória (`MemoryMax`), fatia de CPU (`CPUWeight`), relançamento automático (`Restart=on-failure`) e centralização de logs via `journald`.
 * **Prática Colab & Windows Host:** Notebook no Colab (`aula18_processos_fila.ipynb`) com 5 exercícios práticos e simulação em Python; laboratório local em `laboratorio_windows/` com `iniciar.bat` para testar a serialização de 4 jobs simultâneos.
+* **Relação com a A15:** é a **versão Python** da Aula 15 (que permanece a referência, com `flock`/`systemd`).
+
+#### Aula dupla 18 + 19: Concorrência e Energia na GPU (1 noite)
+* **Material condensado** (`aula18_19_dupla/`) que junta o essencial das Aulas 18 (concorrência) e 19 (energia) para **uma única noite**: apresentação (11 slides), **notebook único** (race condition → lock por diretório → fila por prioridade → TDP/throttling → Power Limit → eficiência imgs/J) e os **Exercícios (5)**.
+* **Fio condutor:** só faz sentido medir energia com a GPU **exclusiva** (o lock evita contaminação). As aulas completas 18 e 19 continuam existindo.
 
 #### Aula 19: Otimização de Processamento e Uso de Energia em GPUs (Bloco 3 — Automação)
 * **TDP, TGP e Thermal Throttling:** TDP é a potência de dissipação projetada (ex.: RTX 4090 = 450W, A100 = 400W); TGP inclui memória e controladores. Acima de ~83–87°C o driver reduz o clock automaticamente (*thermal throttling*), podendo perder até 30% de throughput.

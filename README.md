@@ -21,12 +21,12 @@ Tudo abaixo é **opcional** (o Colab já traz a maior parte):
 | Recurso | Quando aparece |
 | :--- | :--- |
 | **NumPy** | Todas as aulas (vetorização/SIMD) |
-| **PyTorch** | Aulas 10, 11 e 13 (portabilidade, treino e benchmark) |
-| **CuPy** | Aulas 7, 8 e 13 (FFT, estresse de GPU e benchmark) |
-| **Numba** | Aulas 3, 4, 7, 8 e 13 (kernels CUDA e tiling) |
+| **PyTorch** | Aulas 1–3 (detecção de hardware/fallback), 10 e 11 (portabilidade ROCm, treino) |
+| **CuPy** | Aulas 7, 8 e 13 (FFT, benchmark e síntese do bloco) |
+| **Numba** | Aulas 3, 4, 7, 8 e 13 (kernels CUDA, tiling e redução) |
 | **PyOpenCL** | Aula 9 (kernels multiplataforma) |
-| **psutil** | Aulas 14, 17 e 18 (automação de GPU e gestão de processos) |
-| **GPU NVIDIA / AMD** | Recomendada para Aulas 3, 7, 8, 9, 10, 11 e 13 (há fallback para CPU) |
+| **psutil** | Aulas 1, 3, 4, 6, 14, 17 e 18 (monitoramento de hardware e processos) |
+| **GPU NVIDIA / AMD** | Recomendada para Aulas 3, 7, 8, 9, 10, 11, 12 e 13 (há fallback para CPU) |
 | **Docker / WSL 2** | Aulas 10 e 14 (AMD ROCm / PyTorch e Open WebUI/Ollama) |
 | **Google Sheets API** | Aulas 14 e 17 (telemetria de GPU para planilha) |
 | **nvidia-ml-py / NVML** | Aula 19 (controle programático de energia e temperatura) |
@@ -107,8 +107,9 @@ pip install -r requirements.txt
 | **14** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/bloco3/aula14/notebook_colab/aula14_automacao_gpu_bash.ipynb), [Apresentação](aulas/bloco3/aula14/apresentacao_aula14.html), [Atividade](aulas/bloco3/aula14/atividade.md), [Scripts Linux](aulas/bloco3/aula14/scripts_linux/) ([`monitor_gpu.sh`](aulas/bloco3/aula14/scripts_linux/monitor_gpu.sh), [`alerta_gpu.sh`](aulas/bloco3/aula14/scripts_linux/alerta_gpu.sh), [`gerar_graficos.sh`](aulas/bloco3/aula14/scripts_linux/gerar_graficos.sh), [`enviar_para_sheets.py`](aulas/bloco3/aula14/scripts_linux/enviar_para_sheets.py)), [Laboratório Windows (AMD)](aulas/bloco3/aula14/laboratorio_windows/README.md), [Realtime Docker](aulas/bloco3/aula14/laboratorio_realtime-docker/README.md), [Realtime Windows](aulas/bloco3/aula14/laboratorio_realtime-windows/README.md), [Guia da Aula](aulas/bloco3/aula14/README.md) |
 | **15** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/bloco3/aula15/notebook_colab/aula15_processos_fila.ipynb), [Apresentação](aulas/bloco3/aula15/apresentacao_aula15.html), [Atividade](aulas/bloco3/aula15/atividade.md), [Laboratório Windows](aulas/bloco3/aula15/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco3/aula15/README.md) |
 | **16** | Agentes de Código: Harness, RAG, Skills e Vibe Coding (Antigravity CLI) | [Apresentação](aulas/bloco3/aula16/apresentacao_aula16.html), [Atividade](aulas/bloco3/aula16/atividade.md), [Laboratório Monitoramento](aulas/bloco3/aula16/laboratorio_monitoramento/README.md), [Guia da Aula](aulas/bloco3/aula16/README.md) |
-| **17** | Introdução à Automação de GPUs com Bash (nvidia-smi, cron, gnuplot, Sheets) | [Notebook](aulas/bloco3/aula17/notebook_colab/aula17_automacao_gpu_bash.ipynb), [Apresentação](aulas/bloco3/aula17/apresentacao_aula17.html), [Atividade](aulas/bloco3/aula17/atividade.md), [Laboratório Windows](aulas/bloco3/aula17/laboratorio_windows/README.md), [Scripts Linux](aulas/bloco3/aula17/scripts_linux/), [Guia da Aula](aulas/bloco3/aula17/README.md) |
-| **18** | Gestão de Processos e Carga de Trabalho (flock, filas com prioridade, systemd) | [Notebook](aulas/bloco3/aula18/notebook_colab/aula18_processos_fila.ipynb), [Apresentação](aulas/bloco3/aula18/apresentacao_aula18.html), [Atividade](aulas/bloco3/aula18/atividade.md), [Laboratório Windows](aulas/bloco3/aula18/laboratorio_windows/README.md), [Scripts Linux](aulas/bloco3/aula18/scripts_linux/), [Guia da Aula](aulas/bloco3/aula18/README.md) |
+| **17** | Automação de GPUs — *versão enxuta / complemento da A14* | [Notebook](aulas/bloco3/aula17/notebook_colab/aula17_automacao_gpu_bash.ipynb), [Apresentação](aulas/bloco3/aula17/apresentacao_aula17.html), [Atividade](aulas/bloco3/aula17/atividade.md), [Laboratório Python](aulas/bloco3/aula17/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco3/aula17/README.md) |
+| **18** | Gestão de Fila em GPU — *versão enxuta / complemento da A15* | [Notebook](aulas/bloco3/aula18/notebook_colab/aula18_processos_fila.ipynb), [Apresentação](aulas/bloco3/aula18/apresentacao_aula18.html), [Atividade](aulas/bloco3/aula18/atividade.md), [Laboratório Python](aulas/bloco3/aula18/laboratorio_windows/README.md), [Guia da Aula](aulas/bloco3/aula18/README.md) |
+| **18+19** | **Aula dupla (1 noite):** concorrência + energia | [Guia](aulas/bloco3/aula18_19_dupla/README.md), [Apresentação](aulas/bloco3/aula18_19_dupla/apresentacao_aula18_19.html), [Notebook](aulas/bloco3/aula18_19_dupla/notebook_colab/aula18_19_concorrencia_energia.ipynb), [Atividade](aulas/bloco3/aula18_19_dupla/atividade.md) |
 | **19** | Otimização de Processamento e Uso de Energia em GPUs (TDP, Power Limit, nvidia-ml-py, eficiência) | [Notebook](aulas/bloco3/aula19/notebook_colab/aula19_energia_gpu.ipynb), [Apresentação](aulas/bloco3/aula19/apresentacao_aula19.html), [Atividade](aulas/bloco3/aula19/atividade.md), [Laboratório Windows](aulas/bloco3/aula19/laboratorio_windows/README.md), [Scripts Linux](aulas/bloco3/aula19/scripts_linux/), [Guia da Aula](aulas/bloco3/aula19/README.md) |
 
 ### Bloco 4 — Projeto Final (Aplicação de GPUs na IA)
@@ -172,7 +173,8 @@ senac-tecnico-ia/
 │   │                                          atividade.md, laboratorio_windows/ ou scripts/
 │   ├── bloco3/                              → Bloco 3 · Automação (aulas 14–19)
 │   │   ├── README.md
-│   │   └── aula14/ ... aula19/              → notebook_colab/, laboratorio_windows/, scripts_linux/
+│   │   ├── aula14/ ... aula19/              → notebook_colab/, laboratorio_windows/, scripts_linux/
+│   │   └── aula18_19_dupla/                 → aula dupla (1 noite): concorrência + energia
 │   ├── bloco4/                              → Bloco 4 · Projeto Final (aulas 20–24)
 │   │   ├── README.md
 │   │   ├── aula20/ ... aula24/              → apresentação, atividade e 1 script de exemplo

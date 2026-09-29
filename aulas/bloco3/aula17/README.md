@@ -1,67 +1,78 @@
-# 🤖 Aula 17 — Introdução à Automação de GPUs com Bash
+# 🐍 Aula 17 — Automação de GPUs: versão enxuta (complemento da Aula 14)
 
-**Objetivo:** automatizar o monitoramento de GPUs usando scripts Bash com `nvidia-smi`, agendando a coleta de métricas via `cron`/`systemd`, gerando dashboards com `gnuplot`/`matplotlib` e integrando com a Google Sheets API para garantir operação contínua 24h/7d em ambientes de IA.
+**Objetivo:** revisar o pipeline de automação de telemetria da **Aula 14** numa versão
+**enxuta e reproduzível**, com um **laboratório em Python cross-platform** — sem depender de
+`cron`, `systemd` ou `gnuplot` do Linux.
+
+> 📌 **Não é conteúdo novo.** Esta aula é um **complemento prático** da
+> [Aula 14](../aula14/README.md). **Veja a Aula 14 primeiro.** Aqui o valor está em:
+> (a) uma **demonstração enxuta no Colab** (os scripts Bash rodam no Linux do Colab) e
+> (b) um **laboratório em Python** que faz o mesmo **sem Bash**, no Windows.
 
 ---
 
-## 🎯 Situação de Aprendizagem
+## 🎯 Situação de aprendizagem
 
-O servidor de treinamento da empresa ficou travado durante a madrugada — a GPU atingiu **95°C** e o job falhou silenciosamente. Ninguém percebeu até a manhã seguinte. O time precisa de um sistema de monitoramento automático **24h/7d** que colete métricas a cada 5 segundos, salve em CSV, gere alertas de temperatura e publique um dashboard diário no Google Sheets — tudo via scripts Bash agendados com `cron`.
+O servidor de treinamento caiu de madrugada: a GPU passou de **95 °C** e o job falhou
+silenciosamente. O time precisa de monitoramento **24h/7d**, mas **nem toda a equipe roda
+Linux**. A missão é montar o mesmo sistema de telemetria em **Python**, que funciona no
+Windows do laboratório e no Colab.
 
 ---
 
-## 🗂️ Conteúdo da Aula
+## 🗂️ Conteúdo
 
 | Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula17.html`](apresentacao_aula17.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
-| [`atividade.md`](atividade.md) | Roteiro prático, tópicos de discussão em grupo e tarefa de casa |
-| [`notebook_colab/aula17_automacao_gpu_bash.ipynb`](notebook_colab/aula17_automacao_gpu_bash.ipynb) | Notebook Google Colab com 5 exercícios práticos |
-| [`laboratorio_windows/`](laboratorio_windows/) | Laboratório local para executar no host Windows via `iniciar.bat` |
-| [`scripts_linux/`](scripts_linux/) | Scripts Bash e Python para servidores Linux (`monitor_gpu.sh`, `alerta_gpu.sh`, `gerar_graficos.sh`, `enviar_para_sheets.py`) |
+| [`apresentacao_aula17.html`](apresentacao_aula17.html) | Slides **só conceito** (foco na versão Python; navegue com ← →) |
+| [`atividade.md`](atividade.md) | Roteiro prático e discussão |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** (demo enxuta + 5 exercícios) |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Versão Python** dos scripts (roda no Windows, **sem Bash**) |
 
----
-
-## 🗂️ Estrutura da Pasta
+### Estrutura da aula
 
 ```
 aula17/
-├── apresentacao_aula17.html
-├── README.md
-├── atividade.md
-├── notebook_colab/
-│   └── aula17_automacao_gpu_bash.ipynb
-├── laboratorio_windows/
-│   ├── 1_monitor_gpu.py
-│   ├── 2_alerta_gpu.py
-│   ├── 3_gerar_graficos.py
-│   ├── 4_enviar_sheets.py
-│   ├── iniciar.bat
-│   ├── requirements.txt
-│   └── README.md
-└── scripts_linux/
-    ├── alerta_gpu.sh
-    ├── enviar_para_sheets.py
-    ├── gerar_graficos.sh
-    └── monitor_gpu.sh
+  apresentacao_aula17.html
+  README.md
+  notebook_colab/aula17_automacao_gpu_bash.ipynb
+  laboratorio_windows/          # 1_monitor_gpu.py, 2_alerta_gpu.py, 3_gerar_graficos.py, 4_enviar_sheets.py
+  atividade.md
 ```
+
+> 🧩 **Bash vs. Python:** a versão **Bash** (`monitor_gpu.sh`, `alerta_gpu.sh`, …) vive na
+> **Aula 14** (`scripts_linux/`) e é a padrão para servidores Linux. O **notebook** desta aula
+> demonstra esses mesmos scripts no Colab (que é Linux); o **laboratório** mostra a alternativa
+> **100% Python**, que roda até no Windows sem Bash.
 
 ---
 
-## 🚀 Como Usar
+## 🚀 Como usar
 
-### Option A — No Google Colab
-Abra o notebook em [`notebook_colab/aula17_automacao_gpu_bash.ipynb`](notebook_colab/aula17_automacao_gpu_bash.ipynb), execute a demonstração e resolva a seção **7. Exercícios Práticos (5)**.
+### No Google Colab
 
-### Option B — No Windows Host (Local)
-Navegue até a pasta `laboratorio_windows/` e dê duplo clique no arquivo `iniciar.bat`. O script criará o ambiente `.venv`, instalará as dependências e abrirá o menu interativo de execução.
+Abra `notebook_colab/aula17_automacao_gpu_bash.ipynb` e resolva a seção **Exercícios (5)**.
+
+### No Windows (host local)
+
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat):
+ele cria o `.venv`, instala as dependências e abre o menu.
 
 ---
 
 ## 🔑 Conceitos-chave
 
-- **`nvidia-smi --query-gpu`** — Padrão da indústria para extração de métricas de GPU em formato CSV limpo.
-- **Limiares de Alerta (Thresholds)** — Monitoria de temperatura (°C) e utilização (%) para prevenir *thermal throttling*.
-- **Agendadores (cron / systemd timers)** — Garantia de execução recorrente autônoma 24h/7d.
-- **Dashboards Visuais** — Geração de relatórios com 4 gráficos via `gnuplot` / `matplotlib`.
-- **Integração Cloud** — Publicação de métricas na Google Sheets API para acompanhamento remoto.
+- **`nvidia-smi --query-gpu`** — métricas em CSV limpo (mesmo princípio da Aula 14).
+- **Python `subprocess`** — chamar o `nvidia-smi` de dentro do Python.
+- **Agendamento portátil** — loop Python no lugar do `cron` (que não existe no Windows/Colab).
+- **Dashboards** — `matplotlib` no lugar do `gnuplot`.
+- **Google Sheets** — publicar a telemetria sem depender de SSH.
+
+---
+
+## 🔗 Relação com o curso
+
+- **Aula 14** é a referência do tema (versão **Bash/Linux**). Esta aula **não substitui** —
+  ela mostra a **alternativa Python cross-platform**.
+- **Próxima (Aula 18):** a mesma relação, mas para **concorrência/filas** (versão Python da
+  Aula 15).

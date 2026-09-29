@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aula 17 — Introdução à Automação de GPUs com Bash</title>
+<title>Aula 17 — Automação de GPUs: versão enxuta (complemento da Aula 14)</title>
 <style>
   :root {
     --bg: #0b1020;
@@ -201,22 +201,26 @@
 
   <!-- 01 — Título -->
   <section class="slide title-slide active">
-    <div class="kicker">Aula 17 · Conceitos</div>
-    <h1>Introdução à Automação de GPUs com Bash</h1>
-    <p class="lead">Como automatizar o monitoramento 24h/7d de servidores de aceleração usando <code>nvidia-smi</code>, agendamento via <strong>cron/systemd</strong> e <strong>visualização local de dashboards</strong>.</p>
+    <div class="kicker">Aula 17 · Complemento</div>
+    <h1>Automação de GPUs — versão enxuta</h1>
+    <p class="lead">Revisão prática do pipeline da Aula 14: <strong>demo enxuta no Colab</strong>
+      (com os scripts Bash) e um <strong>laboratório em Python</strong> que faz o mesmo
+      <strong>sem Bash</strong>, rodando no Windows.</p>
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
-      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
-      <div class="meta"><div class="k">Ferramenta</div><div class="v">Bash, nvidia-smi, cron, gnuplot, Matplotlib</div></div>
+      <div class="meta"><div class="k">Base</div><div class="v">Complemento da Aula 14</div></div>
+      <div class="meta"><div class="k">Ferramentas</div><div class="v">Bash (Colab) + Python (Windows)</div></div>
     </div>
     <div class="grid cols-2" style="margin-top:26px">
       <div class="card" style="border-top:3px solid var(--accent-2)">
-        <h3><span class="ico">🎯</span> Situação de Aprendizagem</h3>
-        <p>O job de IA falhou silenciosamente às 3h da manhã devido a superaquecimento (95°C). Precisamos de um sistema automatizado para monitorar temperatura, uso de VRAM e energia sem intervenção manual.</p>
+        <h3><span class="ico">🎯</span> Por que revisar?</h3>
+        <p>A Aula 14 fixou o conceito. Aqui ele é <strong>praticado em duas frentes</strong>:
+          a demo rápida no Colab e a versão portátil (sem servidor Linux).</p>
       </div>
       <div class="card" style="border-top:3px solid var(--accent)">
-        <h3><span class="ico">🧭</span> O que vamos entender</h3>
-        <p>Queries do <code>nvidia-smi</code>, automação Bash com salvamento em CSV, alertas de temperatura, agendamento de tarefas e geração local de relatórios visuais.</p>
+        <h3><span class="ico">🧭</span> O que muda</h3>
+        <p>No laboratório: Bash → <strong>Python</strong>; `cron` → <strong>loop</strong>;
+          `gnuplot` → <strong>Matplotlib</strong>. A lógica (coletar → alertar → publicar) não muda.</p>
       </div>
     </div>
   </section>

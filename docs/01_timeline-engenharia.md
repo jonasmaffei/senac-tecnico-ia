@@ -130,16 +130,24 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **Conexão com o Bloco 3:** A automação saiu das GPUs (A14–A15) e chegou ao **próprio trabalho de desenvolvimento** — o agente lê o repositório versionado com Git (`docs/03_git.md`) e usa RAG para achar contexto.
 * **O problema que fica em aberto:** Como manter a infraestrutura de GPU operando com total visibilidade e relatórios integrados via pipelines de automação em tempo real?
 
-### Aula 17: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
-* **Conceito/Fundamento:** Automação e monitoramento contínuo 24h/7d de GPUs de alta performance usando Bash, `nvidia-smi`, agendadores (`cron`/`systemd timers`), geração de relatórios gráficos com `gnuplot`/`matplotlib` e envio de telemetria remota via Google Sheets API.
-* **O que se aprende:** Extração de métricas estruturadas (`nvidia-smi --query-gpu`), scripts de coleta em CSV com amostragem, monitoramento de limiares térmicos e elétricos com alertas em tempo real, automação de agendamentos no Linux e publicação remota de relatórios de produção.
-* **Conexão com o Bloco 3:** Conecta o agendamento de tarefas e processos (A14-A15) com a entrega de um pipeline completo de observabilidade de hardware para servidores de IA.
-* **O problema que fica em aberto:** Como evitar colisões de VRAM e CUDA OOM em ambientes multiusuário sem depender de orquestradores complexos?
+### Aula 17: Automação de GPUs — versão enxuta / complemento da Aula 14 (Bloco 3 — Automação)
+> 📌 **Complemento da A14.** Revisão enxuta do pipeline de telemetria; a referência do tema é a Aula 14 (Bash).
 
-### Aula 18: Gestão de Processos e Carga de Trabalho (Bloco 3 — Automação)
-* **Conceito/Fundamento:** Controle de concorrência em GPU em ambiente multiusuário: exclusão mútua com `flock` (ou lock por diretório no Windows), filas de jobs com suporte a prioridades (1=Alta, 2=Média, 3=Baixa), monitoramento de PIDs em tempo real e isolamento com `systemd units`.
-* **O que se aprende:** Prevenção de race conditions e CUDA OOM, semântica das flags do `flock` (`-x`, `-s`, `-n`, `-w`), fila de tickets (`prioridade_timestamp_job`), `nice`/`ionice`, prevenção de starvation via *aging* e isolamento com `systemd`.
-* **Conexão com o Bloco 3:** Otimiza o compartilhamento seguro de GPUs em clusters e ambientes compartilhados sem necessidade de Slurm ou Kubernetes.
+* **Conceito/Fundamento:** Demo enxuta no Colab (scripts de automação) + laboratório **Python cross-platform** que faz o mesmo sem Bash (loop no lugar do `cron`, `matplotlib` no lugar do `gnuplot`).
+* **O que se aprende:** Reuso de `nvidia-smi --query-gpu`, substituição de ferramentas Linux por equivalentes portáveis e o que muda ao trocar Bash por Python.
+* **Conexão com a A14:** Mesmo objetivo, implementação alternativa — evidencia a portabilidade do pipeline.
+
+### Aula 18: Gestão de Fila em GPU — versão enxuta / complemento da Aula 15 (Bloco 3 — Automação)
+> 📌 **Complemento da A15.** Revisão enxuta da concorrência; a referência do tema é a Aula 15 (`flock`/`systemd`).
+
+* **Conceito/Fundamento:** Demo enxuta no Colab + laboratório **Python** com **lock por diretório** (`os.mkdir`, atômico) e **fila por prioridade** (`prioridade_timestamp_nome`), sem `flock`/`systemd`.
+* **O que se aprende:** Exclusão mútua portátil, fila de tickets e `psutil` no lugar do `nvidia-smi pmon`.
+* **Conexão com a A15:** Mesmo problema, solução alternativa para Windows/Colab.
+
+### Aula dupla 18 + 19: Concorrência e Energia na GPU (Bloco 3 — Automação)
+* **Conceito/Fundamento:** Material **condensado para uma noite** que junta o essencial das Aulas 18 (concorrência) e 19 (energia): race condition → lock → fila por prioridade → TDP/throttling → Power Limit → eficiência (imgs/J).
+* **O que se aprende:** Operar 1 GPU com justiça e eficiência; perceber que só se mede energia de forma confiável com a GPU **exclusiva** (o lock vem primeiro).
+* **Conexão:** amarra os dois temas operacionais do Bloco 3 num roteiro único e enxuto.
 
 ---
 
@@ -199,8 +207,8 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A14** | "Como garantir que a GPU opere 24h/7d sem falhar em silêncio?" | `monitor_gpu.sh` + `alerta_gpu.sh` via `cron`, dashboard e envio ao Google Sheets. |
 | **A15** | "Como compartilhar 1 GPU entre vários jobs sem OOM?" | Fila com prioridade + `flock`/lock (`fila_gpu.sh`), monitor de processos na GPU e agendamento (`systemd`/cron). |
 | **A16** | "O agente escreve o código — quem responde por ele?" | Prática com a **Antigravity CLI** (`agy`): loop agêntico, skills, RAG e a postura crítica sobre *vibe coding*. |
-| **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. |
-| **A18** | "Como compartilhar 1 GPU entre vários alunos sem colisões e CUDA OOM?" | Exclusão mútua com `flock`, fila de tickets por prioridade e monitoria de processos em tempo real. |
+| **A17** | "Como garantir operação 24h/7d sem falhas silenciosas por aquecimento?" | Script Bash com `nvidia-smi --query-gpu`, alertas de limiares, agendamento `cron` e dashboard gnuplot/Sheets. *(A17 = versão Python da A14.)* |
+| **A18** | "Como compartilhar 1 GPU entre vários alunos sem colisões e CUDA OOM?" | Exclusão mútua com `flock`, fila de tickets por prioridade e monitoria de processos em tempo real. *(A18 = versão Python da A15; a aula dupla 18+19 condensa A18+A19 numa noite.)* |
 | **A19** | "Como reduzir o consumo energético do cluster sem sacrificar o treino?" | `monitor_thermal.sh`/Power Limit, benchmark de eficiência (imgs/J), controle via `nvidia-ml-py` e alerta térmico no `cron`. |
 | **A20–A21** | "Como sair do plano para um modelo treinando com GPU?" | Template de projeto, checklist de prontidão, AMP, gradient checkpointing/accumulation e profiling (`torch.profiler`). |
 | **A22** | "O que fazer quando o treino dura dias sem ninguém olhando?" | Monitor integrado via `subprocess`, alertas Slack/Telegram/e-mail, dashboard pandas+matplotlib e serviço `systemd`. |

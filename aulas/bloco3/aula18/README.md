@@ -1,69 +1,77 @@
-# 🤖 Aula 18 — Gestão de Processos e Carga de Trabalho em GPU
+# 🐍 Aula 18 — Gestão de Fila em GPU: versão enxuta (complemento da Aula 15)
 
-**Objetivo:** gerenciar execuções concorrentes em GPU usando `flock` para exclusão mútua, implementar sistemas de fila com prioridade, monitorar processos em tempo real com `nvidia-smi` e `systemd`, garantindo uso justo e eficiente da GPU em ambientes multiusuário.
+**Objetivo:** revisar os mecanismos de **exclusão mútua** e **fila com prioridade** da
+**Aula 15** numa versão **enxuta**, com um **laboratório em Python cross-platform** que usa
+**lock por diretório** em vez de `flock`/`systemd`.
+
+> 📌 **Não é conteúdo novo.** Esta aula é um **complemento prático** da
+> [Aula 15](../aula15/README.md). **Veja a Aula 15 primeiro.** Aqui o valor está em:
+> (a) uma **demonstração enxuta no Colab** e (b) um **laboratório em Python** que resolve o
+> mesmo problema **sem `flock`**, rodando no Windows.
 
 ---
 
-## 🎯 Situação de Aprendizagem
+## 🎯 Situação de aprendizagem
 
-O laboratório tem **1 GPU** e **4 alunos** que precisam treinar modelos ao mesmo tempo. Sem controle, os jobs concorrem pelo mesmo recurso, corrompem resultados e causam `CUDA Out of Memory (OOM)`. O time precisa de um sistema de fila automatizado com suporte a prioridade: jobs de alta prioridade executam primeiro, outros aguardam na fila — tudo via scripts Bash com `flock` e `systemd`, sem precisar de software externo como Slurm ou Kubernetes.
+O laboratório tem **1 GPU** e **4 alunos** treinando ao mesmo tempo. Sem controle, os jobs
+concorrem pela VRAM e causam **OOM**. A Aula 15 resolveu isso com `flock` + fila em Bash;
+agora a equipe quer a **mesma solução em Python**, que roda em qualquer sistema —
+inclusive no Windows do laboratório.
 
 ---
 
-## 🗂️ Conteúdo da Aula
+## 🗂️ Conteúdo
 
 | Item | O que é |
 | :--- | :--- |
-| [`apresentacao_aula18.html`](apresentacao_aula18.html) | Slides **só conceito** (abra no navegador, navegue com ← →) |
-| [`atividade.md`](atividade.md) | Roteiro prático, tópicos de discussão em grupo e tarefa de casa |
-| [`notebook_colab/aula18_processos_fila.ipynb`](notebook_colab/aula18_processos_fila.ipynb) | Notebook Google Colab com 5 exercícios práticos |
-| [`laboratorio_windows/`](laboratorio_windows/) | Laboratório local para executar no host Windows via `iniciar.bat` |
-| [`scripts_linux/`](scripts_linux/) | Scripts Bash e Python para servidores Linux (`flock_gpu.sh`, `gpu_queue.sh`, `train_job.py`, `teste_fila.sh`, `monitor_processos_gpu.sh`) |
+| [`apresentacao_aula18.html`](apresentacao_aula18.html) | Slides **só conceito** (foco na versão Python; navegue com ← →) |
+| [`atividade.md`](atividade.md) | Roteiro prático e discussão |
+| [`notebook_colab/`](notebook_colab) | Notebook do **Google Colab** (demo enxuta + 5 exercícios) |
+| [`laboratorio_windows/`](laboratorio_windows/README.md) | **Versão Python** (lock por diretório + fila por prioridade, **sem Bash**) |
 
----
-
-## 🗂️ Estrutura da Pasta
+### Estrutura da aula
 
 ```
 aula18/
-├── apresentacao_aula18.html
-├── README.md
-├── atividade.md
-├── notebook_colab/
-│   └── aula18_processos_fila.ipynb
-├── laboratorio_windows/
-│   ├── 1_flock_gpu.py
-│   ├── 2_gpu_queue.py
-│   ├── 3_teste_fila.py
-│   ├── 4_monitor_processos_gpu.py
-│   ├── iniciar.bat
-│   ├── requirements.txt
-│   ├── train_job.py
-│   └── README.md
-└── scripts_linux/
-    ├── flock_gpu.sh
-    ├── gpu_queue.sh
-    ├── monitor_processos_gpu.sh
-    ├── teste_fila.sh
-    └── train_job.py
+  apresentacao_aula18.html
+  README.md
+  notebook_colab/aula18_processos_fila.ipynb
+  laboratorio_windows/          # 1_flock_gpu.py, 2_gpu_queue.py, 3_teste_fila.py, 4_monitor_processos_gpu.py
+  atividade.md
 ```
+
+> 🧩 **Bash vs. Python:** a versão **Bash** (`flock`, `gpu_queue.sh`, `systemd`) vive na
+> **Aula 15** (`laboratorio_windows/`) e é a padrão para servidores Linux. O **notebook** desta
+> aula demonstra os mesmos scripts no Colab (que é Linux); o **laboratório** mostra a
+> alternativa **100% Python** — **lock por diretório** (`os.mkdir`, atômico) e fila por
+> prioridade (ticket `prioridade_timestamp_nome`) — que roda até no Windows sem Bash.
 
 ---
 
-## 🚀 Como Usar
+## 🚀 Como usar
 
-### Option A — No Google Colab
-Abra o notebook em [`notebook_colab/aula18_processos_fila.ipynb`](notebook_colab/aula18_processos_fila.ipynb), execute a demonstração e resolva a seção **7. Exercícios Práticos (5)**.
+### No Google Colab
 
-### Option B — No Windows Host (Local)
-Navegue até a pasta `laboratorio_windows/` e dê duplo clique no arquivo `iniciar.bat`. Escolha a opção **3** para disparar 4 jobs simultâneos e acompanhar a serialização por prioridade.
+Abra `notebook_colab/aula18_processos_fila.ipynb` e resolva a seção **Exercícios (5)**.
+
+### No Windows (host local)
+
+Dê **duplo clique** em [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat) e
+escolha a opção que lança **4 jobs simultâneos** para ver a serialização por prioridade.
 
 ---
 
 ## 🔑 Conceitos-chave
 
-- **Race Condition** — Colisão de memória e GPU quando múltiplos processos tentam alocar a VRAM ao mesmo tempo.
-- **`flock` (Mutex)** — Trava de arquivo para garantir exclusão mútua simples (1 job por vez).
-- **Fila com Prioridade** — Organização de tickets (`prioridade_timestamp_job`) onde números menores rodam primeiro.
-- **Starvation & Aging** — Prevenção do bloqueio perpétuo de jobs de baixa prioridade.
-- **`systemd units`** — Isolamento de serviços com limites de CPU, memória e relançamento automático.
+- **Exclusão mútua sem `flock`** — `os.mkdir` é atômico: só um processo cria o diretório-lock.
+- **Fila por prioridade** — ticket `prioridade_timestamp_nome`, ordenado por `sort`.
+- **`nice`/`ionice`** — prioridade de CPU/IO, complementar à prioridade de entrada na GPU.
+- **Monitoramento de processos** — `psutil` no lugar do `nvidia-smi pmon`.
+
+---
+
+## 🔗 Relação com o curso
+
+- **Aula 15** é a referência do tema (versão **Bash/Linux** com `flock`/`systemd`). Esta aula
+  **não substitui** — mostra a **alternativa Python cross-platform**.
+- **Próxima (Aula 19):** energia — fechar o Bloco 3 otimizando o consumo das GPUs.

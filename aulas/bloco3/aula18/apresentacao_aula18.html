@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aula 18 — Gestão de Processos e Carga de Trabalho</title>
+<title>Aula 18 — Gestão de Fila em GPU: versão enxuta (complemento da Aula 15)</title>
 <style>
   :root {
     --bg: #0b1020;
@@ -201,22 +201,26 @@
 
   <!-- 01 — Título -->
   <section class="slide title-slide active">
-    <div class="kicker">Aula 18 · Conceitos</div>
-    <h1>Gestão de Processos e Carga de Trabalho</h1>
-    <p class="lead">Como gerenciar execuções concorrentes em GPU usando <code>flock</code> para exclusão mútua, implementar filas de prioridade e monitorar processos em tempo real em ambientes multiusuário.</p>
+    <div class="kicker">Aula 18 · Complemento</div>
+    <h1>Gestão de Fila em GPU — versão enxuta</h1>
+    <p class="lead">Revisão prática da Aula 15: <strong>demo enxuta no Colab</strong> e um
+      <strong>laboratório em Python</strong> que resolve a concorrência com <strong>lock por
+      diretório</strong> (<code>mkdir</code> atômico) — <strong>sem Bash</strong>.</p>
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
-      <div class="meta"><div class="k">Duração</div><div class="v">130 min</div></div>
-      <div class="meta"><div class="k">Ferramentas</div><div class="v">flock, Bash, systemd, nvidia-smi, Python</div></div>
+      <div class="meta"><div class="k">Base</div><div class="v">Complemento da Aula 15</div></div>
+      <div class="meta"><div class="k">Ferramentas</div><div class="v">Bash (Colab) + Python (Windows)</div></div>
     </div>
     <div class="grid cols-2" style="margin-top:26px">
       <div class="card" style="border-top:3px solid var(--accent-4)">
-        <h3><span class="ico">🎯</span> Situação de Aprendizagem</h3>
-        <p>O laboratório tem 1 GPU e 4 alunos que precisam treinar modelos ao mesmo tempo. Sem controle, os jobs geram <strong>Race Conditions</strong>, fragmentação e <strong>CUDA OOM</strong>.</p>
+        <h3><span class="ico">🎯</span> Por que revisar?</h3>
+        <p>A Aula 15 fixou o conceito. Aqui ele é <strong>praticado</strong> e adaptado para o
+          <strong>Windows</strong>, onde não há <code>flock</code> nativo.</p>
       </div>
       <div class="card" style="border-top:3px solid var(--accent-2)">
-        <h3><span class="ico">🧭</span> O que vamos entender</h3>
-        <p>Exclusão mútua com <code>flock</code>, filas FIFO com prioridade, isolamento por <code>systemd units</code> e monitoramento de PIDs ao vivo.</p>
+        <h3><span class="ico">🧭</span> O que muda</h3>
+        <p>No laboratório: <code>flock</code> → <strong>lock por diretório</strong>;
+          <code>nvidia-smi pmon</code> → <strong>psutil</strong>. Mesmo princípio.</p>
       </div>
     </div>
   </section>

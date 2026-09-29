@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula dupla 18+19 — Concorrência e Energia na GPU</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat .big { font-size: 1.75rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; margin: 0;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.35);
+  }
+  pre code {
+    background: none; border: none; padding: 0; color: #dbe1ff;
+    font-size: .8rem; line-height: 1.55; white-space: pre; display: block;
+  }
+  pre.scroll { max-height: 340px; overflow-y: auto; }
+
+  .code-wrap { position: relative; margin: 0 0 12px; }
+  .code-wrap .badge {
+    position: absolute; top: 8px; left: 10px; font-size: .64rem;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2);
+    background: rgba(10,15,34,.85); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .code-wrap pre { padding-top: 30px; }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--accent-2); font-weight: 600; }
+  .no  { color: var(--accent-4); font-weight: 600; }
+  .mid { color: var(--accent-3); font-weight: 600; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  .terminal {
+    background: #05070f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: "Cascadia Code", Consolas, monospace;
+    font-size: .78rem; line-height: 1.6; color: #9fe8c4; overflow-x: auto;
+  }
+  .terminal .bad { color: #ff8080; }
+  .terminal .warn { color: #ffd27a; }
+  .terminal .dim { color: #5c6a97; }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 7px 13px; font-size: .88rem; cursor: pointer;
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .nav-buttons button:hover { background: var(--panel-2); border-color: var(--accent); }
+  .nav-buttons button:active { transform: scale(.96); }
+  .hint { font-size: .74rem; color: var(--muted); opacity: .8; }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide .big-badge { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 18px; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+  .note code { font-size: .82em; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 3 · Aula dupla 18+19</div>
+</div>
+
+<main id="deck">
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula dupla · 18 + 19</div>
+    <h1>Concorrência e Energia na GPU</h1>
+    <p class="lead">Uma noite para dominar a <strong>operação</strong> da GPU: primeiro garantir
+      <strong>um job por vez</strong> (lock + fila com prioridade); depois <strong>medir e
+      limitar a energia</strong> (Power Limit e eficiência).</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
+      <div class="meta"><div class="k">Formato</div><div class="v">Aula dupla (1 noite)</div></div>
+      <div class="meta"><div class="k">Ambiente</div><div class="v">Colab (modo simulado) + Laboratório Windows</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
+        <p>O data center consome <strong>40% mais energia</strong> que o projetado, e os jobs
+          disputam a mesma GPU causando <strong>OOM</strong>. Resolver os dois problemas numa
+          única operação.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🎁</span> O que você leva</h3>
+        <p>Um <strong>lock</strong> e uma <strong>fila por prioridade</strong>; e um
+          <strong>Power Limit</strong> calibrado por eficiência (imgs/J).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Agenda da noite -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>Objetivo e agenda da noite</h2>
+    <p><strong>Objetivo:</strong> operar a GPU com <strong>justiça</strong> (1 job por vez,
+      fila com prioridade) e com <strong>eficiência</strong> (medir e limitar a potência). Esta
+      aula <strong>condensa</strong> as Aulas 18 e 19 para uma única noite.</p>
+    <div class="pipeline" style="margin-top:8px">
+      <div class="pipe-step"><span class="step-ico">🔥</span><span class="step-title">Problema</span><span class="step-sub">OOM + energia</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">🔒</span><span class="step-title">Lock</span><span class="step-sub">1 job por vez</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">📋</span><span class="step-title">Fila</span><span class="step-sub">prioridade</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">🌡️</span><span class="step-title">Energia</span><span class="step-sub">TDP / PL</span></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">Eficiência</span><span class="step-sub">imgs/J</span></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:22px; align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Cronograma (1 noite)</h3>
+        <div class="timeline">
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: os dois problemas (concorrência + energia)</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Parte 1 — Race condition, lock e fila com prioridade</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Prática 1 — 4 jobs disputando a GPU (serialização)</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Parte 2 — TDP, throttling, Power Limit e NVML</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Prática 2 — benchmark de eficiência (imgs/J)</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Síntese e discussão</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">🖥️</span> Onde roda</h3>
+          <p>No <strong>Colab</strong> (ou Windows) sem GPU NVIDIA, tudo roda em <strong>modo
+            simulado</strong> — os conceitos valem igual. Em servidor Linux + NVIDIA, os
+            sensores e o <code>flock</code> são reais.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
+          <p>Race condition · Mutex/Lock · Fila por prioridade · TDP/TGP · Throttling · Power Limit · Eficiência (imgs/J)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Concorrência: o problema -->
+  <section class="slide">
+    <div class="kicker">Parte 1 · Concorrência</div>
+    <h2><span class="num">1.</span>Race condition: quando 4 jobs usam 1 GPU</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>Sem controle, os jobs competem pela <strong>VRAM</strong> e pela capacidade de
+          processamento ao mesmo tempo. O resultado é imprevisível:</p>
+        <ul class="clean">
+          <li><strong>CUDA OOM</strong> — cada job aloca e a memória estoura.</li>
+          <li><strong>Crashes silenciosos</strong> — treinos morrem sem avisar.</li>
+          <li><strong>Medições contaminadas</strong> — dois jobs dividem a GPU.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="terminal">
+[08:00:00] Job-A inicia -> 6 GB VRAM
+[08:00:01] Job-B inicia -> 6 GB VRAM
+[08:00:02] Job-A: CUDA OOM!
+[08:00:02] Job-B: crash silencioso
+<span class="warn">Sem lock, os jobs se destruem.</span>
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">💡</span>
+          <span>A GPU é um recurso <strong>exclusivo</strong>: ou você a controla, ou ela
+            controla você.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 — Lock -->
+  <section class="slide">
+    <div class="kicker">Parte 1 · Exclusão mútua</div>
+    <h2><span class="num">2.</span>O lock: 1 job por vez</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>Em Linux usamos <code>flock</code>. No <strong>Windows/Colab</strong> (sem
+          <code>flock</code>), o mesmo efeito vem de um <strong>lock por diretório</strong>:
+          criar pasta com <code>mkdir</code> é <strong>atômico</strong> — se dois processos
+          tentam juntos, só um consegue.</p>
+        <div class="terminal" style="margin-top:10px">
+<span class="dim">Linux :</span> flock -x gpu.lock -c "treinar"
+<span class="dim">Python:</span> os.mkdir("gpu.lock")  <span class="dim"># atômico</span>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Regras do lock</h3>
+        <ul class="clean">
+          <li>Adquiriu → executa a GPU.</li>
+          <li>Já existe → <strong>espera</strong> (ou falha rápido, com <code>-n</code>).</li>
+          <li>Terminou → <strong>libera</strong> sempre (mesmo se der erro).</li>
+        </ul>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>Código em <code>notebook_colab/</code> e no laboratório Python da Aula 18.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — Fila -->
+  <section class="slide">
+    <div class="kicker">Parte 1 · Justiça</div>
+    <h2><span class="num">3.</span>Fila com prioridade</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>Com só um lock, quem chega depois espera "na sorte". Melhor: uma <strong>fila</strong>
+          em que cada job cria um <strong>ticket</strong> nomeado
+          <code>prioridade_timestamp_nome</code>. Como a ordenação é lexicográfica,
+          <strong>prioridade 1</strong> vem antes de 2, e o timestamp garante FIFO dentro da
+          mesma prioridade.</p>
+        <div class="terminal" style="margin-top:10px">
+1_20260922_003041_Job-Alta-A   <span class="dim"># roda 1o</span>
+2_20260922_003042_Job-Media-C
+3_20260922_003043_Job-Baixa-B  <span class="dim"># roda por ultimo</span>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Cuidados</h3>
+        <ul class="clean">
+          <li><strong>Starvation:</strong> jobs de baixa prioridade podem nunca rodar.</li>
+          <li><strong>Aging:</strong> envelhecer o ticket aumenta a prioridade com o tempo.</li>
+          <li><strong>nice/ionice:</strong> prioridade de CPU/IO no nível do SO.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 — Prática 1 -->
+  <section class="slide">
+    <div class="kicker">Prática 1 · 4 jobs, 1 GPU</div>
+    <h2><span class="num">4.</span>Ver a serialização acontecer</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>Lançamos <strong>4 jobs</strong> (2 de alta prioridade, 1 média, 1 baixa) ao mesmo
+          tempo. O lock garante que rodem <strong>um por vez</strong>; a fila define a
+          <strong>ordem</strong>.</p>
+        <p>Observe nos logs a ordem de execução — deve respeitar a prioridade, não a ordem de
+          chegada.</p>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Saída esperada</h3>
+        <div class="terminal">
+Job-Alta-A  -> executando
+Job-Alta-D  -> executando
+Job-Media-C -> executando
+Job-Baixa-B -> executando
+<span class="yes">Todos concluidos, sem OOM!</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 — Energia -->
+  <section class="slide">
+    <div class="kicker">Parte 2 · Energia</div>
+    <h2><span class="num">5.</span>TDP, throttling e o custo escondido</h2>
+    <div class="grid cols-2">
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">🔥</span> TDP / TGP</h3>
+        <p>Potência máxima de dissipação projetada (ex.: RTX 4090 = <strong>450 W</strong>;
+        Tesla T4 = <strong>70 W</strong>). É o teto de consumo da placa.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🌡️</span> Thermal throttling</h3>
+        <p>Acima de ~83–87 °C a GPU <strong>reduz o clock</strong> sozinha. Você perde
+          desempenho <em>e</em> ganha consumo — o pior dos mundos.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">💰</span>
+      <span>GPUs operando no <strong>TDP máximo</strong> em fases de baixa carga são a causa
+        clássica de contas de luz 40% acima do projetado.</span>
+    </div>
+  </section>
+
+  <!-- 08 — Power Limit -->
+  <section class="slide">
+    <div class="kicker">Parte 2 · Controle</div>
+    <h2><span class="num">6.</span>Power Limit: o controle mais eficaz</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>Reduzir o Power Limit em <strong>20–30%</strong> costuma custar apenas
+          <strong>5–10%</strong> de throughput — com queda grande de consumo e calor. É o
+          melhor "ganho grátis" da operação.</p>
+        <div class="terminal" style="margin-top:10px">
+<span class="dim">$ sudo nvidia-smi -pl 200</span>
+Power limit for GPU 0 set to 200.00 W
+<span class="dim"># via Python (NVML):</span>
+pynvml.nvmlDeviceSetPowerManagementLimit(h, 200*1000)
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:8px">Eficiência (imgs/J)</h3>
+        <table>
+          <thead><tr><th>PL (% do TDP)</th><th>Eficiência</th></tr></thead>
+          <tbody>
+            <tr><td>100%</td><td class="no">baixa</td></tr>
+            <tr><td><strong>~75%</strong></td><td class="yes"><strong>ótima</strong></td></tr>
+            <tr><td>40%</td><td class="mid">cai (throttling)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 — Prática 2 -->
+  <section class="slide">
+    <div class="kicker">Prática 2 · Eficiência</div>
+    <h2><span class="num">7.</span>Calibrar o Power Limit com dados</h2>
+    <div class="grid cols-2">
+      <div>
+        <p>Medimos <strong>throughput</strong> e <strong>potência</strong> em vários PLs e
+          calculamos a <strong>eficiência (imgs/J)</strong>. O gráfico mostra o ponto ótimo —
+          nem o máximo de potência, nem o mínimo, mas o <strong>melhor custo-benefício</strong>.</p>
+      </div>
+      <div>
+        <div class="terminal">
+PL   Imgs/s   Pwr   Imgs/J
+100   171.2    92.0   1.861
+150   380.0   138.0   2.754
+200   463.5   184.0   2.519
+<span class="yes">Ponto otimo: 150W (~60% do TDP)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 — Integração -->
+  <section class="slide">
+    <div class="kicker">Integração</div>
+    <h2><span class="num">8.</span>Juntando as duas partes</h2>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">🔒</span> Justiça</h3>
+        <p>Lock + fila garantem um job por vez, na ordem certa — sem OOM.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🌱</span> Eficiência</h3>
+        <p>O Power Limit calibrado reduz a conta de luz sem sacrificar quase nada de desempenho.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🧩</span> Só faz sentido juntas</h3>
+        <p>Medir energia com dois jobs na GPU contamina os dados — por isso o lock vem primeiro.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:20px">
+      <span class="ico">📄</span>
+      <span>Notebook único: <code>notebook_colab/aula18_19_concorrencia_energia.ipynb</code>
+        · labs em <code>aula18/</code> e <code>aula19/</code>.</span>
+    </div>
+  </section>
+
+  <!-- 11 — Síntese -->
+  <section class="slide">
+    <div class="kicker">Síntese e Tarefa</div>
+    <h2>O que levar desta noite</h2>
+    <div class="grid cols-3">
+      <div class="card">
+        <h3><span class="ico">🔒</span> Controle</h3>
+        <p>GPU é recurso exclusivo: lock (flock/mkdir) + fila por prioridade evitam race conditions e OOM.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">⚡</span> Energia</h3>
+        <p>TDP/ throttling explicam custos ocultos; o Power Limit (~75% do TDP) é o melhor ajuste.</p>
+      </div>
+      <div class="card">
+        <h3><span class="ico">📊</span> Decidir</h3>
+        <p>Medir eficiência (imgs/J) transforma a operação em uma decisão com dados.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:20px">
+      <span class="ico">📝</span>
+      <span><strong>Tarefa:</strong> documente a fila da Prática 1 e o PL ótimo da Prática 2;
+        justifique a escolha de PL para um projeto com deadline apertado.</span>
+    </div>
+    <div class="note" style="margin-top:10px">
+      <span class="ico">🔗</span>
+      <span>Para aprofundar: <a href="../aula15/README.md">Aula 15</a> (flock/Bash),
+        <a href="../aula18/README.md">Aula 18</a> (Python),
+        <a href="../aula19/README.md">Aula 19</a> (energia).</span>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 11</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>
