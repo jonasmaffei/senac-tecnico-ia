@@ -149,6 +149,7 @@ Os questionários de revisão ficam na pasta [`questionarios/`](questionarios/RE
 | :---: | :--- | :---: | :--- |
 | **1** | Aulas 1 a 7 | 21 | Já respondido em sala |
 | **2** | Aulas 8 a 13 | 18 | Por e-mail para `03049691093@senacrs.edu.br` — assunto `Questionario aulas 8 a 13` |
+| **3** | Aulas 14 a 19 | 18 | Por e-mail para `03049691093@senacrs.edu.br` — assunto `Questionario aulas 14 a 19` |
 
 ---
 
@@ -183,7 +184,8 @@ senac-tecnico-ia/
 │   ├── README.md                              → Índice e regras de entrega
 │   ├── questionario-aulas-1-7.md              → Fase 1 (já respondida em sala)
 │   ├── gabarito-questionario-aulas-1-7.md     → Gabarito da Fase 1
-│   └── questionario-aulas-8-13.md             → Fase 2 (entrega por e-mail)
+│   ├── questionario-aulas-8-13.md             → Fase 2 (entrega por e-mail)
+│   └── questionario-aulas-14-19.md            → Fase 3 (entrega por e-mail)
 └── docs/
     ├── 01_timeline-engenharia.md            → Blueprint causal do curso
     ├── 02_resumos.md                        → Resumos teóricos consolidados

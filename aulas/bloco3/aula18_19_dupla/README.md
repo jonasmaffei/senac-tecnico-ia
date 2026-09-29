@@ -106,3 +106,13 @@ sudo ./set_power_limit.sh 200      # define PL=200W
   fila.
 - **Aula 14/17** (automação) preparam a telemetria; aqui ela ganha as colunas de **energia**.
 - Encerra o Bloco 3: a GPU passa a ser operada com **justiça** e **eficiência**.
+
+---
+
+## 📝 Questionário de Consolidação (Aulas 14 a 19)
+
+As **18 questões** de revisão do Bloco 3 estão em
+[`questionarios/questionario-aulas-14-19.md`](../../../questionarios/questionario-aulas-14-19.md).
+
+**Entrega:** envie as respostas por e-mail para `03049691093@senacrs.edu.br` com o assunto
+`Questionario aulas 14 a 19`.

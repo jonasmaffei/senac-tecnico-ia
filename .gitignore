@@ -84,4 +84,13 @@ aulas/bloco3/aula18_19_dupla/laboratorio_energia/reports/*
 !aulas/bloco3/aula18_19_dupla/laboratorio_energia/reports/.gitkeep
 aulas/bloco3/aula18_19_dupla/laboratorio_energia/**/__pycache__/
 
+# === Saídas geradas pelo notebook da Aula 18+19 ===
+aulas/bloco3/aula18_19_dupla/notebook_colab/*.csv
+aulas/bloco3/aula18_19_dupla/notebook_colab/*.png
+aulas/bloco3/aula18_19_dupla/notebook_colab/*.log
+aulas/bloco3/aula18_19_dupla/notebook_colab/*.lockdir/
+aulas/bloco3/aula18_19_dupla/notebook_colab/*spool*/
+aulas/bloco3/aula18_19_dupla/notebook_colab/train_job.py
+aulas/bloco3/aula18_19_dupla/notebook_colab/fila_gpu.py
+
 

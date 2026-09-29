@@ -72,3 +72,13 @@ Um documento com:
 - os resultados das **duas práticas**;
 - o **plano de operação** (1 GPU, 3 usuários);
 - uma conclusão de **5–8 linhas** ligando concorrência e energia.
+
+---
+
+## 📝 Questionário (Aulas 14 a 19)
+
+As **18 questões** de revisão do Bloco 3 estão em
+[`questionarios/questionario-aulas-14-19.md`](../../../questionarios/questionario-aulas-14-19.md).
+
+**Entrega:** envie as respostas por e-mail para `03049691093@senacrs.edu.br` com o assunto
+`Questionario aulas 14 a 19`.
