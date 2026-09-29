@@ -1,12 +1,12 @@
 # 🌙 Aula 18 + 19 — Concorrência e Energia na GPU
 
-**Formato:** aula **dupla**, condensada para **uma única noite** (≈120 min).
+**Duração:** ≈120 min.
 **Objetivo:** operar a GPU com **justiça** (1 job por vez + fila com prioridade) e com
 **eficiência** (medir e limitar a energia).
 
-> 📌 **Esta é a aula oficial de concorrência + energia do Bloco 3.** Ela reúne o notebook, a
-> apresentação e **os laboratórios** (concorrência e energia) num só lugar. A base conceitual
-> de concorrência vem da [Aula 15](../aula15/README.md) (versão Bash completa).
+> 📌 Reúne **concorrência + energia** num único material, com apresentação, notebook e os dois
+> laboratórios. A concorrência apoia-se na [Aula 15](../aula15/README.md), que apresenta o
+> tema com `flock`/`systemd`.
 
 ---
 
@@ -27,7 +27,7 @@ Vamos resolver ambos: primeiro a **concorrência**, depois a **energia**.
 | [`laboratorio_concorrencia/`](laboratorio_concorrencia/README.md) | **Lab Python** (Windows): lock por diretório + fila por prioridade |
 | [`laboratorio_energia/`](laboratorio_energia/README.md) | **Lab Windows:** monitor térmico, alerta, benchmark de eficiência e Power Limit |
 | [`scripts_linux/`](scripts_linux) | Scripts para **servidor Linux + NVIDIA** (monitorar, definir PL, benchmark, alerta) |
-| [`atividade.md`](atividade.md) | Roteiro da noite, discussão e entrega |
+| [`atividade.md`](atividade.md) | Roteiro das práticas, discussão e entrega |
 
 ### Estrutura da pasta
 
@@ -44,7 +44,7 @@ aula18_19_dupla/
 
 ---
 
-## 🚀 Como usar na noite
+## 🚀 Como usar
 
 ### No Google Colab (recomendado)
 
@@ -75,7 +75,7 @@ sudo ./set_power_limit.sh 200      # define PL=200W
 
 ---
 
-## 🧭 Roteiro da noite (≈120 min)
+## 🧭 Roteiro (≈120 min)
 
 | Tempo | Bloco |
 | :---: | :--- |

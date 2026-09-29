@@ -56,4 +56,4 @@ python 4_monitor_processos.py
 
 - Demonstra na prática a regra **CPU-bound → processos; I/O-bound → threads**.
 - O `3_kernels_cuda.py` conecta à **hierarquia da GPU** (Thread → Warp → Bloco → Grid).
-- Segue o padrão de laboratório do curso (`.context.md`, §6.9 e §6.16).
+- Mantém a organização padrão dos laboratórios do curso (menu `iniciar.bat`, saídas em `reports/`).

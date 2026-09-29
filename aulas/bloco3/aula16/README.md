@@ -79,4 +79,4 @@ Em grupos de 3–4:
 
 - Documentação da **Antigravity**: CLI, [Agent Skills](https://antigravity.google/docs/skills) e [Best Practices](https://antigravity.google/docs/cli/best-practices).
 - Padrão aberto de **Agent Skills**: <https://agentskills.io/home>.
-- `AGENTS.md` do repositório do curso — exemplo real de arquivo de regras para agentes.
+- Exemplo de `AGENTS.md` usado no laboratório desta aula: [`laboratorio_monitoramento/AGENTS.md`](laboratorio_monitoramento/AGENTS.md).

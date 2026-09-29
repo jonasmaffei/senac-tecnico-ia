@@ -126,20 +126,17 @@
 * **Matriz de Trade-offs para Decisão Técnica:**
   * **NVIDIA (CUDA):** ecossistema maduro (cuDNN/cuBLAS), menor tempo de setup, porém maior custo por GPU.
   * **AMD (ROCm):** 100% open-source, maior densidade de VRAM por chip (ex.: MI300X com 192 GB), melhor relação custo/desempenho, exigindo suporte via contêineres Docker recomendados.
-* **Estrutura (padrão canônico):** apresentação `.html` só conceito, `notebook_colab/` (com **Exercícios (5)**), `laboratorio_windows/` portável (`lib_treino.py`, `1_benchmark_treino.py`, `2_comparar_ecossistemas.py`) e `atividade.md`.
 
 #### Aula 12: Laboratório Prático e Revisão Interativa
 * **Laboratório Interativo (5 experimentos):** notebook no Colab com formulários (`@title`) que revisita a trilha — (1) multiplicação de matrizes CPU vs GPU; (2) custo de transferir RAM ➔ VRAM (PCIe); (3) filtro de imagem paralelo (simulação visual de CUDA/tiling); (4) monitor de VRAM via `nvidia-smi`; (5) classificador de sentimentos de clientes (aplicação real de NLP). 
 * **Prototipagem Rápida:** uso de widgets e formulários interativos do Colab para alterar parâmetros e ver o resultado na hora.
 * **Projeto Integrador:** a aula também referencia o trabalho final (pesquisa aplicada que amarra a UC; detalhes em `aulas/projeto-integrador/README.md`).
-* **Estrutura (padrão canônico):** apresentação `.html` só conceito, `notebook_colab/` (com **Exercícios (5)**) e `atividade.md`. Sem `laboratorio_windows/` (os experimentos dependem de GPU/Colab).
 
 #### Aula 13: Implementação de um Modelo Paralelo Simples (Síntese do Bloco 2)
 * **Comparativo Quádruplo:** Implementação e medição das 4 abordagens para soma vetorial e produto escalar (Python Puro, CPU NumPy, GPU CUDA Numba e GPU CuPy).
 * **Redução Paralela em Shared Memory:** Implementação de *Tree Reduction* dentro do bloco CUDA para produto escalar em Numba com acúmulo via `cuda.atomic.add`.
 * **Análise de Speedup & Overhead:** Diagnóstico empírico demonstrando que para $N < 100K$ o overhead de transferência PCIe e lançamento de kernels torna a GPU mais lenta que a CPU ($<1\times$), enquanto para $N \ge 10M$ o speedup atinge ganhos expressivos ($>20\times$).
 * **Extras:** varredura de $N \in [10K, 100K, 1M, 10M, 100M]$, gráficos de tempo e speedup com Matplotlib, comparação `np.linalg.norm` vs. `cp.linalg.norm`, mini-relatório gerado automaticamente e fechamento com o questionário das Aulas 8 a 13.
-* **Estrutura (padrão canônico):** apresentação `.html` só conceito, `notebook_colab/` (com **Exercícios (5)**) e `atividade.md`. Sem `laboratorio_windows/` (o benchmark exige GPU/Colab).
 
 #### Aula 14: Introdução à Automação de GPUs com Bash (Bloco 3 — Automação)
 * **Monitoramento com `nvidia-smi`:** A opção `--query-gpu` extrai métricas estruturadas (`temperature.gpu`, `utilization.gpu`, `utilization.memory`, `memory.used`, `power.draw`, `power.limit`, clocks e `fan.speed`). A flag `--format=csv,noheader,nounits` produz saída ideal para scripts.
@@ -168,28 +165,27 @@
 * **Vibe coding:** gerar código por linguagem natural, iterando pelo "feeling". Rápido para **prototipar**; **arriscado sem verificação** (testes, build, leitura do *diff*). Regra de ouro: o agente acelera, **você responde** pelo resultado.
 * **Prática (`agy`):** instalação da CLI, abertura do agente na pasta, primeira tarefa (script simples), revisão com `/diff`, e os comandos `/agents`, `/skills`, `/permissions`, `/rewind`. Boas práticas: **explorar → planejar → executar**, loop de verificação e arquivo de regras (`AGENTS.md`).
 
-#### Aula 17: Automação de GPUs — versão enxuta / complemento da Aula 14 (Bloco 3 — Automação)
-> 📌 **Complemento da A14.** Revisão enxuta do tema (automação de telemetria): demo no Colab +
-> laboratório **Python cross-platform**. A referência do tema é a Aula 14; os scripts Bash
-> duplicados foram removidos.
-
+#### Aula 17: Automação de GPUs com Python (Bloco 3 — Automação)
+* **Mesmo pipeline, em Python:** a automação de telemetria vista na Aula 14, agora com
+  `subprocess` + Python para rodar em qualquer sistema — sem depender de `cron` ou `gnuplot`.
 * **Monitoramento estruturado:** Uso do `nvidia-smi --query-gpu` com a flag `--format=csv,noheader,nounits` para extração limpa de métricas térmicas (`temperature.gpu`), de energia (`power.draw`, `power.limit`), utilização (`utilization.gpu`, `utilization.memory`), alocação de VRAM (`memory.used`, `memory.total`) e clocks.
 * **Coleta e alertas:** Script `monitor_gpu.sh` para amostragem em loop com timestamp e gravação em arquivo CSV; `alerta_gpu.sh` para monitoria de limiares térmicos ($\ge 80^\circ\text{C}$) e de utilização ($\ge 95\%$) com notificação via e-mail ou webhook de Slack/Discord.
 * **Agendadores de produção:** Comparativo prático entre o `cron` clássico (`crontab -e`) e os `systemd timers` modernos com logging via `journald`, ordem de inicialização (`After=`) e execução persistente pós-boot (`Persistent=true`).
 * **Dashboards visuais:** Renderização de relatórios de 4 gráficos (temperatura, uso de GPU/RAM, VRAM alocada e potência) via `gnuplot` no terminal Linux ou `matplotlib` no Python/Google Colab.
 * **Integração Cloud com Google Sheets:** Publicação de telemetria via Service Account da Google Sheets API (`google-auth`, `google-api-python-client`) para acompanhamento remoto sem necessidade de conexão SSH.
 * **Prática Colab & Windows Host:** Notebook no Colab (`aula17_automacao_gpu_bash.ipynb`) com suporte a modo simulado e 5 exercícios práticos; ambiente local Windows Host (`laboratorio_windows/`) com menu interativo em `iniciar.bat` para execução nativa dos scripts de monitoria e relatórios.
-* **Relação com a A14:** é a **versão Python** do pipeline Bash da Aula 14 (que permanece a referência para servidores Linux). Esta aula reforça a portabilidade entre ambientes.
+* **Python × Bash:** a Aula 14 é a referência do tema (scripts Bash para servidores Linux); esta aula mostra como fazer o mesmo em Python, ampliando a portabilidade entre ambientes.
 
 #### Aula 18+19: Concorrência e Energia na GPU (Bloco 3 — Automação)
-* **Aula oficial de operação da GPU** (`aula18_19_dupla/`), condensada para **uma noite**: apresentação (11 slides), **notebook único** (race condition → lock por diretório → fila por prioridade → TDP/throttling → Power Limit → eficiência imgs/J) e os **Exercícios (5)**. A base conceitual de concorrência vem da **Aula 15** (Bash).
+* **Visão geral:** apresentação, **notebook único** (race condition → lock por diretório → fila por prioridade → TDP/throttling → Power Limit → eficiência imgs/J) e **Exercícios (5)**. A base conceitual de concorrência vem da **Aula 15** (Bash).
 * **Race condition em GPU:** Quando múltiplos jobs disputam a mesma GPU simultaneamente ➔ `CUDA Out of Memory (OOM)` e contaminação de resultados. Solução: exclusão mútua + sistema de fila com prioridades.
 * **Exclusão mútua:** `flock` no Linux; no Windows/Colab, **lock de diretório atômico** (`mkdir`). Flags `-n` (non-blocking) e `-w` (timeout).
 * **Fila com prioridade:** Ticket (`prioridade_timestamp_job`); números menores = maior prioridade. Prevenção de *starvation* via *aging*; prioridades de CPU/IO com `nice`/`ionice`.
-* **TDP, TGP e Thermal Throttling:** Acima de ~83–87 °C o driver reduz o clock (*thermal throttling*), podendo perder até 30% de throughput.
-* **Power Limit (`nvidia-smi -pl`):** Reduzir o PL em 20–30% sacrifica ~5–10% de throughput, com grande queda de consumo. Exige `sudo`/root.
-* **Eficiência (imgs/J):** Ponto ótimo tipicamente em **~60–75% do TDP**.
-* **Controle programático (nvidia-ml-py / NVML):** Leitura/configuração via `nvmlDeviceGet...`/`SetPowerManagementLimit`, sem *parsing* de shell.
+* **TDP, TGP e Thermal Throttling:** TDP é a potência de dissipação projetada (ex.: RTX 4090 = 450 W, A100 = 400 W); TGP inclui memória e controladores. Acima de ~83–87 °C o driver reduz o clock automaticamente (*thermal throttling*), podendo perder até 30% de throughput.
+* **Power Limit (`nvidia-smi -pl`):** Reduzir o PL em 20–30% costuma sacrificar apenas 5–10% de throughput, com grande queda de consumo e calor. Configurar exige `sudo`/root.
+* **Eficiência (imgs/J):** Métrica que balanceia throughput e potência média; ponto ótimo em **~60–75% do TDP**.
+* **Controle programático (nvidia-ml-py / NVML):** Leitura e configuração da GPU sem *parsing* de shell (`nvmlDeviceGetTemperature`, `GetPowerUsage`, `SetPowerManagementLimit`), ideal para dashboards e auto-scaling de PL por fase de treino.
+* **Alertas térmicos com ação:** Script agendado no `cron` que, ao cruzar o limite crítico (ex.: 88 °C), reduz o PL de emergência e notifica; quando a temperatura normaliza, restaura o PL original.
 * **Laboratórios:** `laboratorio_concorrencia/` (lock por diretório + fila) e `laboratorio_energia/` (`lib_energia.py` + monitor/alerta/benchmark/PL), além de `scripts_linux/` para servidor Linux + NVIDIA.
 * **Fio condutor:** só faz sentido medir energia com a GPU **exclusiva** (o lock evita contaminação).
 

@@ -54,4 +54,4 @@ python 3_monitor_memoria.py
 
 - Reproduz, no laboratório, a medição de **RAM × VRAM** e o **gargalo do PCIe**.
 - O `3_monitor_memoria.py` mostra como diagnosticar uma GPU ociosa (o caso da startup).
-- Segue o padrão de laboratório do curso (`.context.md`, §6.9 e §6.16).
+- Mantém a organização padrão dos laboratórios do curso (menu `iniciar.bat`, saídas em `reports/`).

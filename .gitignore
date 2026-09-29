@@ -12,7 +12,7 @@ venv/
 .venv/
 env/
 .env/
-AGENTS.md
+
 # === Jupyter Notebooks ===
 .ipynb_checkpoints/
 
@@ -42,12 +42,13 @@ desktop.ini
 datasets/
 models/
 checkpoints/
-.context.md
 
-# === Contexto e material de trabalho (NÃO é entregável do curso) ===
-# Arquivo de teste vazio / ruído
+# === Notas locais / rascunhos ===
+AGENTS.md
+.context.md
 TESTE.TXT
-# POCs e material de trabalho fora do currículo (simulador CUDA em Docker)
+
+# === POCs fora do currículo ===
 aulas/labs/
 
 # === Saídas geradas pela Aula 14 (monitoramento de GPU) ===
@@ -75,7 +76,7 @@ aulas/bloco3/aula14/laboratorio_realtime-windows/reports/*
 !aulas/bloco3/aula14/laboratorio_realtime-windows/reports/.gitkeep
 aulas/bloco3/aula14/laboratorio_realtime-windows/**/__pycache__/
 
-# === Laboratórios da aula dupla 18+19 ===
+# === Laboratórios da Aula 18+19 ===
 aulas/bloco3/aula18_19_dupla/laboratorio_concorrencia/reports/*
 !aulas/bloco3/aula18_19_dupla/laboratorio_concorrencia/reports/.gitkeep
 aulas/bloco3/aula18_19_dupla/laboratorio_concorrencia/**/__pycache__/

@@ -52,4 +52,4 @@ python 2_benchmark.py 300     :: matriz maior (demora mais)
 
 - Põe em prática a comparação **CPU (sequencial) vs. paralelo (vetorizado/SIMD)**.
 - O `lib_hw.py` antecipa a detecção de GPU que reaparece nas aulas seguintes.
-- Segue o padrão de laboratório do curso (`.context.md`, §6.9 e §6.16).
+- Mantém a organização padrão dos laboratórios do curso (menu `iniciar.bat`, saídas em `reports/`).

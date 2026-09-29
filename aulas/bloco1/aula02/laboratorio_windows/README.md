@@ -54,4 +54,4 @@ python 3_arquitetura_instrucoes.py
 
 - Demonstra **SIMD** (1 instrução → vários dados) na prática, no hardware do aluno.
 - O `3_arquitetura_instrucoes.py` conecta ao debate **RISC vs. CISC**.
-- Segue o padrão de laboratório do curso (`.context.md`, §6.9 e §6.16).
+- Mantém a organização padrão dos laboratórios do curso (menu `iniciar.bat`, saídas em `reports/`).

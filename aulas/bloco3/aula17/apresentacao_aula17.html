@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aula 17 — Automação de GPUs: versão enxuta (complemento da Aula 14)</title>
+<title>Aula 17 — Automação de GPUs com Python</title>
 <style>
   :root {
     --bg: #0b1020;
@@ -201,26 +201,26 @@
 
   <!-- 01 — Título -->
   <section class="slide title-slide active">
-    <div class="kicker">Aula 17 · Complemento</div>
-    <h1>Automação de GPUs — versão enxuta</h1>
-    <p class="lead">Revisão prática do pipeline da Aula 14: <strong>demo enxuta no Colab</strong>
-      (com os scripts Bash) e um <strong>laboratório em Python</strong> que faz o mesmo
-      <strong>sem Bash</strong>, rodando no Windows.</p>
+    <div class="kicker">Aula 17</div>
+    <h1>Automação de GPUs com Python</h1>
+    <p class="lead">A mesma automação de telemetria da Aula 14, agora com <strong>Python</strong>:
+      coletar, alertar e publicar métricas <strong>sem depender de Bash</strong>, rodando também
+      no Windows e no Colab.</p>
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
-      <div class="meta"><div class="k">Base</div><div class="v">Complemento da Aula 14</div></div>
-      <div class="meta"><div class="k">Ferramentas</div><div class="v">Bash (Colab) + Python (Windows)</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">100 min</div></div>
+      <div class="meta"><div class="k">Ferramentas</div><div class="v">Python, subprocess, Matplotlib</div></div>
     </div>
     <div class="grid cols-2" style="margin-top:26px">
       <div class="card" style="border-top:3px solid var(--accent-2)">
-        <h3><span class="ico">🎯</span> Por que revisar?</h3>
-        <p>A Aula 14 fixou o conceito. Aqui ele é <strong>praticado em duas frentes</strong>:
-          a demo rápida no Colab e a versão portátil (sem servidor Linux).</p>
+        <h3><span class="ico">🎯</span> Por que Python?</h3>
+        <p>Nem toda equipe roda Linux. Em <strong>Python</strong>, o mesmo monitoramento
+          funciona no Windows e no Colab, sem instalar Bash nem <code>cron</code>.</p>
       </div>
       <div class="card" style="border-top:3px solid var(--accent)">
         <h3><span class="ico">🧭</span> O que muda</h3>
-        <p>No laboratório: Bash → <strong>Python</strong>; `cron` → <strong>loop</strong>;
-          `gnuplot` → <strong>Matplotlib</strong>. A lógica (coletar → alertar → publicar) não muda.</p>
+        <p>Bash → <strong>Python</strong>; `cron` → <strong>loop</strong>; `gnuplot` →
+          <strong>Matplotlib</strong>. A lógica (coletar → alertar → publicar) é a mesma.</p>
       </div>
     </div>
   </section>

@@ -1,13 +1,12 @@
-# 🐍 Aula 17 — Automação de GPUs: versão enxuta (complemento da Aula 14)
+# 🐍 Aula 17 — Automação de GPUs com Python
 
-**Objetivo:** revisar o pipeline de automação de telemetria da **Aula 14** numa versão
-**enxuta e reproduzível**, com um **laboratório em Python cross-platform** — sem depender de
-`cron`, `systemd` ou `gnuplot` do Linux.
+**Objetivo:** automatizar a telemetria de GPUs com **Python cross-platform** — sem depender de
+`cron`, `systemd` ou `gnuplot` do Linux. É a alternativa portátil à abordagem Bash da
+[Aula 14](../aula14/README.md), útil para quem trabalha em Windows ou Colab.
 
-> 📌 **Não é conteúdo novo.** Esta aula é um **complemento prático** da
-> [Aula 14](../aula14/README.md). **Veja a Aula 14 primeiro.** Aqui o valor está em:
-> (a) uma **demonstração enxuta no Colab** (os scripts Bash rodam no Linux do Colab) e
-> (b) um **laboratório em Python** que faz o mesmo **sem Bash**, no Windows.
+> 📌 **Recomenda-se ver a Aula 14 antes**, que apresenta o tema com scripts Bash para
+> servidores Linux. Aqui o foco é: (a) uma demonstração no Colab e (b) um laboratório em
+> **Python** que faz o mesmo **sem Bash**, rodando também no Windows.
 
 ---
 
@@ -40,10 +39,10 @@ aula17/
   atividade.md
 ```
 
-> 🧩 **Bash vs. Python:** a versão **Bash** (`monitor_gpu.sh`, `alerta_gpu.sh`, …) vive na
-> **Aula 14** (`scripts_linux/`) e é a padrão para servidores Linux. O **notebook** desta aula
-> demonstra esses mesmos scripts no Colab (que é Linux); o **laboratório** mostra a alternativa
-> **100% Python**, que roda até no Windows sem Bash.
+> 🧩 **Bash vs. Python:** a **Aula 14** traz os scripts **Bash** (`monitor_gpu.sh`,
+> `alerta_gpu.sh`, …), padrão para servidores Linux. O **notebook** desta aula demonstra esses
+> mesmos scripts no Colab (que é Linux); o **laboratório** mostra a alternativa **100% Python**,
+> que roda até no Windows sem Bash.
 
 ---
 

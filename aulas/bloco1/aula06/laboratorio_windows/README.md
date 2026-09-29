@@ -85,4 +85,4 @@ Tudo é gerado em `reports/` (criada automaticamente). O `.gitignore` ignora o c
 - Coloca em prática a trilha: **inspecionar → visualizar → alertar → agendar**.
 - O `2_status_gpu.sh` é a versão didática do `scripts/gpu_status.sh` (mais completo, para
   servidor Linux).
-- O `iniciar.bat` implementa o padrão de laboratório (`.context.md`, §6.9 e §6.16).
+- O `iniciar.bat` usa o menu padrão dos laboratórios do curso (cria o `.venv`, instala as dependências e lista as opções).

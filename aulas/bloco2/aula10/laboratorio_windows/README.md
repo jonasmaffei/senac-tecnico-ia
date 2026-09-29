@@ -55,4 +55,4 @@ python 2_diagnostico_portabilidade.py
 
 - Prova a afirmação do engenheiro sênior: o PyTorch em CUDA **roda em AMD via HIP** sem mudanças.
 - Conecta aos laboratórios irmãos (Docker ROCm e diagnóstico de GPU).
-- Segue o padrão de laboratório do curso (`.context.md`, §6.9 e §6.16).
+- Mantém a organização padrão dos laboratórios do curso (menu `iniciar.bat`, saídas em `reports/`).

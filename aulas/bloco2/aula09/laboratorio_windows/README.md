@@ -58,4 +58,4 @@ python 3_benchmark_work_groups.py
 
 - Prova que **o mesmo kernel OpenCL roda em GPUs de qualquer fabricante** — sem código CUDA.
 - Conecta os conceitos do CUDA (Aulas 7–8) à terminologia OpenCL: `work-item`/`work-group`.
-- Segue o padrão de laboratório do curso (`.context.md`, §6.9 e §6.16).
+- Mantém a organização padrão dos laboratórios do curso (menu `iniciar.bat`, saídas em `reports/`).

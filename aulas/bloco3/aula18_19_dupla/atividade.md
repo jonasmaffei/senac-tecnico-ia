@@ -1,4 +1,4 @@
-# 📝 Atividade — Aula dupla 18 + 19 (Concorrência e Energia na GPU)
+# 📝 Atividade — Aula 18+19 (Concorrência e Energia na GPU)
 
 **Entrega:** documento curto (1 a 2 páginas) em Word/PDF, com os resultados das duas práticas.
 
@@ -7,8 +7,7 @@
 ## 🎯 Objetivo
 
 Operar **1 GPU compartilhada** com **justiça** (1 job por vez + fila com prioridade) e com
-**eficiência** (Power Limit calibrado por dados). Esta é a versão de **uma noite** das Aulas
-18 e 19.
+**eficiência** (Power Limit calibrado por dados), unindo os temas de concorrência e energia.
 
 ---
 
@@ -44,7 +43,7 @@ Rode o notebook e registre:
 
 ---
 
-## 🔗 Parte 3 — Integração (o ponto central da noite)
+## 🔗 Parte 3 — Integração (o ponto central)
 
 Responda:
 

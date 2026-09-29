@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aula dupla 18+19 — Concorrência e Energia na GPU</title>
+<title>Aula 18+19 — Concorrência e Energia na GPU</title>
 <style>
   :root {
     --bg: #0b1020;
@@ -234,20 +234,20 @@
 
 <div id="topbar">
   <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
-  <div>Bloco 3 · Aula dupla 18+19</div>
+  <div>Bloco 3 · Aula 18+19</div>
 </div>
 
 <main id="deck">
   <!-- 01 — Título -->
   <section class="slide title-slide active">
-    <div class="kicker">Aula dupla · 18 + 19</div>
+    <div class="kicker">Aula 18 + 19</div>
     <h1>Concorrência e Energia na GPU</h1>
-    <p class="lead">Uma noite para dominar a <strong>operação</strong> da GPU: primeiro garantir
+    <p class="lead">Dominar a <strong>operação</strong> da GPU: primeiro garantir
       <strong>um job por vez</strong> (lock + fila com prioridade); depois <strong>medir e
       limitar a energia</strong> (Power Limit e eficiência).</p>
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
-      <div class="meta"><div class="k">Formato</div><div class="v">Aula dupla (1 noite)</div></div>
+      <div class="meta"><div class="k">Duração</div><div class="v">120 min</div></div>
       <div class="meta"><div class="k">Ambiente</div><div class="v">Colab (modo simulado) + Laboratório Windows</div></div>
     </div>
     <div class="grid cols-2" style="margin-top:26px">
@@ -265,13 +265,14 @@
     </div>
   </section>
 
-  <!-- 02 — Agenda da noite -->
+  <!-- 02 — Agenda -->
   <section class="slide">
     <div class="kicker">Visão Geral</div>
-    <h2>Objetivo e agenda da noite</h2>
+    <h2>Objetivo e agenda</h2>
     <p><strong>Objetivo:</strong> operar a GPU com <strong>justiça</strong> (1 job por vez,
-      fila com prioridade) e com <strong>eficiência</strong> (medir e limitar a potência). Esta
-      aula <strong>condensa</strong> as Aulas 18 e 19 para uma única noite.</p>
+      fila com prioridade) e com <strong>eficiência</strong> (medir e limitar a potência).
+      A aula reúne os temas de <strong>concorrência</strong> e <strong>energia</strong> num
+      roteiro único.</p>
     <div class="pipeline" style="margin-top:8px">
       <div class="pipe-step"><span class="step-ico">🔥</span><span class="step-title">Problema</span><span class="step-sub">OOM + energia</span></div>
       <span class="pipe-arrow">→</span>
@@ -285,7 +286,7 @@
     </div>
     <div class="grid cols-2" style="margin-top:22px; align-items:start">
       <div>
-        <h3 style="margin-bottom:10px">Cronograma (1 noite)</h3>
+        <h3 style="margin-bottom:10px">Cronograma (120 min)</h3>
         <div class="timeline">
           <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: os dois problemas (concorrência + energia)</span></div>
           <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Parte 1 — Race condition, lock e fila com prioridade</span></div>
@@ -527,7 +528,7 @@ PL   Imgs/s   Pwr   Imgs/J
   <!-- 11 — Síntese -->
   <section class="slide">
     <div class="kicker">Síntese e Tarefa</div>
-    <h2>O que levar desta noite</h2>
+    <h2>O que levar desta aula</h2>
     <div class="grid cols-3">
       <div class="card">
         <h3><span class="ico">🔒</span> Controle</h3>

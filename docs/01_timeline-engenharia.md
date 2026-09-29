@@ -130,15 +130,13 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **Conexão com o Bloco 3:** A automação saiu das GPUs (A14–A15) e chegou ao **próprio trabalho de desenvolvimento** — o agente lê o repositório versionado com Git (`docs/03_git.md`) e usa RAG para achar contexto.
 * **O problema que fica em aberto:** Como manter a infraestrutura de GPU operando com total visibilidade e relatórios integrados via pipelines de automação em tempo real?
 
-### Aula 17: Automação de GPUs — versão enxuta / complemento da Aula 14 (Bloco 3 — Automação)
-> 📌 **Complemento da A14.** Revisão enxuta do pipeline de telemetria; a referência do tema é a Aula 14 (Bash).
-
-* **Conceito/Fundamento:** Demo enxuta no Colab (scripts de automação) + laboratório **Python cross-platform** que faz o mesmo sem Bash (loop no lugar do `cron`, `matplotlib` no lugar do `gnuplot`).
+### Aula 17: Automação de GPUs com Python (Bloco 3 — Automação)
+* **Conceito/Fundamento:** O pipeline de telemetria em **Python cross-platform** — sem depender de `cron`/`gnuplot` do Linux (loop no lugar do `cron`, `matplotlib` no lugar do `gnuplot`).
 * **O que se aprende:** Reuso de `nvidia-smi --query-gpu`, substituição de ferramentas Linux por equivalentes portáveis e o que muda ao trocar Bash por Python.
-* **Conexão com a A14:** Mesmo objetivo, implementação alternativa — evidencia a portabilidade do pipeline.
+* **Conexão com a A14:** Mesmo objetivo (automação), implementação alternativa — evidencia a portabilidade do pipeline.
 
 ### Aula 18+19: Concorrência e Energia na GPU (Bloco 3 — Automação)
-* **Conceito/Fundamento:** Aula **oficial de operação da GPU**, condensada para **uma noite**. Junta **concorrência** (race condition → lock → fila por prioridade) e **energia** (TDP/throttling → Power Limit → eficiência imgs/J), com **lock por diretório** (`os.mkdir`, atômico) em vez de `flock`/`systemd`.
+* **Conceito/Fundamento:** Operação da GPU numa única aula: **concorrência** (race condition → lock → fila por prioridade) e **energia** (TDP/throttling → Power Limit → eficiência imgs/J), com **lock por diretório** (`os.mkdir`, atômico) em vez de `flock`/`systemd`.
 * **O que se aprende:** Operar 1 GPU com **justiça** e **eficiência**; perceber que só se mede energia de forma confiável com a GPU **exclusiva** (o lock vem primeiro). Inclui laboratórios de concorrência e de energia, além de `scripts_linux/` para produção.
 * **Conexão com o Bloco 3:** Fecha a operação iniciada na A14/15/17 — telemetria (A17) + concorrência + **energia** = cluster operado com segurança e sustentabilidade.
 * **O problema que fica em aberto:** Com energia e concorrência sob controle, como **orquestrar** tudo isso em escala e de forma sustentável a longo prazo?

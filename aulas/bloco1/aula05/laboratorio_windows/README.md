@@ -53,4 +53,4 @@ python 3_ipv4_ipv6.py
 
 - Demonstra na prática **TCP (integridade) × UDP (velocidade)** e a **telemetria de GPU**.
 - O `comandos_rede.sh` reúne SSH/rsync — a base para operar GPUs remotas.
-- Segue o padrão de laboratório do curso (`.context.md`, §6.9 e §6.16).
+- Mantém a organização padrão dos laboratórios do curso (menu `iniciar.bat`, saídas em `reports/`).
