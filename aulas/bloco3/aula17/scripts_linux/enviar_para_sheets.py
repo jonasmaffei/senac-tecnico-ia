@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# enviar_para_sheets.py — Publicar métricas de GPU no Google Sheets API
-# Dependências: pip install google-auth google-api-python-client
+# enviar_para_sheets.py - Publicar metricas de GPU no Google Sheets API
+# Dependencias: pip install google-auth google-api-python-client
 
 import csv
 import os
@@ -12,15 +12,15 @@ def main():
     cred_file = os.environ.get("GOOGLE_CREDS", "service_account.json")
 
     if not os.path.exists(csv_file):
-        print(f"Erro: Arquivo '{csv_file}' não existe.")
+        print(f"Erro: Arquivo '{csv_file}' nao existe.")
         return
 
     if not spreadsheet_id:
-        print("Aviso: Variável de ambiente SHEETS_ID não definida. Executando em modo simulação.")
+        print("Aviso: Variavel de ambiente SHEETS_ID nao definida. Executando em modo simulacao.")
         print(f"Simulando envio dos dados contidos em '{csv_file}'...")
         with open(csv_file, "r", encoding="utf-8") as f:
             total_linhas = sum(1 for _ in f) - 1
-        print(f"Modo Simulação: {total_linhas} linhas seriam enviadas para o Google Sheets.")
+        print(f"Modo Simulacao: {total_linhas} linhas seriam enviadas para o Google Sheets.")
         return
 
     try:
@@ -37,7 +37,7 @@ def main():
         linhas = []
         with open(csv_file, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
-            next(reader, None)  # Pular cabeçalho
+            next(reader, None)  # Pular cabecalho
             for row in reader:
                 linhas.append(row)
 

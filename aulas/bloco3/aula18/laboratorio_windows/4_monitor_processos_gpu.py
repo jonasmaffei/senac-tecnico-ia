@@ -4,7 +4,7 @@ import sys
 import psutil
 
 def main():
-    print("=== Processos em Execução no Host ===")
+    print("=== Processos em Execucao no Host ===")
     procs_python = []
     for proc in psutil.process_iter(['pid', 'name', 'username', 'cmdline']):
         try:

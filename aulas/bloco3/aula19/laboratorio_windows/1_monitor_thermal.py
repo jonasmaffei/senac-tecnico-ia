@@ -1,9 +1,9 @@
-"""1_monitor_thermal.py — Coleta temperatura, potência e clock da GPU.
+"""1_monitor_thermal.py - Coleta temperatura, potencia e clock da GPU.
 
 Uso: python 1_monitor_thermal.py [intervalo_s] [amostras]
 
-Grava o histórico incremental em reports/gpu_thermal.csv (nunca apaga o
-histórico). O backend (NVIDIA/AMD/SIMULADO) é detectado automaticamente.
+Grava o historico incremental em reports/gpu_thermal.csv (nunca apaga o
+historico). O backend (NVIDIA/AMD/SIMULADO) e detectado automaticamente.
 """
 
 import csv
@@ -25,13 +25,13 @@ def main():
     os.makedirs("reports", exist_ok=True)
     saida = os.path.join("reports", "gpu_thermal.csv")
 
-    # Cria o cabeçalho apenas na primeira execução
+    # Cria o cabecalho apenas na primeira execucao
     if not os.path.exists(saida):
         with open(saida, "w", newline="", encoding="utf-8") as f:
             csv.writer(f).writerow(CABECALHO)
 
     print(f"Monitorando GPU a cada {intervalo}s ({amostras} amostras)")
-    print(f"Saída: {saida}\n")
+    print(f"Saida: {saida}\n")
 
     with open(saida, "a", newline="", encoding="utf-8") as f:
         escritor = csv.writer(f)
@@ -45,12 +45,12 @@ def main():
             escritor.writerow(linha)
             f.flush()
             print(f"  [{i}/{amostras}] {backend:<8} | {m['gpu_name'][:24]:<24} | "
-                  f"{m['temp_c']:.0f}°C | {m['power_w']:.0f}W/{m['power_limit_w']:.0f}W | "
+                  f"{m['temp_c']:.0f}C | {m['power_w']:.0f}W/{m['power_limit_w']:.0f}W | "
                   f"util {m['util_gpu_pct']:.0f}%")
             if i < amostras:
                 time.sleep(intervalo)
 
-    print(f"\nColeta concluída. Histórico em '{saida}'.")
+    print(f"\nColeta concluida. Historico em '{saida}'.")
 
 
 if __name__ == "__main__":

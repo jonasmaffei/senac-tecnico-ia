@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# monitor_processos_gpu.sh — Monitorar processos em tempo real na GPU e fila de execução
+# monitor_processos_gpu.sh - Monitorar processos em tempo real na GPU e fila de execucao
 
 set -euo pipefail
 
@@ -14,12 +14,12 @@ if command -v nvidia-smi &>/dev/null; then
         echo "  PID=$pid | USER=$user | CMD=$cmd | VRAM=${mem}MB"
     done
 else
-    echo "  (NVIDIA GPU não detectada. Exibindo processos Python do host)"
+    echo "  (NVIDIA GPU nao detectada. Exibindo processos Python do host)"
     ps aux | grep "[p]ython" || echo "  Nenhum processo Python ativo."
 fi
 
 echo ""
-echo "=== Utilização da GPU ==="
+echo "=== Utilizacao da GPU ==="
 if command -v nvidia-smi &>/dev/null; then
     nvidia-smi --query-gpu=index,name,utilization.gpu,memory.used,memory.total \
                --format=csv,noheader,nounits | \

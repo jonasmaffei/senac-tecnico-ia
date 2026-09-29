@@ -1,4 +1,4 @@
-# mapear_conexoes_pi.py — encontra onde a GPU ajuda no Projeto Integrador (Aula 24)
+# mapear_conexoes_pi.py - encontra onde a GPU ajuda no Projeto Integrador (Aula 24)
 # Uso: python mapear_conexoes_pi.py [caminho_do_pi]
 
 import os
@@ -44,7 +44,7 @@ def main():
         for caminho, desc, n in achados:
             print(f"  {desc}: {caminho} ({n}x)")
 
-    print("\n=== Plano de ação por domínio ===")
+    print("\n=== Plano de acao por dominio ===")
     for dominio, acao in PLANO.items():
         print(f"  {dominio:<18} -> {acao}")
 

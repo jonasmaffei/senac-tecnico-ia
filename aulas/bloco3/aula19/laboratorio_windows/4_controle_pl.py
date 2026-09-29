@@ -1,9 +1,9 @@
-"""4_controle_pl.py — Controle programático do Power Limit.
+"""4_controle_pl.py - Controle programatico do Power Limit.
 
 Uso: python 4_controle_pl.py [watts]
 
 Em GPU NVIDIA real, tenta aplicar o Power Limit via NVML (nvidia-ml-py);
-se não houver permissão/GPU, explica o modo simulado. Também exibe as
+se nao houver permissao/GPU, explica o modo simulado. Tambem exibe as
 constraints (faixa) suportadas pela placa.
 """
 
@@ -28,9 +28,9 @@ def main():
         print(f"Power Limit atual: {atual:.0f}W")
         print(f"Faixa suportada:   {pl_min // 1000}W - {pl_max // 1000}W")
 
-        # Só aplica se estiver dentro da faixa suportada
+        # So aplica se estiver dentro da faixa suportada
         if not (pl_min // 1000 <= watts <= pl_max // 1000):
-            print(f"\n{watts}W está fora da faixa suportada. Ajuste e tente novamente.")
+            print(f"\n{watts}W esta fora da faixa suportada. Ajuste e tente novamente.")
             pynvml.nvmlShutdown()
             return
 
@@ -38,12 +38,12 @@ def main():
             pynvml.nvmlDeviceSetPowerManagementLimit(handle, watts * 1000)
             print(f"\nPower Limit configurado para {watts}W.")
         except pynvml.NVMLError as e:
-            print(f"\nNão foi possível aplicar (precisa de root?): {e}")
+            print(f"\nNao foi possivel aplicar (precisa de root?): {e}")
 
         pynvml.nvmlShutdown()
     except Exception as e:
         # Sem NVML (AMD/Windows ou sem GPU): apenas demonstra o conceito
-        print(f"NVML indisponível ({e}).")
+        print(f"NVML indisponivel ({e}).")
         print(f"[SIMULADO] O Power Limit seria ajustado para {watts}W em uma GPU NVIDIA.")
         print("Em Linux com GPU NVIDIA, o comando equivalente seria:")
         print(f"    sudo nvidia-smi -i 0 -pl {watts}")

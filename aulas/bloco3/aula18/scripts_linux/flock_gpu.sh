@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# flock_gpu.sh — Exclusão mútua para acesso à GPU usando flock
+# flock_gpu.sh - Exclusao mutua para acesso a GPU usando flock
 # Uso: ./flock_gpu.sh <script_python.py> [args...]
 
 set -euo pipefail
@@ -12,7 +12,7 @@ echo "[$(date '+%H:%M:%S')] PID $$ aguardando lock da GPU..."
 
 (
   flock -x 200
-  echo "[$(date '+%H:%M:%S')] PID $$ adquiriu GPU — iniciando $PYTHON_SCRIPT"
+  echo "[$(date '+%H:%M:%S')] PID $$ adquiriu GPU - iniciando $PYTHON_SCRIPT"
   
   python3 "$PYTHON_SCRIPT" "$@"
   EXIT_CODE=$?

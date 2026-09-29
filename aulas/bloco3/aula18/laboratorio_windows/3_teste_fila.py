@@ -5,7 +5,7 @@ import time
 
 def main():
     print("=== Teste de Fila Concorrente de GPU ===")
-    print("Lançando 4 jobs simultâneos em paralelo...")
+    print("Lancando 4 jobs simultaneos em paralelo...")
     print("Prioridades: Job-Alta-A (Prio 1), Job-Baixa-B (Prio 3), Job-Media-C (Prio 2), Job-Alta-D (Prio 1)\n")
 
     jobs = [

@@ -1,4 +1,4 @@
-# projeto.py — Projeto Exemplo 3: Previsao de Consumo de Energia (Bloco 4)
+# projeto.py - Projeto Exemplo 3: Previsao de Consumo de Energia (Bloco 4)
 # Uso: python projeto.py
 #
 # Percorre as 5 etapas das aulas 20 a 24 (planejar, implementar, monitorar,

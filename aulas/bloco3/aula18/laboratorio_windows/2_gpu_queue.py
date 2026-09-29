@@ -33,14 +33,14 @@ def main():
 
     log_msg(f"Job '{nome_job}' (prio={prioridade}) enfileirado: {ticket_filename}")
 
-    # Aguardar vez na fila (ordenação lexicográfica)
+    # Aguardar vez na fila (ordenacao lexicografica)
     while True:
         arquivos = sorted(os.listdir(SPOOL_DIR))
         if arquivos and arquivos[0] == ticket_filename:
             break
         time.sleep(1)
 
-    # Executar com exclusão mútua
+    # Executar com exclusao mutua
     while True:
         try:
             os.mkdir(LOCK_DIR)
@@ -52,7 +52,7 @@ def main():
         log_msg(f"Executando '{nome_job}' na GPU...")
         cmd = [sys.executable, script] + extra_args
         res = subprocess.run(cmd)
-        log_msg(f"'{nome_job}' concluído (exit code={res.returncode})")
+        log_msg(f"'{nome_job}' concluido (exit code={res.returncode})")
     finally:
         try:
             os.rmdir(LOCK_DIR)

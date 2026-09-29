@@ -1,9 +1,9 @@
 @echo off
 chcp 65001 > NUL
-title Aula 19 — Otimização de Energia em GPUs (Windows Host)
+title Aula 19 - Otimizacao de Energia em GPUs (Windows Host)
 
 echo ============================================================
-echo   🌱 Aula 19 — Energia, Térmica e Power Limit de GPU
+echo     Aula 19 - Energia, Termica e Power Limit de GPU
 echo ============================================================
 echo.
 

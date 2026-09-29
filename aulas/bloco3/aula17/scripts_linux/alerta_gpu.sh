@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# alerta_gpu.sh — Envia alerta se temperatura ou utilização ultrapassar limites
+# alerta_gpu.sh - Envia alerta se temperatura ou utilizacao ultrapassar limites
 
 set -euo pipefail
 
@@ -21,13 +21,13 @@ alerta() {
              -d "{\"text\": \"GPU Alert [$ts]: $msg\"}" > /dev/null || true
     fi
 
-    # Email (se 'mail' disponível)
+    # Email (se 'mail' disponivel)
     if command -v mail &>/dev/null; then
         echo "$msg" | mail -s "GPU ALERT: $msg" "admin@empresa.com" || true
     fi
 }
 
-# ── Verificar cada GPU ────────────────────────────────────
+# -- Verificar cada GPU ------------------------------------
 if command -v nvidia-smi &>/dev/null; then
     DADOS_ENTRADA=$(nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu --format=csv,noheader,nounits)
 else
@@ -35,18 +35,18 @@ else
 fi
 
 while IFS="," read -r idx nome temp util; do
-    # Remover espaços em branco
+    # Remover espacos em branco
     idx=$(echo "$idx" | xargs)
     nome=$(echo "$nome" | xargs)
     temp=$(echo "$temp" | xargs)
     util=$(echo "$util" | xargs)
 
     if [ "$temp" -ge "$LIMITE_TEMP" ]; then
-        alerta "GPU $idx ($nome): temperatura ${temp}°C >= ${LIMITE_TEMP}°C"
+        alerta "GPU $idx ($nome): temperatura ${temp}C >= ${LIMITE_TEMP}C"
     fi
     if [ "$util" -ge "$LIMITE_UTIL" ]; then
-        alerta "GPU $idx ($nome): utilização ${util}% >= ${LIMITE_UTIL}%"
+        alerta "GPU $idx ($nome): utilizacao ${util}% >= ${LIMITE_UTIL}%"
     fi
 done <<< "$DADOS_ENTRADA"
 
-echo "Verificação concluída: $(date +"%Y-%m-%d %H:%M:%S")"
+echo "Verificacao concluida: $(date +"%Y-%m-%d %H:%M:%S")"

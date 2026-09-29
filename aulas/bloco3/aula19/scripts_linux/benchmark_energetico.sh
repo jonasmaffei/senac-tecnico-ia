@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# benchmark_energetico.sh — mede throughput e eficiência (imgs/J) por Power Limit
+# benchmark_energetico.sh - mede throughput e eficiencia (imgs/J) por Power Limit
 # Uso: ./benchmark_energetico.sh 250 200 150 100
 #
-# Requer GPU NVIDIA + sudo. Faz um warm-up em cada PL e mede a potência média.
+# Requer GPU NVIDIA + sudo. Faz um warm-up em cada PL e mede a potencia media.
 
 set -euo pipefail
 
@@ -12,7 +12,7 @@ if [ "${#PL_LIST[@]}" -eq 0 ]; then PL_LIST=(250 200 150 100); fi
 DURACAO_TESTE=15   # segundos de teste por Power Limit
 
 medir_potencia_media() {
-  # Amostra a potência algumas vezes e devolve a média
+  # Amostra a potencia algumas vezes e devolve a media
   local soma=0 n=0
   for _ in $(seq 1 5); do
     v=$(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits | head -1)
@@ -28,9 +28,9 @@ echo "---------------------------------------------------"
 
 for PL in "${PL_LIST[@]}"; do
   sudo nvidia-smi -pl "$PL"
-  sleep 2   # aguarda estabilização
+  sleep 2   # aguarda estabilizacao
 
-  # Treino sintético (substitua por seu job real de treinamento)
+  # Treino sintetico (substitua por seu job real de treinamento)
   IMGS=$(python3 - "$DURACAO_TESTE" <<'PY'
 import sys, time, random
 dur = int(sys.argv[1]); t0 = time.time(); n = 0
@@ -49,4 +49,4 @@ PY
 done
 
 echo ""
-echo "Dica: o ponto ótimo de eficiência costuma ficar em ~75% do TDP."
+echo "Dica: o ponto otimo de eficiencia costuma ficar em ~75% do TDP."

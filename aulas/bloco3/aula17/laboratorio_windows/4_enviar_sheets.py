@@ -8,14 +8,14 @@ def main():
     cred_file = os.environ.get("GOOGLE_CREDS", "service_account.json")
 
     if not os.path.exists(csv_file):
-        print(f"Erro: Arquivo '{csv_file}' não encontrado. Execute o monitoramento primeiro.")
+        print(f"Erro: Arquivo '{csv_file}' nao encontrado. Execute o monitoramento primeiro.")
         return
 
     if not spreadsheet_id:
-        print("Modo de Simulação: Variável 'SHEETS_ID' não configurada no ambiente.")
+        print("Modo de Simulacao: Variavel 'SHEETS_ID' nao configurada no ambiente.")
         with open(csv_file, "r", encoding="utf-8") as f:
             total = sum(1 for _ in f) - 1
-        print(f"[Simulação] {total} linhas de telemetria prontas para envio à Google Sheets API.")
+        print(f"[Simulacao] {total} linhas de telemetria prontas para envio a Google Sheets API.")
         return
 
     try:
@@ -46,7 +46,7 @@ def main():
             ).execute()
             print(f"Sucesso! {res.get('updates', {}).get('updatedRows', len(linhas))} linhas publicadas no Google Sheets.")
     except Exception as e:
-        print(f"Erro na conexão com Google Sheets: {e}")
+        print(f"Erro na conexao com Google Sheets: {e}")
 
 if __name__ == "__main__":
     main()

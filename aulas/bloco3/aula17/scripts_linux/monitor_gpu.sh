@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# monitor_gpu.sh — Coleta métricas de GPU e salva em CSV
+# monitor_gpu.sh - Coleta metricas de GPU e salva em CSV
 # Uso: ./monitor_gpu.sh [intervalo_segundos] [arquivo_saida] [duracao_segundos]
 
 set -euo pipefail
@@ -13,16 +13,16 @@ if [ "$INTERVALO" -le 0 ]; then
 fi
 MAX_AMOSTRAS=$(( DURACAO / INTERVALO ))
 
-# ── Cabeçalho CSV ─────────────────────────────────────────
+# -- Cabecalho CSV -----------------------------------------
 CABECALHO="timestamp,gpu_index,gpu_name,temp_c,util_gpu_pct,"
 CABECALHO+="util_mem_pct,mem_used_mb,mem_total_mb,power_w,power_limit_w,"
 CABECALHO+="clock_graphics_mhz,clock_mem_mhz"
 
 echo "$CABECALHO" > "$SAIDA"
 echo "Iniciando monitoramento -> $SAIDA"
-echo "Intervalo: ${INTERVALO}s | Duração: ${DURACAO}s | Amostras: ${MAX_AMOSTRAS}"
+echo "Intervalo: ${INTERVALO}s | Duracao: ${DURACAO}s | Amostras: ${MAX_AMOSTRAS}"
 
-# ── Loop de coleta ────────────────────────────────────────
+# -- Loop de coleta ----------------------------------------
 AMOSTRA=0
 while [ "$AMOSTRA" -lt "$MAX_AMOSTRAS" ]; do
     TS=$(date +"%Y-%m-%d %H:%M:%S")
@@ -32,7 +32,7 @@ while [ "$AMOSTRA" -lt "$MAX_AMOSTRAS" ]; do
             --query-gpu=index,name,temperature.gpu,utilization.gpu,utilization.memory,memory.used,memory.total,power.draw,power.limit,clocks.current.graphics,clocks.current.memory \
             --format=csv,noheader,nounits)
     else
-        # Modo simulado caso não haja GPU NVIDIA
+        # Modo simulado caso nao haja GPU NVIDIA
         DADOS="0, GPU Simulada, $(( 45 + RANDOM % 40 )), $(( 20 + RANDOM % 75 )), $(( 10 + RANDOM % 60 )), $(( 2048 + RANDOM % 4000 )), 16384, $(( 50 + RANDOM % 100 )).0, 250.0, 1410, 5001"
     fi
 
@@ -46,4 +46,4 @@ while [ "$AMOSTRA" -lt "$MAX_AMOSTRAS" ]; do
 done
 
 echo ""
-echo "Coleta concluída. Arquivo: $SAIDA"
+echo "Coleta concluida. Arquivo: $SAIDA"

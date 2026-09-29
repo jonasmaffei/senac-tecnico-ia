@@ -1,10 +1,10 @@
-"""2_alerta_termico.py — Analisa o CSV e dispara alertas por limiar térmico.
+"""2_alerta_termico.py - Analisa o CSV e dispara alertas por limiar termico.
 
 Uso: python 2_alerta_termico.py [temp_alerta] [temp_critica]
 
-Lê reports/gpu_thermal.csv, classifica cada leitura e grava um log em
-reports/alertas_termicos.log. Também mostra a ação recomendada:
-  - >= critica  -> reduzir o Power Limit automaticamente (emergência)
+Le reports/gpu_thermal.csv, classifica cada leitura e grava um log em
+reports/alertas_termicos.log. Tambem mostra a acao recomendada:
+  - >= critica  -> reduzir o Power Limit automaticamente (emergencia)
   - >= alerta   -> apenas registrar/notificar
 """
 
@@ -26,7 +26,7 @@ def main():
     log_file = os.path.join("reports", "alertas_termicos.log")
 
     if not os.path.exists(csv_file):
-        print(f"Erro: '{csv_file}' não existe. Rode 1_monitor_thermal.py primeiro.")
+        print(f"Erro: '{csv_file}' nao existe. Rode 1_monitor_thermal.py primeiro.")
         return
 
     total = 0
@@ -38,19 +38,19 @@ def main():
                 continue
 
             if temp >= critica:
-                nivel, acao = "CRÍTICO", f"reduzir PL para {int(linha['power_limit_w'] * 0.6)}W"
+                nivel, acao = "CRITICO", f"reduzir PL para {int(linha['power_limit_w'] * 0.6)}W"
             elif temp >= alerta:
                 nivel, acao = "AVISO", "apenas registrar/notificar"
             else:
-                continue  # temperatura normal: não gera log
+                continue  # temperatura normal: nao gera log
 
             msg = (f"[{linha['timestamp']}] {nivel} | {linha['gpu_name']} | "
-                   f"{temp:.0f}°C (limiar {alerta:.0f}/{critica:.0f}°C) -> {acao}")
+                   f"{temp:.0f}C (limiar {alerta:.0f}/{critica:.0f}C) -> {acao}")
             print(msg)
             f_out.write(msg + "\n")
             total += 1
 
-    print(f"\nVerificação concluída às {timestamp()}. "
+    print(f"\nVerificacao concluida as {timestamp()}. "
           f"Alertas registrados em '{log_file}': {total}")
 
 

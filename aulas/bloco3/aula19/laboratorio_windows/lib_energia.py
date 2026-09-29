@@ -1,11 +1,11 @@
-"""lib_energia.py — Utilitários de energia e térmica para o laboratório (Aula 19).
+"""lib_energia.py - Utilitarios de energia e termica para o laboratorio (Aula 19).
 
-Detecta o backend disponível no host:
-  - NVIDIA  -> usa `nvidia-smi` (leitura real de temperatura/potência/clock)
-  - AMD/Win -> lê a GPU AMD via contadores do Windows (PowerShell/CIM)
-  - SIMULADO-> gera valores plausíveis para exercitar os conceitos
+Detecta o backend disponivel no host:
+  - NVIDIA  -> usa `nvidia-smi` (leitura real de temperatura/potencia/clock)
+  - AMD/Win -> le a GPU AMD via contadores do Windows (PowerShell/CIM)
+  - SIMULADO-> gera valores plausiveis para exercitar os conceitos
 
-Também define um modelo empírico de consumo e eficiência usado no benchmark.
+Tambem define um modelo empirico de consumo e eficiencia usado no benchmark.
 """
 
 import datetime
@@ -16,7 +16,7 @@ import shutil
 import subprocess
 
 # ---------------------------------------------------------------------------
-# Detecção de backend
+# Deteccao de backend
 # ---------------------------------------------------------------------------
 
 
@@ -35,9 +35,9 @@ def detectar_backend():
 
 
 def _consultar_gpu_amd():
-    """Lê nome e uso da primeira GPU AMD/Intel via PowerShell CIM.
+    """Le nome e uso da primeira GPU AMD/Intel via PowerShell CIM.
 
-    Retorna um dict ou None se não conseguir consultar.
+    Retorna um dict ou None se nao conseguir consultar.
     """
     if os.name != "nt":
         return None
@@ -62,12 +62,12 @@ def _consultar_gpu_amd():
 
 
 # ---------------------------------------------------------------------------
-# Leitura de métricas
+# Leitura de metricas
 # ---------------------------------------------------------------------------
 
 
 def ler_nvidia():
-    """Lê uma amostra da GPU 0 via nvidia-smi. Retorna dict ou None."""
+    """Le uma amostra da GPU 0 via nvidia-smi. Retorna dict ou None."""
     campos = ("index,temperature.gpu,power.draw,enforced.power.limit,"
               "utilization.gpu,clocks.sm,clocks.mem")
     try:
@@ -91,16 +91,16 @@ def ler_nvidia():
 
 
 def ler_amd():
-    """Lê a GPU AMD do Windows e estima temperatura/potência.
+    """Le a GPU AMD do Windows e estima temperatura/potencia.
 
-    O Windows não expõe temperatura/potência da AMD sem drivers específicos,
-    então usamos o uso (%) e o nome reais e derivamos os demais de forma honesta.
+    O Windows nao expoe temperatura/potencia da AMD sem drivers especificos,
+    entao usamos o uso (%) e o nome reais e derivamos os demais de forma honesta.
     """
     info = _consultar_gpu_amd()
     if not info:
         return None
     uso = max(0.0, min(info["uso"], 100.0))
-    # Estimativas transparentes a partir do uso (não são leituras do sensor)
+    # Estimativas transparentes a partir do uso (nao sao leituras do sensor)
     return {
         "gpu_index": 0,
         "gpu_name": info["nome"],
@@ -114,11 +114,11 @@ def ler_amd():
 
 
 def ler_simulado(uso=None):
-    """Gera uma amostra sintética plausível de uma GPU em treino."""
+    """Gera uma amostra sintetica plausivel de uma GPU em treino."""
     uso = uso if uso is not None else random.uniform(40, 100)
     return {
         "gpu_index": 0,
-        "gpu_name": "GPU Simulada (referência T4)",
+        "gpu_name": "GPU Simulada (referencia T4)",
         "temp_c": round(50 + uso * 0.35, 1),
         "power_w": round(40 + uso * 0.7, 1),
         "power_limit_w": 70.0,
@@ -143,28 +143,28 @@ def ler_amostra():
 
 
 # ---------------------------------------------------------------------------
-# Modelo empírico de consumo/eficiência (para o benchmark)
+# Modelo empirico de consumo/eficiencia (para o benchmark)
 # ---------------------------------------------------------------------------
 
 
 def throughput_imgs_s(power_limit_w, tdp_w=250):
-    """Throughput (imgs/s) em função do Power Limit.
+    """Throughput (imgs/s) em funcao do Power Limit.
 
-    Modelo logístico: com PL muito baixo a GPU sofre throttling severo (pouco
-    throughput); acima de ~60% do TDP o ganho satura. Por isso a eficiência
-    (throughput/potência) tem um máximo por volta de 70-75% do TDP.
+    Modelo logistico: com PL muito baixo a GPU sofre throttling severo (pouco
+    throughput); acima de ~60% do TDP o ganho satura. Por isso a eficiencia
+    (throughput/potencia) tem um maximo por volta de 70-75% do TDP.
     """
     x = power_limit_w / tdp_w
     return 480.0 / (1.0 + math.exp(-6.0 * (x - 0.5)))
 
 
 def consumo_medio_w(power_limit_w):
-    """Consumo médio estimado: ~92% do limite configurado."""
+    """Consumo medio estimado: ~92% do limite configurado."""
     return power_limit_w * 0.92
 
 
 def eficiencia_imgs_j(power_limit_w, tdp_w=250):
-    """Eficiência energética = throughput / potência média."""
+    """Eficiencia energetica = throughput / potencia media."""
     return throughput_imgs_s(power_limit_w, tdp_w) / consumo_medio_w(power_limit_w)
 
 

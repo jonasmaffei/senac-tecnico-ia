@@ -1,4 +1,4 @@
-# projeto.py — Projeto Exemplo 1: Deteccao de Doencas em Plantas (Bloco 4)
+# projeto.py - Projeto Exemplo 1: Deteccao de Doencas em Plantas (Bloco 4)
 # Uso: python projeto.py
 #
 # Percorre as 5 etapas das aulas 20 a 24 (planejar, implementar, monitorar,

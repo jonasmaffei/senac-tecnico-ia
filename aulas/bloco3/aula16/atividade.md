@@ -1,30 +1,36 @@
-# ðŸ“ Atividade: Aula 16 â€” GitHub para Iniciantes, Agentes de CÃ³digo, Contexto e AGENTS.md
+# Atividade: Aula 16 — GitHub para Iniciantes, Agentes de Código, Contexto e AGENTS.md
 
 ---
 
-## ðŸ™ Parte 1 â€” Tutorial Completo de GitHub para Iniciantes
+## Objetivo da prática
 
-O **GitHub** Ã© a plataforma onde desenvolvedores armazenam, versionam e compartilham seus projetos de cÃ³digo. Quando trabalhamos com **agentes de IA** (`agy`, Claude Code, Cursor), o GitHub atua como a **rede de seguranÃ§a central**: ele registra cada alteraÃ§Ã£o feita pelo agente e permite voltar atrÃ¡s se a IA errar.
+Ao final desta atividade você terá, **no seu repositório pessoal do GitHub**:
+
+1. Um arquivo [`AGENTS.md`](laboratorio_monitoramento/AGENTS.md) descrevendo o contexto e as regras do projeto.
+2. Um **programa em Python que roda via web** e mostra, em tempo real, a **informação de desempenho do seu computador** (CPU, memória RAM, disco e uptime).
+3. Todo o progresso versionado (`add`, `commit`, `push`) no repositório que **você mesmo criou** no GitHub.
+
+O caminho é sempre este: **`AGENTS.md` → agente `agy` → programa web → repositório pessoal**.
 
 ---
 
-### Passo 1 â€” Entendendo Git vs. GitHub
+## Parte 1 — Tutorial Completo de GitHub para Iniciantes
 
-- **Git:** Ã‰ a ferramenta instalada no seu computador que guarda o histÃ³rico de alteraÃ§Ãµes dos arquivos (como uma mÃ¡quina do tempo do projeto).
-- **GitHub:** Ã‰ o serviÃ§o na nuvem (o "Google Drive dos programadores") onde vocÃª salva seus repositÃ³rios Git para colaborar com outras pessoas ou acessar de qualquer lugar.
+O **GitHub** é a plataforma onde desenvolvedores armazenam, versionam e compartilham seus projetos de código. Quando trabalhamos com **agentes de IA** (`agy`, Claude Code, Cursor), o GitHub atua como a **rede de segurança central**: ele registra cada alteração feita pelo agente e permite voltar atrás se a IA errar.
 
----
+### Passo 1 — Entendendo Git vs. GitHub
 
-### Passo 2 â€” Criar uma conta no GitHub
+- **Git:** É a ferramenta instalada no seu computador que guarda o histórico de alterações dos arquivos (como uma máquina do tempo do projeto).
+- **GitHub:** É o serviço na nuvem (o "Google Drive dos programadores") onde você salva seus repositórios Git para colaborar com outras pessoas ou acessar de qualquer lugar.
+
+### Passo 2 — Criar uma conta no GitHub
 
 1. Acesse **[github.com](https://github.com)**.
 2. Clique em **Sign up** (Cadastrar-se).
-3. Informe seu e-mail, crie uma senha forte e escolha um nome de usuÃ¡rio (*username*).
-4. Complete a verificaÃ§Ã£o e confirme a conta pelo link enviado ao seu e-mail.
+3. Informe seu e-mail, crie uma senha forte e escolha um nome de usuário (*username*).
+4. Complete a verificação e confirme a conta pelo link enviado ao seu e-mail.
 
----
-
-### Passo 3 â€” Configurar sua identidade local no Git
+### Passo 3 — Configurar sua identidade local no Git
 
 Abra o **Git Bash** (no Windows) ou o terminal do VS Code e configure seu nome e e-mail (use o mesmo e-mail cadastrado no GitHub):
 
@@ -33,244 +39,250 @@ git config --global user.name "Seu Nome Completo"
 git config --global user.email "seu.email@exemplo.com"
 ```
 
-Para confirmar as configuraÃ§Ãµes:
+Para confirmar as configurações:
+
 ```bash
 git config --list
 ```
 
----
+### Passo 4 — Criar o seu repositório pessoal no GitHub
 
-### Passo 4 â€” Criar um repositÃ³rio no GitHub
+1. No GitHub, clique no ícone **`+`** no canto superior direito e selecione **New repository** (Novo repositório).
+2. Nomeie o repositório (ex.: `monitor-desempenho-ia`).
+3. Escolha **Public** (Público) ou **Private** (Privado).
+4. Marque a opção **Add a README file** (Adicionar um arquivo README).
+5. Clique no botão verde **Create repository** (Criar repositório).
 
-1. No GitHub, clique no Ã­cone **`+`** no canto superior direito e selecione **New repository** (Novo repositÃ³rio).
-2. Nomeie o repositÃ³rio (ex.: `meu-primeiro-projeto-ia`).
-3. Escolha **Public** (PÃºblico) ou **Private** (Privado).
-4. Marque a opÃ§Ã£o **Add a README file** (Adicionar um arquivo README).
-5. Clique no botÃ£o verde **Create repository** (Criar repositÃ³rio).
+> Este é o **repositório pessoal** que receberá o programa de monitoramento no final da prática.
 
----
+### Passo 5 — Clonar e o Ciclo Básico de Trabalho (`add`, `commit`, `push`)
 
-### Passo 5 â€” Clonar e o Ciclo BÃ¡sico de Trabalho (`add`, `commit`, `push`)
+#### 1. Clonar (baixar para a sua máquina)
 
-#### 1. Clonar (Baixar para a sua mÃ¡quina)
-Copie a URL HTTPS do seu repositÃ³rio no botÃ£o **Code** do GitHub e rode no Git Bash:
+Copie a URL HTTPS do seu repositório no botão **Code** do GitHub e rode no Git Bash:
+
 ```bash
 cd Documentos
-git clone https://github.com/seu-usuario/meu-primeiro-projeto-ia.git
-cd meu-primeiro-projeto-ia
+git clone https://github.com/seu-usuario/monitor-desempenho-ia.git
+cd monitor-desempenho-ia
 ```
 
 #### 2. Criar ou editar arquivos
+
 Abra a pasta no VS Code (`code .`) e crie um arquivo simples (ex.: `mensagem.txt`).
 
-#### 3. O ciclo das 3 etapas do Git:
-```
- [ Arquivos Modificados ]  â”€â”€( git add )â”€â”€>  [ Ãria de Staging ]  â”€â”€( git commit )â”€â”€>  [ RepositÃ³rio Local ]  â”€â”€( git push )â”€â”€>  [ GitHub ]
+#### 3. O ciclo das 3 etapas do Git
+
+```text
+ [ Arquivos Modificados ]  --( git add )-->  [ Área de Staging ]  --( git commit )-->  [ Repositório Local ]  --( git push )-->  [ GitHub ]
 ```
 
 - **Verificar o estado atual:**
+
   ```bash
   git status
   ```
+
 - **Preparar os arquivos (`add`):**
+
   ```bash
   git add .
   ```
-- **Gravar a alteraÃ§Ã£o no histÃ³rico (`commit`):**
+
+- **Gravar a alteração no histórico (`commit`):**
+
   ```bash
   git commit -m "feat: cria arquivo inicial de mensagem"
   ```
+
 - **Enviar para a nuvem no GitHub (`push`):**
+
   ```bash
   git push origin main
   ```
 
----
+### Passo 6 — Branches e Pull Requests (trabalho seguro em equipe)
 
-### Passo 6 â€” Branches e Pull Requests (Trabalho Seguro em Equipe)
-
-- **Branch (RamificaÃ§Ã£o):** Uma linha de desenvolvimento paralela onde vocÃª ou a IA podem testar alteraÃ§Ãµes sem afetar o cÃ³digo principal (`main`).
+- **Branch (ramificação):** uma linha de desenvolvimento paralela onde você ou a IA podem testar alterações sem afetar o código principal (`main`).
   ```bash
   git checkout -b minha-nova-feature
   ```
-- **Pull Request (PR):** Uma proposta de alteraÃ§Ã£o enviada no GitHub para revisar o cÃ³digo antes de fundi-lo (*merge*) com o cÃ³digo principal.
+- **Pull Request (PR):** uma proposta de alteração enviada no GitHub para revisar o código antes de fundi-lo (*merge*) com o código principal.
+
+### Passo 7 — Por que o GitHub é essencial ao trabalhar com Agentes de IA?
+
+1. **Rastreabilidade total:** você sabe exatamente quais linhas de código a IA alterou em cada *commit*.
+2. **Rollback de emergência:** se o agente fizer alterações indesejadas (*vibe coding* descontrolado), você recupera o código anterior com `git reset` ou restaurando o commit anterior.
+3. **Auditoria:** permite revisar os diffs propostos pela IA antes de aprovar e juntar ao projeto final.
 
 ---
 
-### Passo 7 â€” Por que o GitHub Ã© essencial ao trabalhar com Agentes de IA?
+## Parte 2 — O que é Contexto no Desenvolvimento com IA?
 
-1. **Rastreabilidade total:** VocÃª sabe exatamente quais linhas de cÃ³digo a IA alterou em cada *commit*.
-2. **Rollback de emergÃªncia:** Se o agente fizer alteraÃ§Ãµes indesejadas (*vibe coding* descontrolado), vocÃª recupera o cÃ³digo anterior com `git reset` ou restaurando o commit anterior.
-3. **Auditoria:** Permite revisar os diffs propostos pela IA antes de aprovar e juntar ao projeto final.
+### O que é Contexto e Janela de Contexto (*Context Window*)?
 
----
+Quando você conversa com um modelo de linguagem ou agente de código, o **contexto** é a quantidade de informação que o modelo consegue "lembrar" e processar em uma única interação.
 
-## ðŸ§  Parte 2 â€” O que Ã© Contexto no Desenvolvimento com IA?
-
-### O que Ã© Contexto e Janela de Contexto (*Context Window*)?
-
-Quando vocÃª conversa com um modelo de linguagem ou agente de cÃ³digo, o **contexto** Ã© a quantidade de informaÃ§Ã£o que o modelo consegue "lembrar" e processar em uma Ãºnica interaÃ§Ã£o.
-
-```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                        JANELA DE CONTEXTO (TOKENS)                     â”‚
-â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
-â”‚ â”‚ Prompt do UsuÃ¡rio    â”‚ Arquivos do Projeto  â”‚ HistÃ³rico e Output   â”‚ â”‚
-â”‚ â”‚ (Sua instruÃ§Ã£o)      â”‚ (Lidos pelas Tools)  â”‚ (Respostas e Diffs)  â”‚ â”‚
-â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+```text
++--------------------------------------------------------------------------+
+|                        JANELA DE CONTEXTO (TOKENS)                       |
+| +----------------------+------------------------+----------------------+ |
+| | Prompt do Usuário    | Arquivos do Projeto    | Histórico e Output   | |
+| | (Sua instrução)      | (Lidos pelas Tools)    | (Respostas e Diffs)  | |
+| +----------------------+------------------------+----------------------+ |
++--------------------------------------------------------------------------+
 ```
 
 - **O que entra no contexto?**
-  - O prompt enviado por vocÃª.
+  - O prompt enviado por você.
   - As regras do projeto (`AGENTS.md`).
-  - O histÃ³rico das mensagens trocadas na sessÃ£o.
-  - O conteÃºdo dos arquivos lidos pelo agente atravÃ©s de ferramentas (*tools*).
-  - O resultado da execuÃ§Ã£o de comandos no terminal.
+  - O histórico das mensagens trocadas na sessão.
+  - O conteúdo dos arquivos lidos pelo agente através de ferramentas (*tools*).
+  - O resultado da execução de comandos no terminal.
 
 - **Por que gerenciar o contexto importa?**
-  1. **Limite de Tokens:** Se o contexto estoura o limite da janela, o agente comeÃ§a a esquecer trechos anteriores ou falhar.
-  2. **DegradaÃ§Ã£o de Qualidade (*Context Rot*):** Quanto mais informaÃ§Ãµes irrelevantes ou repetidas estiverem na memÃ³ria do agente, maior a chance de ele se distrair e cometer erros.
+  1. **Limite de Tokens:** se o contexto estoura o limite da janela, o agente começa a esquecer trechos anteriores ou falhar.
+  2. **Degradação de Qualidade (*Context Rot*):** quanto mais informações irrelevantes ou repetidas estiverem na memória do agente, maior a chance de ele se distrair e cometer erros.
 
-- **Boas PrÃ¡ticas de Gerenciamento de Contexto:**
-  - **Especifique arquivos:** Indique os arquivos exatos com `@arquivo` ou forneÃ§a os caminhos completos.
-  - **Inicie sessÃµes limpas:** Se o agente estiver confuso apÃ³s muitas tentativas, resete a conversa ou use comandos como `/rewind`.
-  - **Mantenha arquivos de contexto centralizados:** Em vez de repetir instruÃ§Ãµes a cada mensagem, crie um arquivo estÃ¡tico [`AGENTS.md`](#parte-3--o-que-Ã©-agentsmd-e-como-funciona).
+- **Boas práticas de gerenciamento de contexto:**
+  - **Especifique arquivos:** indique os arquivos exatos com `@arquivo` ou forneça os caminhos completos.
+  - **Inicie sessões limpas:** se o agente estiver confuso após muitas tentativas, resete a conversa ou use comandos como `/rewind`.
+  - **Mantenha arquivos de contexto centralizados:** em vez de repetir instruções a cada mensagem, crie um arquivo estático `AGENTS.md` (veja a Parte 3).
 
 ---
 
-## ðŸ“„ Parte 3 â€” O que Ã© `AGENTS.md` e Como Funciona?
+## Parte 3 — O que é `AGENTS.md` e Como Funciona?
 
-O [`AGENTS.md`](laboratorio_monitoramento/AGENTS.md) Ã© um padrÃ£o adotado por projetos modernos para servir como **memÃ³ria persistente do repositÃ³rio para agentes de IA**.
+O [`AGENTS.md`](laboratorio_monitoramento/AGENTS.md) é um padrão adotado por projetos modernos para servir como **memória persistente do repositório para agentes de IA**.
 
 ### Por que usar um `AGENTS.md`?
 
-Sem o `AGENTS.md`, vocÃª precisa repetir para a IA em todo prompt: *"Use Python 3, use o framework Flask, formate o cÃ³digo em UTF-8 e comente cada funÃ§Ã£o"*.
+Sem o `AGENTS.md`, você precisa repetir para a IA em todo prompt: *"Use Python 3, use o framework Flask, formate o código em UTF-8 e comente cada função"*.
 
 Com o `AGENTS.md` na raiz do projeto:
-- O agente lÃª o arquivo **automaticamente** assim que Ã© iniciado na pasta.
-- O agente respeita a arquitetura, convenÃ§Ãµes e comandos definidos pelo projeto.
-- Funciona com diversas ferramentas agÃªnticas (Antigravity CLI `agy`, Claude Code, Cursor, GitHub Copilot CLI).
 
-### Estrutura Recomendada de um `AGENTS.md`
+- O agente lê o arquivo **automaticamente** assim que é iniciado na pasta.
+- O agente respeita a arquitetura, convenções e comandos definidos pelo projeto.
+- Funciona com diversas ferramentas agênticas (Antigravity CLI `agy`, Claude Code, Cursor, GitHub Copilot CLI).
+
+### Estrutura recomendada de um `AGENTS.md`
 
 ```markdown
-# AGENTS.md â€” Contexto do RepositÃ³rio
+# AGENTS.md — Contexto do Repositório
 
-## ðŸ“Œ Sobre o Projeto
-DescriÃ§Ã£o sucinta do objetivo do software e tecnologias aceitas.
+## Sobre o Projeto
+Descrição sucinta do objetivo do software e tecnologias aceitas.
 
-## ðŸ—‚ï¸ Estrutura Relevante
-Ãrvore de diretÃ³rios e onde cada componente deve residir.
+## Estrutura Relevante
+Árvore de diretórios e onde cada componente deve residir.
 
-## âœ… Regras e ConvenÃ§Ãµes
-- PadrÃµes de cÃ³digo e formataÃ§Ã£o.
+## Regras e Convenções
+- Padrões de código e formatação.
 - Tratamento de erros exigido.
-- Requisitos de idioma e documentaÃ§Ã£o.
+- Requisitos de idioma e documentação.
 
-## ðŸ§ª Como Executar e Testar
-Comandos exatos para rodar o ambiente, testes e validaÃ§Ã£o.
+## Como Executar e Testar
+Comandos exatos para rodar o ambiente, testes e validação.
 ```
 
 ---
 
-## ðŸ› ï¸ Parte 4 â€” PrÃ¡tica Guiada: Agente (`agy`) + `AGENTS.md` + Programa de Monitoramento Web em Python
+## Parte 4 — Prática Guiada: `AGENTS.md` + Agente (`agy`) + Programa de Monitoramento Web
 
-Nesta prÃ¡tica, vocÃª usarÃ¡ a **Antigravity CLI** (`agy`) para ler o arquivo [`AGENTS.md`](laboratorio_monitoramento/AGENTS.md) e construir um programa completo de **monitoramento de hardware em Python** acessÃ­vel pelo navegador Web.
+Nesta prática — **o coração da aula** — você usará a **Antigravity CLI** (`agy`) para ler o arquivo [`AGENTS.md`](laboratorio_monitoramento/AGENTS.md) e construir um programa completo de **monitoramento de hardware em Python** acessível pelo navegador web. No fim, o programa vai para o **seu repositório pessoal** criado na Parte 1.
 
----
+### Passo 1 — Entrar na pasta do laboratório
 
-### Passo 1 â€” Entrar na pasta do laboratÃ³rio
-
-No seu terminal (Git Bash / PowerShell), navegue atÃ© a pasta do laboratÃ³rio:
+No seu terminal (Git Bash / PowerShell), navegue até a pasta do laboratório:
 
 ```bash
 cd aulas/bloco3/aula16/laboratorio_monitoramento
 ```
 
-Verifique se o arquivo `AGENTS.md` estÃ¡ na pasta:
+Verifique se o arquivo `AGENTS.md` está na pasta:
+
 ```bash
 ls -l AGENTS.md
 ```
 
----
-
-### Passo 2 â€” Iniciar a Antigravity CLI (`agy`)
+### Passo 2 — Iniciar a Antigravity CLI (`agy`)
 
 Execute a CLI no terminal:
+
 ```bash
 agy
 ```
 
-> ðŸ’¡ **Nota:** Se ainda nÃ£o instalou o `agy`, instale via PowerShell com:
+> **Nota:** se ainda não instalou o `agy`, instale via PowerShell com:
 > `irm https://antigravity.google/cli/install.ps1 | iex`
 
----
-
-### Passo 3 â€” Enviar o comando baseado no `AGENTS.md`
+### Passo 3 — Enviar o comando baseado no `AGENTS.md`
 
 No prompt do agente, digite:
 
+```text
+Leia o arquivo AGENTS.md desta pasta. Com base nele, crie o aplicativo de
+monitoramento web em Python com Flask e psutil, gerando os arquivos app.py,
+coletor.py, templates/index.html, static/style.css, static/script.js,
+requirements.txt e iniciar.bat. Em seguida, execute a validação.
 ```
-Leia o arquivo AGENTS.md desta pasta. Com base nele, crie o aplicativo de monitoramento web em Python com Flask e psutil, gerando os arquivos app.py, coletor.py, templates/index.html, static/style.css, static/script.js, requirements.txt e iniciar.bat. Em seguida, execute a validaÃ§Ã£o.
-```
 
----
+O agente deve entregar um dashboard web que mostra o **desempenho do computador**:
+uso de **CPU**, **memória RAM**, **disco** e **uptime**, atualizando automaticamente a cada 2 segundos.
 
-### Passo 4 â€” Observar o Loop AgÃªntico e Revisar com `/diff`
+### Passo 4 — Observar o loop agêntico e revisar com `/diff`
 
-1. Observe o agente executando o loop: **Observar â†’ Planejar â†’ Agir â†’ Verificar**.
+1. Observe o agente executando o loop: **Observar → Planejar → Agir → Verificar**.
 2. Antes de aceitar ou encerrar, digite no agente:
-   ```
+   ```text
    /diff
    ```
-3. Verifique se o cÃ³digo gerado segue as regras descritas no `AGENTS.md` (dashboard Dark Mode, atualizaÃ§Ã£o a cada 2s, estatÃ­sticas de CPU, RAM e Disco).
+3. Verifique se o código gerado segue as regras descritas no `AGENTS.md` (dashboard Dark Mode, atualização a cada 2 s, estatísticas de CPU, RAM e Disco).
 
----
+### Passo 5 — Testar a aplicação web no navegador
 
-### Passo 5 â€” Testar a AplicaÃ§Ã£o Web no Navegador
-
-Saia da CLI (`Ctrl + C` ou `exit`) e execute o script de inicializaÃ§Ã£o no terminal:
+Saia da CLI (`Ctrl + C` ou `exit`) e execute o script de inicialização no terminal:
 
 ```bash
 ./iniciar.bat
 ```
 
 Ou manualmente com Python:
+
 ```bash
 python -m venv .venv
-source .venv/Scripts/activate  # no Git Bash
+source .venv/Scripts/activate   # no Git Bash
 pip install -r requirements.txt
 python app.py
 ```
 
-Abra o seu navegador em **`http://localhost:5000`** e observe o painel de monitoramento dinÃ¢mico em tempo real!
+Abra o seu navegador em **`http://localhost:5000`** e observe o painel de monitoramento dinâmico em tempo real.
 
----
+### Passo 6 — Entregar o programa no seu repositório pessoal
 
-### Passo 6 â€” Gravar o Progresso no Git e Enviar para o GitHub
-
-ApÃ³s testar o programa de monitoramento, salve suas alteraÃ§Ãµes no Git:
+Agora leve o programa gerado para o **repositório pessoal** criado na Parte 1. Na pasta do projeto clonado, copie os arquivos gerados pelo agente e grave o progresso no Git:
 
 ```bash
 git status
 git add .
-git commit -m "feat: cria sistema de monitoramento web em python via agy e AGENTS.md"
+git commit -m "feat: cria monitor web de desempenho com agy e AGENTS.md"
 git push origin main
 ```
 
----
-
-## ðŸ’¬ Parte 5 â€” DiscussÃ£o em Grupo (3 a 4 pessoas)
-
-1. Como o arquivo `AGENTS.md` evitou que vocÃª tivesse que escrever um prompt gigantesco com todas as instruÃ§Ãµes de cÃ³digo?
-2. De que forma o **GitHub** ajudaria sua equipe se o agente de IA gerasse uma alteraÃ§Ã£o com bug que quebrasse a aplicaÃ§Ã£o de monitoramento?
-3. O que acontece com o comportamento do agente quando o contexto contÃ©m arquivos irrelevantes ou informaÃ§Ã£o em excesso?
+> **Entrega:** o link do seu repositório pessoal no GitHub contendo o `AGENTS.md`, o `app.py`, o `coletor.py`, os arquivos de `templates/` e `static/`, além dos `requirements.txt` e `iniciar.bat`.
 
 ---
 
-## ðŸ“Œ Parte 6 â€” Tarefa de Casa (FixaÃ§Ã£o)
+## Parte 5 — Discussão em Grupo (3 a 4 pessoas)
 
-1. **Personalizar o `AGENTS.md`:** Adicione uma nova regra ao `AGENTS.md` do seu projeto de monitoramento (ex.: *"Adicionar alerta sonoro ou visual quando o uso de CPU ultrapassar 90%"*).
-2. **Executar o agente novamente:** Abra o `agy` e peÃ§a para ele atualizar a aplicaÃ§Ã£o com base no `AGENTS.md` modificado.
-3. **Enviar para o GitHub:** FaÃ§a o `commit` e `push` da atualizaÃ§Ã£o para o seu repositÃ³rio no GitHub.
+1. Como o arquivo `AGENTS.md` evitou que você tivesse que escrever um prompt gigantesco com todas as instruções de código?
+2. De que forma o **GitHub** ajudaria sua equipe se o agente de IA gerasse uma alteração com bug que quebrasse a aplicação de monitoramento?
+3. O que acontece com o comportamento do agente quando o contexto contém arquivos irrelevantes ou informação em excesso?
+
+---
+
+## Parte 6 — Tarefa de Casa (fixação)
+
+1. **Personalizar o `AGENTS.md`:** adicione uma nova regra ao `AGENTS.md` do seu projeto de monitoramento (ex.: *"Adicionar alerta sonoro ou visual quando o uso de CPU ultrapassar 90%"*).
+2. **Executar o agente novamente:** abra o `agy` e peça para ele atualizar a aplicação com base no `AGENTS.md` modificado.
+3. **Enviar para o GitHub:** faça o `commit` e o `push` da atualização para o seu repositório pessoal.

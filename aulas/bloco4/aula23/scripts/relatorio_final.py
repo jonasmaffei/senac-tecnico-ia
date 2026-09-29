@@ -1,7 +1,7 @@
-# relatorio_final.py — relatório simples do projeto (Aula 23)
+# relatorio_final.py - relatorio simples do projeto (Aula 23)
 # Uso: python relatorio_final.py
 #
-# Gera um gráfico com a tabela baseline x GPU e as curvas de treino (dados de exemplo).
+# Gera um grafico com a tabela baseline x GPU e as curvas de treino (dados de exemplo).
 # Substitua os valores pelos reais do seu projeto.
 
 import matplotlib
@@ -9,12 +9,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Curvas de treino (exemplo) — troque pelos números reais do W&B
+# Curvas de treino (exemplo) - troque pelos numeros reais do W&B
 EPOCAS = list(range(1, 11))
 VAL_LOSS = [0.85, 0.71, 0.60, 0.51, 0.44, 0.39, 0.35, 0.33, 0.32, 0.34]
 VAL_ACC = [0.58, 0.66, 0.72, 0.78, 0.81, 0.84, 0.86, 0.87, 0.876, 0.875]
 
-# Comparação baseline (CPU) x modelo (GPU) — troque pelos dados reais
+# Comparacao baseline (CPU) x modelo (GPU) - troque pelos dados reais
 CATEGORIAS = ["Tempo/epoca (s)", "Val Acc (%)", "Throughput (imgs/s)"]
 BASELINE = [320, 71.2, 48]
 GPU = [38, 87.6, 410]

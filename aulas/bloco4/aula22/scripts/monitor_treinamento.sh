@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# monitor_treinamento.sh — monitora a GPU durante o treino (Aula 22)
+# monitor_treinamento.sh - monitora a GPU durante o treino (Aula 22)
 # Uso: ./monitor_treinamento.sh <pid_do_treino> [intervalo_s]
 #
 # Grava um CSV em logs/monitor/ e avisa se a temperatura passar do limite.

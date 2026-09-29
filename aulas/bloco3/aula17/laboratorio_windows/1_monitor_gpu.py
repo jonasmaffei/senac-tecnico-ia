@@ -20,8 +20,8 @@ def consultar_hardware_windows():
     except Exception:
         pass
 
-    # 2. Tentar leitura de GPU AMD via PowerShell CIM (se disponível)
-    gpu_name = "GPU Genérica / AMD"
+    # 2. Tentar leitura de GPU AMD via PowerShell CIM (se disponivel)
+    gpu_name = "GPU Generica / AMD"
     gpu_util = 0
     try:
         ps_cmd = "(Get-CimInstance Win32_VideoController | Select-Object -First 1 Name).Name"
@@ -38,7 +38,7 @@ def consultar_hardware_windows():
     ram_total_mb = int(ram.total / (1024 * 1024))
     ram_pct = int(ram.percent)
 
-    # Simular métricas para GPU AMD / integrada sem nvidia-smi
+    # Simular metricas para GPU AMD / integrada sem nvidia-smi
     temp_c = int(40 + (cpu_pct * 0.45))
     power_w = round(35.0 + (cpu_pct * 0.8), 1)
     power_limit_w = 180.0
@@ -62,7 +62,7 @@ def main():
 
     max_amostras = max(1, duracao // intervalo)
     print(f"Iniciando Coleta no Host Windows -> {saida}")
-    print(f"Intervalo: {intervalo}s | Duração: {duracao}s | Amostras: {max_amostras}")
+    print(f"Intervalo: {intervalo}s | Duracao: {duracao}s | Amostras: {max_amostras}")
 
     with open(saida, "a", encoding="utf-8") as f:
         for i in range(1, max_amostras + 1):
@@ -72,7 +72,7 @@ def main():
             print(f"  [Amostra {i}/{max_amostras}] {linha}")
             time.sleep(intervalo)
 
-    print(f"\nColeta concluída com sucesso! Métricas salvas em '{saida}'.")
+    print(f"\nColeta concluida com sucesso! Metricas salvas em '{saida}'.")
 
 if __name__ == "__main__":
     main()

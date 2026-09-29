@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# teste_fila.sh — Lançar 4 jobs simultâneos para testar a fila por prioridade
+# teste_fila.sh - Lancar 4 jobs simultaneos para testar a fila por prioridade
 
 set -euo pipefail
 
-echo "Lançando 4 jobs em paralelo — apenas 1 executará por vez na GPU"
-echo "Observe a serialização automática via flock e ordenação por prioridade (1=alta, 3=baixa)"
+echo "Lancando 4 jobs em paralelo - apenas 1 executara por vez na GPU"
+echo "Observe a serializacao automatica via flock e ordenacao por prioridade (1=alta, 3=baixa)"
 echo ""
 
 chmod +x gpu_queue.sh flock_gpu.sh
@@ -25,4 +25,4 @@ done
 
 wait
 echo ""
-echo "Todos os jobs concluídos!"
+echo "Todos os jobs concluidos!"
