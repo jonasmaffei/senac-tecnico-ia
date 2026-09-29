@@ -34,7 +34,7 @@ Windows do laboratório e no Colab.
 aula17/
   apresentacao_aula17.html
   README.md
-  notebook_colab/aula17_automacao_gpu_bash.ipynb
+  notebook_colab/aula17_automacao_gpu_python.ipynb
   laboratorio_windows/          # 1_monitor_gpu.py, 2_alerta_gpu.py, 3_gerar_graficos.py, 4_enviar_sheets.py
   atividade.md
 ```
@@ -50,7 +50,7 @@ aula17/
 
 ### No Google Colab
 
-Abra `notebook_colab/aula17_automacao_gpu_bash.ipynb` e resolva a seção **Exercícios (5)**.
+Abra `notebook_colab/aula17_automacao_gpu_python.ipynb` e resolva a seção **Exercícios (5)**.
 
 ### No Windows (host local)
 

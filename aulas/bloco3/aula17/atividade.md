@@ -14,7 +14,7 @@ Você pode realizar esta atividade no **Google Colab** ou localmente no **Window
 
 | Ambiente | Onde abrir | Como executar |
 | :--- | :--- | :--- |
-| **Google Colab** | [`notebook_colab/aula17_automacao_gpu_bash.ipynb`](notebook_colab/aula17_automacao_gpu_bash.ipynb) | Execute as células em sequência no Colab |
+| **Google Colab** | [`notebook_colab/aula17_automacao_gpu_python.ipynb`](notebook_colab/aula17_automacao_gpu_python.ipynb) | Execute as células em sequência no Colab |
 | **Windows Host** | [`laboratorio_windows/iniciar.bat`](laboratorio_windows/iniciar.bat) | Dê duplo clique no `iniciar.bat` no seu computador |
 
 ---

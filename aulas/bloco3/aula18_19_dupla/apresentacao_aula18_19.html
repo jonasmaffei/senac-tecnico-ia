@@ -242,25 +242,25 @@
   <section class="slide title-slide active">
     <div class="kicker">Aula 18 + 19</div>
     <h1>Concorrência e Energia na GPU</h1>
-    <p class="lead">Dominar a <strong>operação</strong> da GPU: primeiro garantir
-      <strong>um job por vez</strong> (lock + fila com prioridade); depois <strong>medir e
-      limitar a energia</strong> (Power Limit e eficiência).</p>
+    <p class="lead">Duas habilidades para <strong>operar</strong> uma GPU de verdade:
+      <strong>dividi-la com justiça</strong> entre vários jobs e <strong>gastar menos energia</strong>
+      sem perder desempenho.</p>
     <div class="meta-row">
       <div class="meta"><div class="k">Bloco</div><div class="v">3 — Automação</div></div>
       <div class="meta"><div class="k">Duração</div><div class="v">120 min</div></div>
-      <div class="meta"><div class="k">Ambiente</div><div class="v">Colab (modo simulado) + Laboratório Windows</div></div>
+      <div class="meta"><div class="k">Ambiente</div><div class="v">Colab + Laboratório Windows</div></div>
     </div>
     <div class="grid cols-2" style="margin-top:26px">
       <div class="card" style="border-top:3px solid var(--accent-4)">
-        <h3><span class="ico">🎯</span> Situação de aprendizagem</h3>
-        <p>O data center consome <strong>40% mais energia</strong> que o projetado, e os jobs
-          disputam a mesma GPU causando <strong>OOM</strong>. Resolver os dois problemas numa
-          única operação.</p>
+        <h3><span class="ico">🎯</span> A situação</h3>
+        <p>Uma empresa tem <strong>1 GPU</strong> e <strong>4 engenheiros</strong> enviando treinos
+          ao mesmo tempo. Resultado: travamentos, erros de memória e uma <strong>conta de luz 40%
+          maior</strong> que o previsto.</p>
       </div>
       <div class="card" style="border-top:3px solid var(--accent-2)">
-        <h3><span class="ico">🎁</span> O que você leva</h3>
-        <p>Um <strong>lock</strong> e uma <strong>fila por prioridade</strong>; e um
-          <strong>Power Limit</strong> calibrado por eficiência (imgs/J).</p>
+        <h3><span class="ico">🧰</span> O que vamos usar</h3>
+        <p>Um <strong>lock</strong> (um de cada vez) e uma <strong>fila por prioridade</strong>;
+          depois <strong>medir e limitar</strong> a potência da GPU.</p>
       </div>
     </div>
   </section>
@@ -268,75 +268,69 @@
   <!-- 02 — Agenda -->
   <section class="slide">
     <div class="kicker">Visão Geral</div>
-    <h2>Objetivo e agenda</h2>
-    <p><strong>Objetivo:</strong> operar a GPU com <strong>justiça</strong> (1 job por vez,
-      fila com prioridade) e com <strong>eficiência</strong> (medir e limitar a potência).
-      A aula reúne os temas de <strong>concorrência</strong> e <strong>energia</strong> num
-      roteiro único.</p>
-    <div class="pipeline" style="margin-top:8px">
-      <div class="pipe-step"><span class="step-ico">🔥</span><span class="step-title">Problema</span><span class="step-sub">OOM + energia</span></div>
+    <h2>O caminho da aula</h2>
+    <p>Vamos resolver <strong>um problema de cada vez</strong>. Primeiro o desorganizado
+      (vários jobs juntos), depois o desperdício (energia).</p>
+    <div class="pipeline" style="margin-top:12px">
+      <div class="pipe-step"><span class="step-ico">💥</span><span class="step-title">1. O caos</span><span class="step-sub">4 jobs, 1 GPU</span></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-step"><span class="step-ico">🔒</span><span class="step-title">Lock</span><span class="step-sub">1 job por vez</span></div>
+      <div class="pipe-step"><span class="step-ico">🔒</span><span class="step-title">2. O lock</span><span class="step-sub">um de cada vez</span></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-step"><span class="step-ico">📋</span><span class="step-title">Fila</span><span class="step-sub">prioridade</span></div>
+      <div class="pipe-step"><span class="step-ico">📋</span><span class="step-title">3. A fila</span><span class="step-sub">quem entra e quando</span></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-step"><span class="step-ico">🌡️</span><span class="step-title">Energia</span><span class="step-sub">TDP / PL</span></div>
+      <div class="pipe-step"><span class="step-ico">🌡️</span><span class="step-title">4. Energia</span><span class="step-sub">calor e potência</span></div>
       <span class="pipe-arrow">→</span>
-      <div class="pipe-step"><span class="step-ico">📊</span><span class="step-title">Eficiência</span><span class="step-sub">imgs/J</span></div>
+      <div class="pipe-step"><span class="step-ico">💰</span><span class="step-title">5. Economia</span><span class="step-sub">menos W, mesmo trabalho</span></div>
     </div>
     <div class="grid cols-2" style="margin-top:22px; align-items:start">
       <div>
-        <h3 style="margin-bottom:10px">Cronograma (120 min)</h3>
+        <h3 style="margin-bottom:10px">Como será a aula (120 min)</h3>
         <div class="timeline">
-          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: os dois problemas (concorrência + energia)</span></div>
-          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Parte 1 — Race condition, lock e fila com prioridade</span></div>
-          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Prática 1 — 4 jobs disputando a GPU (serialização)</span></div>
-          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Parte 2 — TDP, throttling, Power Limit e NVML</span></div>
-          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Prática 2 — benchmark de eficiência (imgs/J)</span></div>
-          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Síntese e discussão</span></div>
+          <div class="tl-item"><span class="tl-time">10 min</span><span class="tl-txt">Abertura: a GPU compartilhada que dá problema</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Por que jobs juntos quebram (e como evitar)</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Prática: 4 jobs em fila, um de cada vez</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Energia: calor, potência e desperdício</span></div>
+          <div class="tl-item"><span class="tl-time">25 min</span><span class="tl-txt">Prática: achar o melhor consumo da GPU</span></div>
+          <div class="tl-item"><span class="tl-time">20 min</span><span class="tl-txt">Discussão e síntese</span></div>
         </div>
       </div>
       <div>
         <div class="card" style="margin-bottom:12px">
-          <h3><span class="ico">🖥️</span> Onde roda</h3>
-          <p>No <strong>Colab</strong> (ou Windows) sem GPU NVIDIA, tudo roda em <strong>modo
-            simulado</strong> — os conceitos valem igual. Em servidor Linux + NVIDIA, os
-            sensores e o <code>flock</code> são reais.</p>
+          <h3><span class="ico">🖥️</span> Onde você vai rodar</h3>
+          <p>No <strong>Colab</strong> ou no <strong>Windows</strong>. Sem GPU NVIDIA, o
+            notebook usa um <strong>modo simulado</strong> — os conceitos não mudam.</p>
         </div>
         <div class="card">
-          <h3><span class="ico">🔑</span> Conceitos-chave</h3>
-          <p>Race condition · Mutex/Lock · Fila por prioridade · TDP/TGP · Throttling · Power Limit · Eficiência (imgs/J)</p>
+          <h3><span class="ico">🔑</span> Ideias-chave</h3>
+          <p>Um de cada vez · Fila com prioridade · Calor = desempenho perdido · Limitar a potência</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 03 — Concorrência: o problema -->
+  <!-- 03 — O caos -->
   <section class="slide">
-    <div class="kicker">Parte 1 · Concorrência</div>
-    <h2><span class="num">1.</span>Race condition: quando 4 jobs usam 1 GPU</h2>
+    <div class="kicker">Parte 1 · O caos</div>
+    <h2><span class="num">1.</span>Quatro jobs, uma GPU: o que dá errado</h2>
     <div class="grid cols-2">
       <div>
-        <p>Sem controle, os jobs competem pela <strong>VRAM</strong> e pela capacidade de
-          processamento ao mesmo tempo. O resultado é imprevisível:</p>
-        <ul class="clean">
-          <li><strong>CUDA OOM</strong> — cada job aloca e a memória estoura.</li>
-          <li><strong>Crashes silenciosos</strong> — treinos morrem sem avisar.</li>
-          <li><strong>Medições contaminadas</strong> — dois jobs dividem a GPU.</li>
-        </ul>
+        <p>Quando dois treinos usam a GPU <strong>ao mesmo tempo</strong>, cada um pega a memória
+          que precisa <strong>sem pedir licença</strong>. A placa tem um limite — e ele estoura.</p>
+        <p>O resultado mais comum não é um erro bonito, é um <strong>travamento silencioso</strong>:
+          o treino morre de madrugada e ninguém percebe.</p>
       </div>
       <div>
+        <h3 style="margin-bottom:8px">Exemplo real (GPU de 8 GB)</h3>
         <div class="terminal">
-[08:00:00] Job-A inicia -> 6 GB VRAM
-[08:00:01] Job-B inicia -> 6 GB VRAM
-[08:00:02] Job-A: CUDA OOM!
-[08:00:02] Job-B: crash silencioso
-<span class="warn">Sem lock, os jobs se destruem.</span>
+[08:00:00] Job-A ocupa 5 GB
+[08:00:01] Job-B ocupa 5 GB  <span class="dim">(total: 10 GB > 8 GB)</span>
+[08:00:01] Job-A: <span class="bad">CUDA out of memory</span>
+[08:00:01] Job-B: <span class="bad">travou sem avisar</span>
         </div>
         <div class="note" style="margin-top:12px">
           <span class="ico">💡</span>
-          <span>A GPU é um recurso <strong>exclusivo</strong>: ou você a controla, ou ela
-            controla você.</span>
+          <span>A GPU é um recurso <strong>exclusivo</strong>, como uma impressora: melhor usar
+            um job por vez.</span>
         </div>
       </div>
     </div>
@@ -344,29 +338,31 @@
 
   <!-- 04 — Lock -->
   <section class="slide">
-    <div class="kicker">Parte 1 · Exclusão mútua</div>
-    <h2><span class="num">2.</span>O lock: 1 job por vez</h2>
+    <div class="kicker">Parte 1 · Um de cada vez</div>
+    <h2><span class="num">2.</span>O lock: a "chave" da GPU</h2>
     <div class="grid cols-2">
       <div>
-        <p>Em Linux usamos <code>flock</code>. No <strong>Windows/Colab</strong> (sem
-          <code>flock</code>), o mesmo efeito vem de um <strong>lock por diretório</strong>:
-          criar pasta com <code>mkdir</code> é <strong>atômico</strong> — se dois processos
-          tentam juntos, só um consegue.</p>
+        <p>Pense numa sala com <strong>uma chave só</strong>. Quem pega a chave usa a sala; os
+          outros esperam. Com a GPU é igual: o <strong>lock</strong> é a chave.</p>
+        <p>O jeito mais simples de criar essa chave é <strong>criar uma pasta</strong>. Criar pasta
+          é uma operação <strong>atômica</strong>: se dois tentam juntos, <strong>só um consegue</strong>.</p>
         <div class="terminal" style="margin-top:10px">
-<span class="dim">Linux :</span> flock -x gpu.lock -c "treinar"
-<span class="dim">Python:</span> os.mkdir("gpu.lock")  <span class="dim"># atômico</span>
+<span class="dim"># 1o job: consegue criar a pasta -> usa a GPU</span>
+os.mkdir("gpu.lock")
+<span class="dim"># 2o job: a pasta ja existe -> espera</span>
         </div>
       </div>
       <div>
-        <h3 style="margin-bottom:8px">Regras do lock</h3>
-        <ul class="clean">
-          <li>Adquiriu → executa a GPU.</li>
-          <li>Já existe → <strong>espera</strong> (ou falha rápido, com <code>-n</code>).</li>
-          <li>Terminou → <strong>libera</strong> sempre (mesmo se der erro).</li>
-        </ul>
+        <h3 style="margin-bottom:8px">Em Linux, existe um comando pronto</h3>
+        <div class="terminal">
+<span class="dim">$ flock -x gpu.lock -c "python treinar.py"</span>
+<span class="dim"># -x exclusivo; os outros esperam</span>
+<span class="dim">$ flock -n gpu.lock -c "..."   # -n: tenta e desiste</span>
+        </div>
         <div class="note" style="margin-top:12px">
           <span class="ico">📄</span>
-          <span>Código em <code>notebook_colab/</code> e no laboratório Python da Aula 18.</span>
+          <span>Código em <code>notebook_colab/</code> e em
+            <code>laboratorio_concorrencia/</code>.</span>
         </div>
       </div>
     </div>
@@ -375,27 +371,28 @@
   <!-- 05 — Fila -->
   <section class="slide">
     <div class="kicker">Parte 1 · Justiça</div>
-    <h2><span class="num">3.</span>Fila com prioridade</h2>
+    <h2><span class="num">3.</span>A fila: quem entra, quando entra</h2>
     <div class="grid cols-2">
       <div>
-        <p>Com só um lock, quem chega depois espera "na sorte". Melhor: uma <strong>fila</strong>
-          em que cada job cria um <strong>ticket</strong> nomeado
-          <code>prioridade_timestamp_nome</code>. Como a ordenação é lexicográfica,
-          <strong>prioridade 1</strong> vem antes de 2, e o timestamp garante FIFO dentro da
-          mesma prioridade.</p>
+        <p>Só o lock não basta: quem chegou por último pode entrar primeiro, e um job urgente
+          pode esperar muito. A solução é uma <strong>fila com senha</strong> — como no banco.</p>
+        <p>Cada job cria um "ticket" com <strong>prioridade + hora + nome</strong>. O menor número
+          entra primeiro; empate é resolvido pela hora (quem chegou antes).</p>
         <div class="terminal" style="margin-top:10px">
-1_20260922_003041_Job-Alta-A   <span class="dim"># roda 1o</span>
-2_20260922_003042_Job-Media-C
-3_20260922_003043_Job-Baixa-B  <span class="dim"># roda por ultimo</span>
+1_hora_Job-Alta    <span class="dim"># prioridade 1 -> primeiro</span>
+2_hora_Job-Media   <span class="dim"># prioridade 2</span>
+3_hora_Job-Baixa   <span class="dim"># prioridade 3 -> por ultimo</span>
         </div>
       </div>
       <div>
-        <h3 style="margin-bottom:8px">Cuidados</h3>
-        <ul class="clean">
-          <li><strong>Starvation:</strong> jobs de baixa prioridade podem nunca rodar.</li>
-          <li><strong>Aging:</strong> envelhecer o ticket aumenta a prioridade com o tempo.</li>
-          <li><strong>nice/ionice:</strong> prioridade de CPU/IO no nível do SO.</li>
-        </ul>
+        <h3 style="margin-bottom:8px">Um cuidado importante</h3>
+        <p>Se a fila só olha a prioridade, os jobs de baixa prioridade podem <strong>nunca
+          rodar</strong> (uns chamam isso de <em>starvation</em>).</p>
+        <div class="note">
+          <span class="ico">⏳</span>
+          <span>Para evitar: jobs que esperam muito <strong>ganham prioridade com o tempo</strong>
+            (a técnica se chama <em>aging</em>).</span>
+        </div>
       </div>
     </div>
   </section>
@@ -403,17 +400,20 @@
   <!-- 06 — Prática 1 -->
   <section class="slide">
     <div class="kicker">Prática 1 · 4 jobs, 1 GPU</div>
-    <h2><span class="num">4.</span>Ver a serialização acontecer</h2>
+    <h2><span class="num">4.</span>Vendo a fila funcionar</h2>
     <div class="grid cols-2">
       <div>
-        <p>Lançamos <strong>4 jobs</strong> (2 de alta prioridade, 1 média, 1 baixa) ao mesmo
-          tempo. O lock garante que rodem <strong>um por vez</strong>; a fila define a
-          <strong>ordem</strong>.</p>
-        <p>Observe nos logs a ordem de execução — deve respeitar a prioridade, não a ordem de
-          chegada.</p>
+        <p>Vamos lançar <strong>4 jobs de uma vez</strong> (dois urgentes, um médio, um de baixa
+          prioridade) e observar o log. O lock garante <strong>um de cada vez</strong>; a fila
+          decide a <strong>ordem</strong>.</p>
+        <ul class="clean" style="margin-top:10px">
+          <li>Os dois de prioridade 1 rodam <strong>primeiro</strong>.</li>
+          <li>Depois o médio; por último o de baixa.</li>
+          <li><strong>Nenhum</strong> dá erro de memória.</li>
+        </ul>
       </div>
       <div>
-        <h3 style="margin-bottom:8px">Saída esperada</h3>
+        <h3 style="margin-bottom:8px">O log que você vai ver</h3>
         <div class="terminal">
 Job-Alta-A  -> executando
 Job-Alta-D  -> executando
@@ -428,73 +428,90 @@ Job-Baixa-B -> executando
   <!-- 07 — Energia -->
   <section class="slide">
     <div class="kicker">Parte 2 · Energia</div>
-    <h2><span class="num">5.</span>TDP, throttling e o custo escondido</h2>
+    <h2><span class="num">5.</span>Calor e o desperdício invisível</h2>
     <div class="grid cols-2">
-      <div class="card" style="border-top:3px solid var(--accent-3)">
-        <h3><span class="ico">🔥</span> TDP / TGP</h3>
-        <p>Potência máxima de dissipação projetada (ex.: RTX 4090 = <strong>450 W</strong>;
-        Tesla T4 = <strong>70 W</strong>). É o teto de consumo da placa.</p>
+      <div>
+        <p>Toda GPU tem um <strong>teto de potência</strong> — os watts que ela pode consumir.
+          Ex.: uma RTX 4090 = <strong>450 W</strong>; uma Tesla T4 = <strong>70 W</strong>.</p>
+        <p>Quando a placa <strong>esquenta demais</strong> (acima de ~83 °C), ela mesma
+          <strong>reduz a velocidade</strong> para se proteger. Você <strong>perde desempenho</strong>
+          e ainda <strong>gasta energia</strong> — o pior dos dois mundos.</p>
       </div>
-      <div class="card" style="border-top:3px solid var(--accent-4)">
-        <h3><span class="ico">🌡️</span> Thermal throttling</h3>
-        <p>Acima de ~83–87 °C a GPU <strong>reduz o clock</strong> sozinha. Você perde
-          desempenho <em>e</em> ganha consumo — o pior dos mundos.</p>
+      <div>
+        <div class="card" style="border-top:3px solid var(--accent-4)">
+          <h3><span class="ico">💰</span> O caso da empresa</h3>
+          <p>A GPU ficava no <strong>máximo de potência mesmo sem trabalho pesado</strong>. Foi a
+            causa da conta <strong>40% maior</strong> que o previsto — energia paga sem ganho.</p>
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">🌡️</span>
+          <span>Em GPUs reais, o valor de potência é lido do sensor (via <code>nvidia-smi</code>
+            / NVML) — é <strong>medido</strong>, não estimado.</span>
+        </div>
       </div>
-    </div>
-    <div class="note" style="margin-top:16px">
-      <span class="ico">💰</span>
-      <span>GPUs operando no <strong>TDP máximo</strong> em fases de baixa carga são a causa
-        clássica de contas de luz 40% acima do projetado.</span>
     </div>
   </section>
 
   <!-- 08 — Power Limit -->
   <section class="slide">
-    <div class="kicker">Parte 2 · Controle</div>
-    <h2><span class="num">6.</span>Power Limit: o controle mais eficaz</h2>
+    <div class="kicker">Parte 2 · O controle</div>
+    <h2><span class="num">6.</span>Power Limit: o ajuste que economiza</h2>
     <div class="grid cols-2">
       <div>
-        <p>Reduzir o Power Limit em <strong>20–30%</strong> costuma custar apenas
-          <strong>5–10%</strong> de throughput — com queda grande de consumo e calor. É o
-          melhor "ganho grátis" da operação.</p>
+        <p>O <strong>Power Limit</strong> é um teto que <em>você</em> define, menor que o máximo.
+          Na prática, cortar <strong>20–30%</strong> da potência costuma custar só
+          <strong>5–10%</strong> de velocidade — <strong>troca muito boa</strong>.</p>
         <div class="terminal" style="margin-top:10px">
 <span class="dim">$ sudo nvidia-smi -pl 200</span>
 Power limit for GPU 0 set to 200.00 W
 <span class="dim"># via Python (NVML):</span>
 pynvml.nvmlDeviceSetPowerManagementLimit(h, 200*1000)
         </div>
+        <p style="margin-top:10px"><small>Configurar exige <code>sudo</code> (Linux) — no Colab
+          não é possível, por isso usamos um modelo para estudar o efeito.</small></p>
       </div>
       <div>
-        <h3 style="margin-bottom:8px">Eficiência (imgs/J)</h3>
+        <h3 style="margin-bottom:8px">Eficiência: resultado ÷ energia</h3>
         <table>
-          <thead><tr><th>PL (% do TDP)</th><th>Eficiência</th></tr></thead>
+          <thead><tr><th>Potência</th><th>Eficiência</th></tr></thead>
           <tbody>
-            <tr><td>100%</td><td class="no">baixa</td></tr>
-            <tr><td><strong>~75%</strong></td><td class="yes"><strong>ótima</strong></td></tr>
-            <tr><td>40%</td><td class="mid">cai (throttling)</td></tr>
+            <tr><td>Máxima (100%)</td><td class="no">desperdiça</td></tr>
+            <tr><td><strong>~75% do máximo</strong></td><td class="yes"><strong>melhor</strong></td></tr>
+            <tr><td>Muito baixa (40%)</td><td class="mid">perde desempenho</td></tr>
           </tbody>
         </table>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📊</span>
+          <span>Medimos <strong>imagens por segundo</strong> e <strong>watts</strong>; a razão
+            imgs/J diz o quanto rende cada joule gasto.</span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- 09 — Prática 2 -->
   <section class="slide">
-    <div class="kicker">Prática 2 · Eficiência</div>
-    <h2><span class="num">7.</span>Calibrar o Power Limit com dados</h2>
+    <div class="kicker">Prática 2 · Economia</div>
+    <h2><span class="num">7.</span>Achar o melhor ponto de consumo</h2>
     <div class="grid cols-2">
       <div>
-        <p>Medimos <strong>throughput</strong> e <strong>potência</strong> em vários PLs e
-          calculamos a <strong>eficiência (imgs/J)</strong>. O gráfico mostra o ponto ótimo —
-          nem o máximo de potência, nem o mínimo, mas o <strong>melhor custo-benefício</strong>.</p>
+        <p>Testamos vários Power Limits, medimos <strong>velocidade</strong> e
+          <strong>consumo</strong> e calculamos a <strong>eficiência</strong>. O melhor ponto
+          quase nunca é a potência máxima.</p>
+        <p>É uma decisão com dados: <strong>mais trabalho por menos energia</strong>.</p>
       </div>
       <div>
+        <h3 style="margin-bottom:8px">Resultado típico</h3>
         <div class="terminal">
-PL   Imgs/s   Pwr   Imgs/J
-100   171.2    92.0   1.861
-150   380.0   138.0   2.754
-200   463.5   184.0   2.519
-<span class="yes">Ponto otimo: 150W (~60% do TDP)</span>
+Potencia  Imgs/s   Imgs/J
+100 W     171      1.86
+150 W     380      2.75  <span class="yes"><- melhor</span>
+200 W     463      2.52  <span class="dim">(mais rapido, mas gasta mais)</span>
+        </div>
+        <div class="note" style="margin-top:12px">
+          <span class="ico">📄</span>
+          <span>No notebook a medição de <strong>throughput</strong> e <strong>potência</strong> é
+            real quando há GPU.</span>
         </div>
       </div>
     </div>
@@ -502,56 +519,60 @@ PL   Imgs/s   Pwr   Imgs/J
 
   <!-- 10 — Integração -->
   <section class="slide">
-    <div class="kicker">Integração</div>
-    <h2><span class="num">8.</span>Juntando as duas partes</h2>
+    <div class="kicker">Juntando as partes</div>
+    <h2><span class="num">8.</span>Por que as duas coisas andam juntas</h2>
     <div class="grid cols-3">
       <div class="card">
-        <h3><span class="ico">🔒</span> Justiça</h3>
-        <p>Lock + fila garantem um job por vez, na ordem certa — sem OOM.</p>
+        <h3><span class="ico">🔒</span> Ordem</h3>
+        <p>Lock + fila garantem um job por vez, na sequência certa — sem erro de memória.</p>
       </div>
       <div class="card">
-        <h3><span class="ico">🌱</span> Eficiência</h3>
-        <p>O Power Limit calibrado reduz a conta de luz sem sacrificar quase nada de desempenho.</p>
+        <h3><span class="ico">🌱</span> Economia</h3>
+        <p>Limitar a potência reduz a conta de luz quase sem perder velocidade.</p>
       </div>
       <div class="card">
-        <h3><span class="ico">🧩</span> Só faz sentido juntas</h3>
-        <p>Medir energia com dois jobs na GPU contamina os dados — por isso o lock vem primeiro.</p>
+        <h3><span class="ico">🧩</span> Medir certo</h3>
+        <p>Com dois jobs ao mesmo tempo, a medição de energia fica errada — por isso o lock
+          vem primeiro.</p>
       </div>
     </div>
-    <div class="note" style="margin-top:20px">
+    <div class="note" style="margin-top:18px">
       <span class="ico">📄</span>
-      <span>Notebook único: <code>notebook_colab/aula18_19_concorrencia_energia.ipynb</code>
-        · labs em <code>laboratorio_concorrencia/</code> e <code>laboratorio_energia/</code>.</span>
+      <span>Tudo isto está no notebook <code>notebook_colab/aula18_19_concorrencia_energia.ipynb</code>
+        e nos laboratórios de concorrência e energia.</span>
     </div>
   </section>
 
   <!-- 11 — Síntese -->
   <section class="slide">
-    <div class="kicker">Síntese e Tarefa</div>
-    <h2>O que levar desta aula</h2>
+    <div class="kicker">Síntese</div>
+    <h2>O que fica desta aula</h2>
     <div class="grid cols-3">
       <div class="card">
-        <h3><span class="ico">🔒</span> Controle</h3>
-        <p>GPU é recurso exclusivo: lock (flock/mkdir) + fila por prioridade evitam race conditions e OOM.</p>
+        <h3><span class="ico">🔒</span> Um de cada vez</h3>
+        <p>A GPU é recurso exclusivo: um <strong>lock</strong> evita travamentos e erros de
+          memória.</p>
       </div>
       <div class="card">
-        <h3><span class="ico">⚡</span> Energia</h3>
-        <p>TDP/ throttling explicam custos ocultos; o Power Limit (~75% do TDP) é o melhor ajuste.</p>
+        <h3><span class="ico">📋</span> Na ordem certa</h3>
+        <p>A <strong>fila com prioridade</strong> garante que o job urgente passe primeiro — sem
+          esquecer os demais.</p>
       </div>
       <div class="card">
-        <h3><span class="ico">📊</span> Decidir</h3>
-        <p>Medir eficiência (imgs/J) transforma a operação em uma decisão com dados.</p>
+        <h3><span class="ico">💰</span> Sem desperdício</h3>
+        <p>Limitar a <strong>potência</strong> corta a conta de luz mantendo quase todo o
+          desempenho.</p>
       </div>
     </div>
-    <div class="note" style="margin-top:20px">
+    <div class="note" style="margin-top:18px">
       <span class="ico">📝</span>
-      <span><strong>Tarefa:</strong> documente a fila da Prática 1 e o PL ótimo da Prática 2;
-        justifique a escolha de PL para um projeto com deadline apertado.</span>
+      <span><strong>Tarefa:</strong> registre a ordem de execução dos 4 jobs e o Power Limit de
+        melhor eficiência; justifique sua escolha para um projeto com prazo apertado.</span>
     </div>
     <div class="note" style="margin-top:10px">
       <span class="ico">🔗</span>
-      <span>Para aprofundar: <a href="../aula15/README.md">Aula 15</a> (flock/Bash),
-        <a href="../aula14/README.md">Aula 14</a> (automação/telemetria).</span>
+      <span>Revise: <a href="../aula15/README.md">Aula 15</a> (fila e lock no Linux) e
+        <a href="../aula14/README.md">Aula 14</a> (automação e telemetria).</span>
     </div>
   </section>
 

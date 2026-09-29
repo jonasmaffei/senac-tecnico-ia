@@ -173,7 +173,7 @@
 * **Agendadores de produção:** Comparativo prático entre o `cron` clássico (`crontab -e`) e os `systemd timers` modernos com logging via `journald`, ordem de inicialização (`After=`) e execução persistente pós-boot (`Persistent=true`).
 * **Dashboards visuais:** Renderização de relatórios de 4 gráficos (temperatura, uso de GPU/RAM, VRAM alocada e potência) via `gnuplot` no terminal Linux ou `matplotlib` no Python/Google Colab.
 * **Integração Cloud com Google Sheets:** Publicação de telemetria via Service Account da Google Sheets API (`google-auth`, `google-api-python-client`) para acompanhamento remoto sem necessidade de conexão SSH.
-* **Prática Colab & Windows Host:** Notebook no Colab (`aula17_automacao_gpu_bash.ipynb`) com suporte a modo simulado e 5 exercícios práticos; ambiente local Windows Host (`laboratorio_windows/`) com menu interativo em `iniciar.bat` para execução nativa dos scripts de monitoria e relatórios.
+* **Prática Colab & Windows Host:** Notebook no Colab (`aula17_automacao_gpu_python.ipynb`) com suporte a modo simulado e 5 exercícios práticos; ambiente local Windows Host (`laboratorio_windows/`) com menu interativo em `iniciar.bat` para execução nativa dos scripts de monitoria e relatórios.
 * **Python × Bash:** a Aula 14 é a referência do tema (scripts Bash para servidores Linux); esta aula mostra como fazer o mesmo em Python, ampliando a portabilidade entre ambientes.
 
 #### Aula 18+19: Concorrência e Energia na GPU (Bloco 3 — Automação)
