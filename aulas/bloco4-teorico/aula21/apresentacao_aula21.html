@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 21 — Método de Pesquisa e Fundamentação da Arquitetura</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #161f3d;
+    --panel-2: #1c2749;
+    --border: #2b3868;
+    --text: #e8ecff;
+    --muted: #9aa7d4;
+    --accent: #6366f1;
+    --accent-2: #10b981;
+    --accent-3: #f97316;
+    --accent-4: #ef4444;
+    --accent-5: #7e22ce;
+    --code-bg: #0a0f22;
+    --radius: 14px;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+    font-size: 15px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+    z-index: 50; transition: width .18s ease;
+  }
+
+  #topbar {
+    position: fixed; top: 4px; left: 0; right: 0; height: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: .74rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); z-index: 40; pointer-events: none;
+  }
+  #topbar .brand { display: flex; align-items: center; gap: 10px; }
+  #topbar .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent-2);
+    box-shadow: 0 0 12px var(--accent-2);
+  }
+
+  #deck { position: relative; height: 100%; width: 100%; }
+
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 66px 7vw 76px; opacity: 0;
+    transform: translateY(14px); transition: opacity .3s ease, transform .3s ease;
+    overflow-y: auto;
+  }
+  .slide.active { display: flex; opacity: 1; transform: translateY(0); }
+  .slide::-webkit-scrollbar { width: 10px; }
+  .slide::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+  .kicker {
+    display: inline-block; align-self: flex-start; font-size: .7rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent-2);
+    border: 1px solid var(--border); background: rgba(16,185,129,.08);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; margin: 0 0 16px; font-weight: 700; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.45rem, 2.6vw, 2.1rem); margin: 0 0 16px; line-height: 1.15; letter-spacing: -.01em; }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .4em; }
+  h3 { font-size: 1.05rem; margin: 0 0 8px; color: var(--text); }
+  p { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0 0 12px; max-width: 66ch; }
+  p strong, li strong { color: var(--text); }
+  .lead { font-size: 1.2rem; color: var(--text); max-width: 70ch; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean > li {
+    position: relative; padding: 7px 0 7px 28px; font-size: 1rem;
+    line-height: 1.5; color: var(--muted); max-width: 72ch;
+  }
+  ul.clean > li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 9px; height: 9px; border-radius: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  ul.check > li::before { content: "✓"; background: none; color: var(--accent-2); font-weight: 700; left: 0; top: 6px; width: auto; height: auto; }
+
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 17px 19px; box-shadow: var(--shadow);
+  }
+  .card h3 { display: flex; align-items: center; gap: 10px; }
+  .card .ico { font-size: 1.3rem; }
+  .card p { font-size: .94rem; margin: 0; }
+
+  code {
+    font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    font-size: .9em; background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.32); color: #c7d0ff;
+    padding: 1px 6px; border-radius: 6px;
+  }
+
+  .pipeline { display: flex; align-items: stretch; gap: 9px; flex-wrap: wrap; }
+  .pipe-step {
+    flex: 1 1 130px; background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: 12px; padding: 13px 11px; text-align: center;
+  }
+  .pipe-step .step-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+  .pipe-step .step-title { font-weight: 600; color: var(--text); font-size: .9rem; display: block; margin-bottom: 3px; }
+  .pipe-step .step-sub { font-size: .74rem; color: var(--muted); }
+  .pipe-arrow { align-self: center; color: var(--accent); font-size: 1.4rem; flex: 0 0 auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text); font-size: .76rem; text-transform: uppercase; letter-spacing: .09em; }
+  td { color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+
+  .debate {
+    display: flex; gap: 12px; align-items: flex-start; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--panel); margin-bottom: 9px;
+  }
+  .debate .q {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: .9rem;
+  }
+  .debate p { margin: 0; font-size: .95rem; }
+
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl-item {
+    display: flex; gap: 14px; align-items: center;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: var(--panel); padding: 10px 14px;
+  }
+  .tl-item .tl-time {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--accent-2);
+    font-weight: 700; font-size: .82rem; min-width: 58px;
+  }
+  .tl-item .tl-txt { font-size: .92rem; color: var(--muted); }
+
+  #bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 40;
+    background: linear-gradient(180deg, rgba(11,16,32,0), rgba(11,16,32,.92));
+  }
+  #counter { font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+  .nav-buttons { display: flex; gap: 8px; }
+  .nav-buttons button {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 999px; padding: 7px 16px; font-size: .84rem; cursor: pointer;
+  }
+  .nav-buttons button:hover { border-color: var(--accent); background: var(--panel-2); }
+
+  .title-slide { align-items: flex-start; }
+  .title-slide h1 {
+    background: linear-gradient(120deg, #fff 20%, #a5b4fc 60%, #6ee7b7 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .meta-row { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 22px; }
+  .meta-row .meta .k { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .meta-row .meta .v { font-size: 1rem; color: var(--text); }
+
+  .note {
+    display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted);
+    border: 1px dashed var(--border); border-radius: 10px; padding: 9px 14px;
+    margin-bottom: 14px; align-self: flex-start;
+  }
+  .note .ico { font-size: 1.05rem; }
+
+  @media (max-width: 900px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .slide { padding: 60px 6vw 72px; }
+  }
+  @media (max-width: 620px) {
+    .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; }
+    #topbar { font-size: .62rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="topbar">
+  <div class="brand"><span class="dot"></span><span>Introdução a Arquitetura de Computadores</span></div>
+  <div>Bloco 4 Teórico · Pesquisa</div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 — Título -->
+  <section class="slide title-slide active">
+    <div class="kicker">Aula 21 · Conceitos</div>
+    <h1>Método de Pesquisa e Fundamentação da Arquitetura</h1>
+    <p class="lead">Transformar um problema real em <strong>pesquisa aplicada</strong>: formular a pergunta central, buscar <strong>fontes</strong> e <strong>fundamentar a arquitetura</strong> da solução de IA.</p>
+    <div class="meta-row">
+      <div class="meta"><div class="k">Bloco</div><div class="v">4 Teórico — Pesquisa</div></div>
+      <div class="meta"><div class="k">Entrega</div><div class="v">Trabalho individual (sem código)</div></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:26px">
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">🎯</span> Situação de Aprendizagem</h3>
+        <p>Cada um já escolheu o <strong>seu tema</strong>. Agora é investigar, reunir evidências e recomendar uma <strong>arquitetura de solução</strong> com IA — <strong>sem programar</strong>.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🧭</span> O que vamos produzir</h3>
+        <p>Pergunta central, fontes e a <strong>fundamentação</strong> da arquitetura proposta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — Temas de exemplo -->
+  <section class="slide">
+    <div class="kicker">Referência</div>
+    <h2>Temas de exemplo</h2>
+    <p>Use estes projetos como <strong>inspiração</strong> para estruturar o seu tema — não é preciso escolher um deles.</p>
+    <div class="grid cols-3">
+      <div class="card" style="border-top:3px solid var(--accent-4)">
+        <h3><span class="ico">🏥</span> Saúde</h3>
+        <p>Diagnóstico por imagem: <strong>CUDA vs ROCm</strong> para processar exames em lote.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-2)">
+        <h3><span class="ico">🌱</span> Energia</h3>
+        <p>Green AI: <strong>reduzir consumo</strong> do cluster sem perder tempo de treino.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">🚁</span> Agricultura</h3>
+        <p>Drones: processar na <strong>borda ou na nuvem</strong> — latência, energia e custo.</p>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px">
+      <span class="ico">📄</span>
+      <span>Exemplos completos em <code>aulas/bloco4/projetos-exemplo/</code> (projetos 4, 5 e 6). Servem de <strong>modelo de estrutura</strong>, não de tema obrigatório.</span>
+    </div>
+  </section>
+
+  <!-- 03 — Caminho da pesquisa -->
+  <section class="slide">
+    <div class="kicker">Visão Geral</div>
+    <h2>O caminho da pesquisa</h2>
+    <p>A pergunta que guia tudo é: <strong>"Como solucionar com IA um problema proposto?"</strong></p>
+    <div class="pipeline" style="margin:16px 0">
+      <div class="pipe-step"><span class="step-ico">❓</span><span class="step-title">Pergunta</span><span class="step-sub">o que investigar</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">📚</span><span class="step-title">Fontes</span><span class="step-sub">evidências</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">⚖️</span><span class="step-title">Alternativas</span><span class="step-sub">trade-offs</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">✅</span><span class="step-title">Recomendação</span><span class="step-sub">arquitetura</span></div>
+    </div>
+    <div class="note">
+      <span class="ico">🧩</span>
+      <span>Pesquisa aplicada resolve um <strong>problema concreto</strong> usando conhecimento existente — não basta descrever o fenômeno.</span>
+    </div>
+  </section>
+
+  <!-- 04 — Pergunta central -->
+  <section class="slide">
+    <div class="kicker">Método</div>
+    <h2><span class="num">1.</span>Da curiosidade à pergunta central</h2>
+    <p>Uma boa pergunta é <strong>específica</strong>, <strong>investigável</strong> e <strong>relevante</strong>.</p>
+    <div class="grid cols-2" style="align-items:start">
+      <div>
+        <h3 style="margin-bottom:10px">Pergunta fraca × forte</h3>
+        <ul class="clean">
+          <li><strong>Fraca:</strong> "GPU é melhor?"</li>
+          <li><strong>Forte:</strong> "Qual arquitetura (CUDA ou ROCm) reduz o custo por exame, considerando desempenho, energia e LGPD?"</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent-3)">
+        <h3><span class="ico">🧩</span> Anatomia</h3>
+        <p><strong>Objeto</strong> (o quê) + <strong>contexto</strong> (onde) + <strong>critérios</strong> (como comparar) + <strong>restrições</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — Fontes -->
+  <section class="slide">
+    <div class="kicker">Método</div>
+    <h2><span class="num">2.</span>Fontes confiáveis</h2>
+    <p>Toda afirmação precisa de <strong>evidência</strong>. Priorize fontes primárias.</p>
+    <table>
+      <thead>
+        <tr><th>Nível</th><th>Tipo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Primária</td><td>Papers, documentação oficial (NVIDIA/AMD), datasheets</td></tr>
+        <tr><td>Secundária</td><td>Livros técnicos, surveys, benchmarking independente</td></tr>
+        <tr><td>Terciária</td><td>Blogs, notícias, vídeos — confirmar na primária</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:14px">
+      <span class="ico">⚠️</span>
+      <span>Marketing não é evidência. "8× mais rápido" só vale com <strong>metodologia e fonte</strong>.</span>
+    </div>
+  </section>
+
+  <!-- 06 — Arquitetura e trade-offs -->
+  <section class="slide">
+    <div class="kicker">Fundamentação</div>
+    <h2><span class="num">3.</span>Arquitetura e trade-offs</h2>
+    <p>"Arquitetura" é o <strong>desenho geral</strong> da solução: componentes e como se conectam.</p>
+    <div class="pipeline" style="margin:14px 0">
+      <div class="pipe-step"><span class="step-ico">📥</span><span class="step-title">Dados</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">🧠</span><span class="step-title">Processamento</span></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><span class="step-ico">👤</span><span class="step-title">Usuário</span></div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Critério</th><th>Alternativa A</th><th>Alternativa B</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ecossistema</td><td>CUDA (maduro)</td><td>ROCm (em evolução)</td></tr>
+        <tr><td>Custo</td><td>maior</td><td>menor</td></tr>
+        <tr><td>Aderência ao caso</td><td>?</td><td>?</td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:12px">
+      <span class="ico">✅</span>
+      <span>A melhor alternativa é a que <strong>atende aos critérios do problema</strong> — cada escolha precisa de justificativa.</span>
+    </div>
+  </section>
+
+  <!-- 07 — Roteiro e próximos passos -->
+  <section class="slide">
+    <div class="kicker">Mão na Massa</div>
+    <h2>Roteiro e próximos passos</h2>
+    <div class="grid cols-2" style="align-items:start">
+      <ul class="clean check">
+        <li><strong>Definir</strong> a pergunta central do seu tema.</li>
+        <li><strong>Reunir 2 fontes</strong> confiáveis.</li>
+        <li><strong>Comparar 2 alternativas</strong> de arquitetura.</li>
+        <li><strong>Rascunhar</strong> a recomendação preliminar.</li>
+      </ul>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <h3><span class="ico">✍️</span> Ética</h3>
+          <p>Cite as fontes, respeite a LGPD e declare as limitações do trabalho.</p>
+        </div>
+        <div class="card">
+          <h3><span class="ico">🏠</span> Tarefa para a Aula 22</h3>
+          <p>Documento curto: problema, 2 alternativas, trade-offs e <strong>recomendação preliminar</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="bottombar">
+  <div id="counter">01 / 07</div>
+  <div class="hint">← → · espaço · Home/End</div>
+  <div class="nav-buttons">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <button id="next" aria-label="Próximo slide">Próximo →</button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+    var progress = document.getElementById("progress");
+    var counter = document.getElementById("counter");
+    var current = 0;
+
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+    function render() {
+      slides.forEach(function (s, i) { s.classList.toggle("active", i === current); });
+      var pct = slides.length > 1 ? (current / (slides.length - 1)) * 100 : 100;
+      progress.style.width = pct + "%";
+      counter.textContent = pad(current + 1) + " / " + pad(slides.length);
+      if (window.location.hash !== "#" + (current + 1)) {
+        history.replaceState(null, "", "#" + (current + 1));
+      }
+    }
+
+    function go(delta) {
+      var next = current + delta;
+      if (next < 0 || next >= slides.length) return;
+      current = next;
+      render();
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      current = index;
+      render();
+    }
+
+    document.getElementById("next").addEventListener("click", function () { go(1); });
+    document.getElementById("prev").addEventListener("click", function () { go(-1); });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault(); go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault(); go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === "End") {
+        e.preventDefault(); goTo(slides.length - 1);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var n = parseInt(window.location.hash.replace("#", ""), 10);
+      if (!isNaN(n)) goTo(n - 1);
+    });
+
+    var start = parseInt(window.location.hash.replace("#", ""), 10);
+    if (!isNaN(start)) current = Math.min(Math.max(start - 1, 0), slides.length - 1);
+    render();
+  })();
+</script>
+</body>
+</html>

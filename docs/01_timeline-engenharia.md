@@ -177,6 +177,28 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 * **Conexão com o Bloco 4:** Fecha a UC conectando o hackathon (código) à pesquisa do Projeto Integrador.
 * **O problema que fica em aberto:** — fim da UC.
 
+---
+
+## Bloco 4 Teórico — Pesquisa Aplicada (Aulas 21–22, sem código)
+
+> Trilha **teórica/sem código** que aprofunda o formato de **pesquisa aplicada** do Projeto Integrador,
+> em **dois dias de aula**. É um **trabalho individual**: cada aluno trabalha o **seu próprio tema**.
+> Os projetos 4, 5 e 6 de [`aulas/bloco4/projetos-exemplo/`](../aulas/bloco4/projetos-exemplo/README.md)
+> são **exemplos de estrutura** (Saúde, Energia, Agricultura), não temas obrigatórios. Responde tudo com
+> investigação e argumentação — **sem scripts**. Convive com [`aulas/bloco4/`](../aulas/bloco4/README.md).
+
+### Aula 21: Método de Pesquisa e Fundamentação da Arquitetura (Bloco 4 Teórico)
+* **Conceito/Fundamento:** Pesquisa aplicada sobre o tema escolhido pelo aluno: pergunta central (objeto + contexto + critérios + restrições), níveis de fonte (primária/secundária/terciária), estado da arte e lacuna, e a **arquitetura da solução** (dados → processamento → serviço → usuário).
+* **O que se aprende:** Transformar um problema proposto na pergunta "Como solucionar com IA?", fundamentar a arquitetura com evidências, montar a tabela de trade-offs e respeitar ética/LGPD.
+* **Conexão com o Bloco 4:** Espelha as etapas de planejamento da A20 (domínio, dataset, arquitetura), sem exigir implementação.
+* **O problema que fica em aberto:** Com as evidências reunidas, como analisá-las criticamente e comunicá-las?
+
+### Aula 22: Análise Crítica, Relatório e Apresentação da Pesquisa (Bloco 4 Teórico)
+* **Conceito/Fundamento:** Análise crítica (origem, método, consistência), vieses (fornecedor, confirmação, cherry picking), estrutura do relatório de pesquisa (problema → fundamentação → alternativas → decisão → limitações) e narrativa para a banca.
+* **O que se aprende:** Distinguir evidência de marketing, reconhecer o contra-argumento mais forte, redigir a recomendação final com referências e declarar limitações e trabalhos futuros.
+* **Conexão com o Bloco 4 Teórico:** Fecha a trilha de pesquisa iniciada na A21 e entrega o relatório final da UC (sem demo de código).
+* **O problema que fica em aberto:** Como levar essa arquitetura de solução adiante (implementação é opcional, via bloco4 hands-on)?
+
 ## Matriz de Domínio por Elo da Corrente
 
 | Elo | Pergunta Crítica Respondida | Evidência Prática no Repositório |
@@ -197,3 +219,5 @@ deixou em aberto — a cadeia causal está detalhada nas seções abaixo.
 | **A22** | "O que fazer quando o treino dura dias sem ninguém olhando?" | Monitor integrado via `subprocess`, alertas Slack/Telegram/e-mail, dashboard pandas+matplotlib e serviço `systemd`. |
 | **A23** | "Como provar o valor da GPU para uma banca?" | Pitch de 5 min, relatório final (W&B + logs GPU), tabela baseline × GPU e rubrica de 100 pontos. |
 | **A24** | "Como levar GPU/automação para o Projeto Integrador?" | `mapear_conexoes_pi.py` (detecta loops/`np.dot`/modelos em CPU e mostra o plano por domínio). |
+| **A21-T** | "Como transformar um problema proposto em uma pesquisa aplicada?" | Pergunta central, fontes primárias, estado da arte e arquitetura da solução (trilha sem código). |
+| **A22-T** | "Como argumentar a decisão para uma banca, sem demo de código?" | Análise crítica, vieses, relatório de pesquisa e recomendação final fundamentada (trilha sem código). |

@@ -233,3 +233,31 @@
 * Dashboard final em PNG commitado no repositório.
 * Monitor integrado ao `train.py` com log CSV de pelo menos 1 treinamento completo.
 * Documento de 1 página com 3 conexões entre GPU/UC e o PI.
+
+---
+
+## Bloco 4 Teórico — Pesquisa Aplicada (Aulas 21 e 22, sem código)
+
+> Trilha **teórica/sem código**, de **dois dias de aula**, no estilo do Projeto Integrador.
+> É um **trabalho individual**: cada aluno trabalha o **seu próprio tema**. Os projetos 4, 5 e 6 de
+> [`aulas/bloco4/projetos-exemplo/`](../aulas/bloco4/projetos-exemplo/README.md) são **exemplos de
+> estrutura** (Saúde, Energia, Agricultura), não temas obrigatórios. O produto é um **trabalho de
+> pesquisa** fundamentado, **sem scripts**. Convive com [`aulas/bloco4/`](../aulas/bloco4/README.md).
+
+#### Aula 21: Método de Pesquisa e Fundamentação da Arquitetura (Bloco 4 Teórico)
+* **Pesquisa aplicada:** resolve um problema concreto com conhecimento existente; a pergunta que a guia é "Como solucionar com IA um problema proposto?".
+* **Temas de exemplo:** Saúde (CUDA vs ROCm), Energia (Green AI/Power Limit) e Agricultura (borda vs nuvem) — servem de estrutura; o aluno usa o próprio tema.
+* **Pergunta central:** objeto + contexto + critérios + restrições; precisa ser específica, investigável e relevante.
+* **Fontes confiáveis:** primárias (papers, documentação oficial) > secundárias (livros, benchmarks) > terciárias (blogs, notícias).
+* **Estado da arte:** o que já existe (acadêmico e mercado) e qual a lacuna a preencher.
+* **Arquitetura da solução:** desenho geral (dados → processamento → serviço → usuário) — não a infraestrutura física.
+* **Trade-offs e ética:** tabela de critérios, citação de fontes, LGPD e declaração de limitações.
+* **Entrega:** documento curto (1 página) com projeto, pergunta, fontes, alternativas e recomendação preliminar.
+
+#### Aula 22: Análise Crítica, Relatório e Apresentação da Pesquisa (Bloco 4 Teórico)
+* **Análise crítica:** avaliar origem, método e consistência de cada evidência.
+* **Vieses:** fornecedor, confirmação, cherry picking e generalização.
+* **Relatório:** problema → fundamentação → alternativas → decisão → limitações + referências.
+* **Narrativa:** cada afirmação rastreável a uma fonte; sem demo de código — o argumento é a estrela.
+* **O que a banca avalia:** formulação do problema, fundamentação, análise crítica, coerência da arquitetura e clareza da apresentação.
+* **Entrega:** relatório curto (2 a 3 páginas) + apresentação, com referências e recomendação final.

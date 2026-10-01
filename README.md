@@ -122,6 +122,15 @@ pip install -r requirements.txt
 | **23** | Apresentação e Análise dos Projetos (pitch, relatório) | [Apresentação](aulas/bloco4/aula23/apresentacao_aula23.html), [Atividade](aulas/bloco4/aula23/atividade.md), [Script](aulas/bloco4/aula23/scripts/relatorio_final.py), [Guia da Aula](aulas/bloco4/aula23/README.md) |
 | **24** | Conexão com o Projeto Integrador (mapeamento GPU) | [Apresentação](aulas/bloco4/aula24/apresentacao_aula24.html), [Atividade](aulas/bloco4/aula24/atividade.md), [Script](aulas/bloco4/aula24/scripts/mapear_conexoes_pi.py), [Guia da Aula](aulas/bloco4/aula24/README.md), [Projeto Integrador](aulas/projeto-integrador/README.md) |
 
+### Bloco 4 Teórico — Pesquisa Aplicada (Aulas 21 e 22, sem código)
+
+> 📑 [Índice do Bloco 4 Teórico](aulas/bloco4-teorico/README.md) — trilha teórica/sem código, **trabalho individual**, no estilo do Projeto Integrador. Cada aluno trabalha o **seu tema**; os 3 projetos de pesquisa de [`projetos-exemplo/`](aulas/bloco4/projetos-exemplo/README.md) (4 — Saúde, 5 — Energia, 6 — Agricultura) servem de **exemplo de estrutura**.
+
+| Aula | Tema | Recursos |
+| :---: | :--- | :--- |
+| **21** | Método de Pesquisa e Fundamentação da Arquitetura | [Apresentação](aulas/bloco4-teorico/aula21/apresentacao_aula21.html), [Atividade](aulas/bloco4-teorico/aula21/atividade.md), [Guia da Aula](aulas/bloco4-teorico/aula21/README.md) |
+| **22** | Análise Crítica, Relatório e Apresentação da Pesquisa | [Apresentação](aulas/bloco4-teorico/aula22/apresentacao_aula22.html), [Atividade](aulas/bloco4-teorico/aula22/atividade.md), [Guia da Aula](aulas/bloco4-teorico/aula22/README.md) |
+
 ---
 
 
@@ -178,6 +187,9 @@ senac-tecnico-ia/
 │   │   ├── README.md
 │   │   ├── aula20/ ... aula24/              → apresentação, atividade e 1 script de exemplo
 │   │   └── projetos-exemplo/                → 6 exemplos (3 de código + 3 de pesquisa)
+│   ├── bloco4-teorico/                      → Bloco 4 Teórico · Pesquisa (aulas 21–22, sem código)
+│   │   ├── README.md
+│   │   └── aula21/ ... aula22/              → apresentação, README e atividade (sem scripts)
 │   └── projeto-integrador/
 │       └── README.md                        → pesquisa (não exige código)
 ├── questionarios/

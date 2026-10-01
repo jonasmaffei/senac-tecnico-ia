@@ -17,6 +17,7 @@ aulas/
 ├── bloco2/                   Bloco 2 · Programação GPU        (aulas 07–13)
 ├── bloco3/                   Bloco 3 · Automação              (aulas 14–19)
 ├── bloco4/                   Bloco 4 · Projeto Final          (aulas 20–24)
+├── bloco4-teorico/           Bloco 4 · Pesquisa (sem código)  (aulas 21–22)
 └── projeto-integrador/       Trabalho de pesquisa da UC
 ```
 
@@ -78,6 +79,17 @@ script de exemplo por aula.
 | **24** | Conexão com o Projeto Integrador (mapeamento GPU, plano de ação) |
 
 📑 Índice completo: [`bloco4/README.md`](bloco4/README.md)
+
+## 🔬 Bloco 4 Teórico — Pesquisa Aplicada
+
+Trilha **teórica / sem código** (**trabalho individual**), dois dias de aula, no estilo do Projeto Integrador. Cada aluno trabalha o **seu tema**; os 3 projetos de pesquisa de [`bloco4/projetos-exemplo/`](bloco4/projetos-exemplo/README.md) (4 — Saúde, 5 — Energia, 6 — Agricultura) servem de **exemplo de estrutura**:
+
+| Aula | Tema |
+| :---: | :--- |
+| **21** | Método de Pesquisa e Fundamentação da Arquitetura |
+| **22** | Análise Crítica, Relatório e Apresentação da Pesquisa |
+
+📑 Índice completo: [`bloco4-teorico/README.md`](bloco4-teorico/README.md)
 
 ---
 
